@@ -605,43 +605,68 @@ select.form-input{cursor:pointer;}
       <div id="page-warehouse" class="page">
         <div class="page-header">
           <div>
-            <div class="page-title">Warehouse & Admin Schedule</div>
-            <div class="page-subtitle">Regular weekly volunteers — scheduled shifts</div>
+            <div class="page-title">Scheduled Volunteers</div>
+            <div class="page-subtitle">Regular weekly shifts — pulled live from database</div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">🏭 Warehouse Volunteers</div></div>
-          <div class="card-body" style="padding:0;">
-            <div class="table-wrap" style="border:none;border-radius:0;">
-              <table>
-                <thead><tr><th>Volunteer</th><th>Day</th><th>Shift</th><th>Type</th></tr></thead>
-                <tbody>
-                  <tr><td>Amy Taylor</td><td>Tuesday</td><td>9:00 AM – 12:00 PM</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
-                  <tr><td>Patti Gehring</td><td>Tuesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
-                  <tr><td>Steve Gehring</td><td>Tuesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
-                  <tr><td>Nancy Hughes</td><td>Tuesday/Thu</td><td>Various</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
-                  <tr><td>Kay Duke</td><td>Wednesday</td><td>10:00 AM – 12:00 PM</td><td><span class="badge badge-gray">Processing</span></td></tr>
-                  <tr><td>Mark Duke</td><td>Wednesday</td><td>10:00 AM – 12:00 PM</td><td><span class="badge badge-gray">Processing</span></td></tr>
-                  <tr><td>Barbara Preite</td><td>Wednesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
-                  <tr><td>David Sorensen</td><td>Thursday</td><td>9:00 AM – 12:00 PM</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
-                  <tr><td>Stacey Mast</td><td>Thursday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
-                  <tr><td>Scott Nichols</td><td>Varies</td><td>—</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
-                </tbody>
-              </table>
+
+        <!-- Section tabs -->
+        <div class="tab-bar" id="warehouseTabs">
+          <button class="tab-btn active" onclick="showWarehouseTab('warehouse',this)">🏭 Warehouse</button>
+          <button class="tab-btn" onclick="showWarehouseTab('processing',this)">⚙️ Processing</button>
+          <button class="tab-btn" onclick="showWarehouseTab('admin',this)">💼 Admin</button>
+        </div>
+
+        <!-- Warehouse tab -->
+        <div id="wtab-warehouse">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Warehouse Volunteers</div>
+              <div style="font-size:11px;color:var(--text-muted);">Edit a volunteer's profile to change their schedule</div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-wrap" style="border:none;border-radius:0;">
+                <table>
+                  <thead><tr><th>Volunteer</th><th>Day</th><th>Shift</th><th>Type</th><th>Hrs/Visit</th><th></th></tr></thead>
+                  <tbody id="warehouseScheduleBody"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</td></tr></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-        <div class="card" style="margin-top:16px;">
-          <div class="card-header"><div class="card-title">⚙️ Admin Volunteers</div></div>
-          <div class="card-body" style="padding:0;">
-            <div class="table-wrap" style="border:none;border-radius:0;">
-              <table>
-                <thead><tr><th>Volunteer</th><th>Role</th><th>Hours/Visit</th></tr></thead>
-                <tbody>
-                  <tr><td>Cassidee Bowen</td><td><span class="badge" style="background:#fdf4ff;color:#7e22ce;">Admin</span></td><td>3 hrs</td></tr>
-                  <tr><td>Nancy Hughes</td><td><span class="badge" style="background:#fdf4ff;color:#7e22ce;">Admin / Warehouse PM</span></td><td>2–3 hrs</td></tr>
-                </tbody>
-              </table>
+
+        <!-- Processing tab -->
+        <div id="wtab-processing" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Processing Volunteers</div>
+              <div style="font-size:11px;color:var(--text-muted);">Edit a volunteer's profile to change their schedule</div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-wrap" style="border:none;border-radius:0;">
+                <table>
+                  <thead><tr><th>Volunteer</th><th>Day</th><th>Shift</th><th>Type</th><th>Hrs/Visit</th><th></th></tr></thead>
+                  <tbody id="processingScheduleBody"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin tab -->
+        <div id="wtab-admin" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Admin Volunteers</div>
+              <div style="font-size:11px;color:var(--text-muted);">Edit a volunteer's profile to change their schedule</div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-wrap" style="border:none;border-radius:0;">
+                <table>
+                  <thead><tr><th>Volunteer</th><th>Day</th><th>Shift</th><th>Type</th><th>Hrs/Visit</th><th></th></tr></thead>
+                  <tbody id="adminScheduleBody"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</td></tr></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -900,6 +925,15 @@ select.form-input{cursor:pointer;}
         <div id="editTypeCheckboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);"></div>
         <div style="font-size:11px;color:var(--text-faint);margin-top:4px;">Check all that apply — each type has its own auto-credited hours</div>
       </div>
+      <hr class="divider">
+      <div class="form-row">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <label class="form-label" style="margin:0;">Weekly Schedule</label>
+          <button class="btn btn-sm" onclick="addScheduleRow()" type="button">+ Add Shift</button>
+        </div>
+        <div id="editScheduleRows" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">For volunteers who come in on a regular schedule (Warehouse, Processing, Admin). Leave empty for pack hosts and drivers.</div>
+      </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
         <button class="btn" onclick="closeModal('editVolModal')">Cancel</button>
         <button class="btn btn-primary" onclick="saveEditVolunteer()">Save Changes</button>
@@ -969,7 +1003,7 @@ function showPage(id, el){
   if(id==='reports') loadReports();
   if(id==='signin') loadSignInPage();
   if(id==='delivery') loadDeliveryPage();
-  if(id==='warehouse') {} // static for now
+  if(id==='warehouse') loadWarehousePage();
 }
 
 // ============================================================
@@ -1499,6 +1533,8 @@ function openEditVolunteer(id){
 
   closeModal('volModal');
   openModal('editVolModal');
+  // Load schedule rows async
+  loadEditSchedule(id);
 }
 
 async function saveEditVolunteer(){
@@ -1535,6 +1571,9 @@ async function saveEditVolunteer(){
         is_primary:i===0
       },'return=minimal');
     }
+
+    // Save schedule rows
+    await saveScheduleRows(id);
 
     closeModal('editVolModal');
     showToast('✓ Volunteer updated!');
@@ -1873,8 +1912,163 @@ async function acknowledgeMilestone(volId, milestone, btn){
 }
 
 // ============================================================
-// DELIVERY PAGE
+// WAREHOUSE / SCHEDULED VOLUNTEERS PAGE
 // ============================================================
+const STANDARD_SHIFTS = [
+  '9:00 AM – 12:00 PM',
+  '10:00 AM – 12:00 PM',
+  '12:00 PM – 2:00 PM',
+  '2:00 PM – 4:00 PM',
+  '5:00 PM – 8:00 PM',
+  'Custom'
+];
+const DAYS_OF_WEEK = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const SCHEDULED_TYPES = ['Warehouse AM','Warehouse PM','Processing','Admin'];
+
+function showWarehouseTab(tab, btn){
+  ['warehouse','processing','admin'].forEach(t=>{
+    document.getElementById('wtab-'+t).style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('#warehouseTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+async function loadWarehousePage(){
+  try {
+    const schedules = await sbGet('volunteer_schedules',
+      'select=*,volunteers(id,name),volunteer_types(id,name,hours_per_signin)&order=day_of_week.asc,shift_time.asc'
+    );
+    const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    const sorted = [...schedules].sort((a,b)=>dayOrder.indexOf(a.day_of_week)-dayOrder.indexOf(b.day_of_week));
+
+    const warehouseTypes = ['Warehouse AM','Warehouse PM'];
+    const processingTypes = ['Processing'];
+    const adminTypes = ['Admin'];
+
+    renderScheduleTable('warehouseScheduleBody', sorted.filter(s=>warehouseTypes.includes(s.volunteer_types?.name)));
+    renderScheduleTable('processingScheduleBody', sorted.filter(s=>processingTypes.includes(s.volunteer_types?.name)));
+    renderScheduleTable('adminScheduleBody', sorted.filter(s=>adminTypes.includes(s.volunteer_types?.name)));
+  } catch(e){ console.error(e); }
+}
+
+function renderScheduleTable(bodyId, rows){
+  const tbody = document.getElementById(bodyId);
+  if(!rows.length){
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);">No volunteers scheduled — add via Edit Profile</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(s=>{
+    const v = s.volunteers;
+    const t = s.volunteer_types;
+    const grad = _volunteers.find(x=>x.id===v?.id) ? typeGradient(_volunteers.find(x=>x.id===v?.id).types||[]) : '#888';
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="list-avatar" style="background:${grad};">${avatarInitials(v?.name||'?')}</div>
+          <span style="font-weight:600;">${v?.name||'Unknown'}</span>
+        </div>
+      </td>
+      <td><strong>${s.day_of_week}</strong></td>
+      <td>${s.shift_time}</td>
+      <td><span class="badge ${typeClass(t?.name||'')}">${t?.name||'—'}</span></td>
+      <td>${t?.hours_per_signin||'—'} hrs</td>
+      <td>
+        <button class="btn btn-sm btn-ghost" onclick="openEditVolunteer('${v?.id}')">Edit</button>
+        <button class="btn btn-sm btn-ghost" style="color:var(--red-text);" onclick="deleteScheduleRow('${s.id}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteScheduleRow(id){
+  if(!confirm('Remove this scheduled shift?')) return;
+  try {
+    await sbDelete('volunteer_schedules','id=eq.'+id);
+    showToast('✓ Shift removed');
+    loadWarehousePage();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+// Schedule rows inside edit modal
+let _editScheduleData = []; // current schedule rows being edited
+
+async function loadEditSchedule(volId){
+  _editScheduleData = [];
+  try {
+    const rows = await sbGet('volunteer_schedules',`volunteer_id=eq.${volId}&select=*,volunteer_types(id,name)&order=day_of_week.asc`);
+    _editScheduleData = rows.map(r=>({id:r.id, type_id:r.type_id, day:r.day_of_week, shift:r.shift_time, isNew:false}));
+  } catch(e){}
+  renderScheduleRows();
+}
+
+function renderScheduleRows(){
+  const container = document.getElementById('editScheduleRows');
+  if(!_editScheduleData.length){
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-faint);padding:8px 0;">No regular schedule assigned</div>';
+    return;
+  }
+  container.innerHTML = _editScheduleData.map((row,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;background:var(--bg);padding:8px;border-radius:8px;border:1px solid var(--border);">
+      <select class="form-input" style="font-size:12px;padding:6px 8px;" onchange="updateScheduleRow(${i},'day',this.value)">
+        ${DAYS_OF_WEEK.map(d=>`<option ${row.day===d?'selected':''}>${d}</option>`).join('')}
+      </select>
+      <select class="form-input" style="font-size:12px;padding:6px 8px;" onchange="handleShiftChange(${i},this)">
+        ${STANDARD_SHIFTS.map(s=>`<option ${row.shift===s?'selected':''}>${s}</option>`).join('')}
+        ${!STANDARD_SHIFTS.includes(row.shift)?`<option selected>${row.shift}</option>`:''}
+      </select>
+      <input type="text" class="form-input" id="customShift_${i}" placeholder="e.g. 1:00 PM – 3:00 PM"
+        style="font-size:12px;padding:6px 8px;display:${STANDARD_SHIFTS.slice(0,-1).includes(row.shift)?'none':'block'};"
+        value="${STANDARD_SHIFTS.slice(0,-1).includes(row.shift)?'':row.shift}"
+        oninput="updateScheduleRow(${i},'shift',this.value)">
+      <button type="button" onclick="removeScheduleRow(${i})" style="background:none;border:none;color:var(--red-text);cursor:pointer;font-size:16px;padding:0 4px;">✕</button>
+    </div>`).join('');
+}
+
+function handleShiftChange(i, sel){
+  if(sel.value==='Custom'){
+    document.getElementById('customShift_'+i).style.display='block';
+    document.getElementById('customShift_'+i).focus();
+    _editScheduleData[i].shift = '';
+  } else {
+    document.getElementById('customShift_'+i).style.display='none';
+    _editScheduleData[i].shift = sel.value;
+  }
+}
+
+function updateScheduleRow(i, field, value){
+  _editScheduleData[i][field] = value;
+}
+
+function addScheduleRow(){
+  _editScheduleData.push({id:null, type_id:null, day:'Monday', shift:'9:00 AM – 12:00 PM', isNew:true});
+  renderScheduleRows();
+}
+
+function removeScheduleRow(i){
+  _editScheduleData.splice(i,1);
+  renderScheduleRows();
+}
+
+async function saveScheduleRows(volId){
+  // Delete all existing schedule rows for this volunteer, then re-insert
+  await sbDelete('volunteer_schedules','volunteer_id=eq.'+volId);
+  const volData = _volunteers.find(x=>x.id===volId);
+  const selectedTypeIds = _types.filter(t=>document.getElementById('editType_'+t.id)?.checked).map(t=>t.id);
+
+  for(const row of _editScheduleData){
+    const shift = row.shift || document.getElementById('customShift_'+_editScheduleData.indexOf(row))?.value || '';
+    if(!shift) continue;
+    // Use first selected scheduled type, or the volunteer's first type
+    const typeId = selectedTypeIds[0] || row.type_id;
+    if(!typeId) continue;
+    await sbPost('volunteer_schedules',{
+      volunteer_id:volId,
+      type_id:typeId,
+      day_of_week:row.day,
+      shift_time:shift
+    },'return=minimal');
+  }
+}
 function loadDeliveryPage(){
   const now = new Date();
   const mon = new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7));
