@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volunteer Hub — USANA Kids Eat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:       #D97706;
+  --primary-dark:  #B45309;
+  --primary-light: #FEF3C7;
+  --primary-text:  #78350F;
+  --amber: #EF9F27; --amber-light: #FAEEDA; --amber-text: #854F0B;
+  --red:   #E24B4A; --red-light:   #FCEBEB; --red-text:   #A32D2D;
+  --blue:  #378ADD; --blue-light:  #E6F1FB; --blue-text:  #0C447C;
+  --green: #2a9d9a; --green-light: #e8fafa; --green-dark: #1a6b69;
+  --purple:#7C3AED; --purple-light:#EDE9FE; --purple-text:#4C1D95;
+  --bg:      #fffbf2;
+  --surface: #FFFFFF;
+  --border:  rgba(180,83,9,0.13);
+  --text:       #1a1208;
+  --text-muted: #6b5b3e;
+  --text-faint: #a89070;
+  --radius: 14px;
+  --shadow-sm: 0 1px 3px rgba(120,53,15,0.06);
+  --shadow:    0 2px 8px rgba(120,53,15,0.08);
+  --shadow-lg: 0 8px 28px rgba(120,53,15,0.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Inter",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-0.005em;}
+
+/* LAYOUT */
+.app-shell{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.goal-banner{background:linear-gradient(90deg,var(--primary-light),rgba(254,243,199,0.4) 60%,transparent);border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:8px;font-family:'Caveat',cursive;font-size:17px;color:var(--primary-dark);font-weight:500;flex-shrink:0;}
+.goal-banner svg{flex-shrink:0;color:var(--primary);}
+.main-layout{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:210px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar-logo{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
+.sidebar-logo .app-name{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.02em;}
+.sidebar-logo .app-sub{font-size:11px;color:var(--text-faint);margin-top:1px;}
+.nav-section{padding:10px 8px 4px;font-size:10px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .12s;font-size:13px;font-weight:500;color:var(--text-muted);margin:1px 6px;}
+.nav-item:hover{background:var(--primary-light);color:var(--primary-dark);}
+.nav-item.active{background:var(--primary-light);color:var(--primary-dark);font-weight:600;}
+.nav-item svg{flex-shrink:0;opacity:.7;}
+.nav-item.active svg{opacity:1;}
+.content{flex:1;overflow-y:auto;padding:20px 24px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* TOP BAR */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.page-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.02em;}
+.page-subtitle{font-size:12px;color:var(--text-muted);margin-top:1px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.card-header{padding:14px 18px 0;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em;}
+.card-body{padding:14px 18px;}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow-sm);}
+.metric-label{font-size:10px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.metric-label::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary);}
+.metric-label.green::before{background:var(--green);}
+.metric-label.blue::before{background:var(--blue);}
+.metric-label.red::before{background:var(--red);}
+.metric-label.purple::before{background:var(--purple);}
+.metric-value{font-size:28px;font-weight:700;letter-spacing:-0.03em;color:var(--text);}
+.metric-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* BUTTONS */
+.btn{font-family:inherit;font-size:13px;font-weight:500;padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--bg);}
+.btn-sm{padding:4px 10px;font-size:12px;}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 6px rgba(180,83,9,0.25);}
+.btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 10px rgba(180,83,9,0.3);}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text-muted);}
+.btn-ghost:hover{background:var(--primary-light);color:var(--primary-dark);border-color:transparent;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.badge-amber{background:var(--amber-light);color:var(--amber-text);}
+.badge-red{background:var(--red-light);color:var(--red-text);}
+.badge-blue{background:var(--blue-light);color:var(--blue-text);}
+.badge-green{background:var(--green-light);color:var(--green-dark);}
+.badge-purple{background:var(--purple-light);color:var(--purple-text);}
+.badge-primary{background:var(--primary-light);color:var(--primary-text);}
+.badge-gray{background:#f1f0ee;color:var(--text-muted);}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+thead th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(180,83,9,0.06);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:nth-child(even){background:rgba(254,243,199,0.25);}
+tbody tr:hover{background:var(--primary-light);}
+
+/* FORMS */
+.form-row{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:5px;display:block;}
+.form-input{width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;outline:none;background:#fff;transition:border-color .15s;color:var(--text);}
+.form-input:focus{border-color:var(--primary);}
+select.form-input{cursor:pointer;}
+
+/* FILTERS */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .12s;}
+.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.filter-btn:hover:not(.active){background:var(--primary-light);color:var(--primary-dark);}
+
+/* SEARCH */
+.search-input{font-family:inherit;font-size:13px;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;width:240px;}
+.search-input:focus{border-color:var(--primary);}
+.search-wrap{position:relative;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-faint);}
+
+/* VOLUNTEER CARDS */
+.vol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.vol-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s,border-color .15s;cursor:pointer;}
+.vol-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--primary);}
+.vol-card-photo{width:100%;aspect-ratio:1;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--primary);overflow:hidden;}
+.vol-card-photo img{width:100%;height:100%;object-fit:cover;}
+.vol-card-body{padding:10px 12px 12px;}
+.vol-card-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vol-card-types{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px;}
+.vol-card-info{font-size:11px;color:var(--text-muted);line-height:1.5;}
+.vol-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.vol-card-hours{font-size:12px;font-weight:700;color:var(--text);}
+.vol-level{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+
+/* DASHBOARD THIS WEEK */
+.week-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:20px;}
+.week-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;}
+.week-card-head{padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.week-card-title{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;}
+.week-card-body{padding:12px 16px;}
+.week-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(180,83,9,0.06);}
+.week-row:last-child{border-bottom:none;}
+.week-row-label{font-size:12px;color:var(--text-muted);font-weight:500;}
+.week-row-val{font-size:12px;font-weight:600;color:var(--text);}
+.slot-filled{color:var(--green-dark);}
+.slot-open{color:var(--red-text);font-style:italic;}
+
+/* MILESTONE PROGRESS */
+.milestone-bar-wrap{background:var(--bg);border-radius:6px;height:6px;overflow:hidden;margin-top:4px;}
+.milestone-bar{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--primary),var(--primary-dark));transition:width .4s ease;}
+
+/* BIRTHDAY CARD */
+.birthday-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(180,83,9,0.06);}
+.birthday-item:last-child{border-bottom:none;}
+.birthday-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--primary-dark);flex-shrink:0;}
+.birthday-name{font-size:13px;font-weight:600;color:var(--text);}
+.birthday-date{font-size:11px;color:var(--text-muted);}
+
+/* VOLUNTEER PROFILE MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius);max-width:540px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);}
+.modal-close{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-faint);background:none;border:none;font-size:18px;transition:all .12s;}
+.modal-close:hover{background:var(--bg);color:var(--text);}
+.modal-body{padding:20px;}
+.vol-profile-top{display:flex;gap:16px;margin-bottom:20px;}
+.vol-profile-photo{width:80px;height:80px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--primary);flex-shrink:0;overflow:hidden;}
+.vol-profile-photo img{width:100%;height:100%;object-fit:cover;}
+.vol-profile-info{flex:1;}
+.vol-profile-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.vol-profile-types{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.info-item label{font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px;}
+.info-item span{font-size:13px;color:var(--text);}
+.hours-section{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;}
+.hours-big{font-size:32px;font-weight:700;letter-spacing:-0.03em;color:var(--text);}
+.hours-label{font-size:11px;color:var(--text-muted);margin-bottom:6px;}
+.sign-in-history{margin-top:8px;}
+.sign-in-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid rgba(180,83,9,0.06);}
+.sign-in-row:last-child{border-bottom:none;}
+
+/* PACK SCHEDULE */
+.pack-month-grid{display:grid;gap:10px;}
+.pack-event-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow-sm);transition:all .15s;}
+.pack-event-card:hover{box-shadow:var(--shadow);border-color:var(--primary);}
+.pack-date-block{text-align:center;min-width:44px;flex-shrink:0;}
+.pack-date-day{font-size:20px;font-weight:700;color:var(--text);line-height:1;}
+.pack-date-mon{font-size:10px;font-weight:600;color:var(--text-faint);text-transform:uppercase;}
+.pack-event-info{flex:1;}
+.pack-event-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.pack-event-meta{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
+.pack-slots{display:flex;gap:6px;flex-wrap:wrap;}
+.pack-slot{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;}
+.pack-slot.filled{background:var(--green-light);color:var(--green-dark);}
+.pack-slot.open{background:var(--red-light);color:var(--red-text);}
+.pack-event-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:200;transform:translateY(20px);opacity:0;transition:all .25s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* SIGN IN PAGE */
+.signin-wrap{max-width:440px;margin:0 auto;padding:20px 0;}
+.signin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);}
+.signin-header{text-align:center;margin-bottom:24px;}
+.signin-icon{width:56px;height:56px;background:var(--primary-light);border-radius:14px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;}
+.signin-title{font-size:20px;font-weight:700;color:var(--text);}
+.signin-sub{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.confirm-wrap{text-align:center;padding:20px 0;}
+.confirm-icon{width:60px;height:60px;background:var(--green-light);border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;}
+.confirm-name{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.confirm-hours{font-size:15px;color:var(--green-dark);font-weight:600;margin-bottom:16px;}
+.confirm-detail{font-size:13px;color:var(--text-muted);}
+
+/* EMPTY STATE */
+.empty-state{background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);padding:40px 24px;text-align:center;color:var(--text-muted);font-size:13px;}
+.empty-icon{font-size:32px;margin-bottom:10px;}
+
+/* VIEW TOGGLE */
+.view-toggle{display:flex;background:var(--bg);border-radius:8px;padding:2px;border:1px solid var(--border);}
+.view-toggle-btn{padding:5px 12px;border-radius:6px;border:none;background:none;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:5px;}
+.view-toggle-btn.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow-sm);}
+
+/* MOBILE */
+.mobile-nav{display:none;background:var(--surface);border-top:1px solid var(--border);padding:8px 0;position:fixed;bottom:0;left:0;right:0;z-index:50;}
+.mobile-nav-items{display:flex;justify-content:space-around;}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer;color:var(--text-faint);font-size:10px;font-weight:500;border-radius:8px;transition:all .12s;}
+.mobile-nav-item.active{color:var(--primary-dark);}
+.mobile-nav-item svg{width:20px;height:20px;}
+
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .mobile-nav{display:block;}
+  .content{padding:14px 14px 80px;}
+  .vol-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .search-input{width:100%;}
+  .week-grid{grid-template-columns:1fr;}
+  .metrics-grid{grid-template-columns:repeat(2,1fr);}
+  .info-grid{grid-template-columns:1fr;}
+  .page-header{flex-direction:column;align-items:flex-start;}
+  table{font-size:12px;}
+  thead th,tbody td{padding:8px 10px;}
+}
+@media(min-width:769px){
+  .mobile-menu-btn{display:none;}
+}
+
+/* TYPE BADGE COLORS */
+.type-delivery-driver{background:#fee2e2;color:#991b1b;}
+.type-delivery-assistant{background:var(--amber-light);color:var(--amber-text);}
+.type-warehouse-am,.type-warehouse-pm{background:var(--green-light);color:var(--green-dark);}
+.type-pack-host{background:var(--blue-light);color:var(--blue-text);}
+.type-pack-host-lead{background:var(--purple-light);color:var(--purple-text);}
+.type-pack-host-wed-night{background:#e0f2fe;color:#0369a1;}
+.type-processing{background:#f3f4f6;color:#374151;}
+.type-admin{background:#fdf4ff;color:#7e22ce;}
+
+/* LEVEL COLORS */
+.level-seedling{background:#dcfce7;color:#166534;}
+.level-rising{background:var(--blue-light);color:var(--blue-text);}
+.level-anchor{background:var(--amber-light);color:var(--amber-text);}
+.level-pillar{background:var(--purple-light);color:var(--purple-text);}
+.level-champion{background:#fce7f3;color:#9d174d;}
+.level-legend{background:#fee2e2;color:#991b1b;}
+.level-icon{background:linear-gradient(135deg,#fef08a,#fbbf24);color:#78350F;}
+
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- GOAL BANNER -->
+  <div class="goal-banner">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8z"/><path d="M8 4a.75.75 0 01.75.75v3.5l2.25 1.3a.75.75 0 01-.75 1.3l-2.75-1.6A.75.75 0 017.25 8.6V4.75A.75.75 0 018 4z"/></svg>
+    No child should ever go hungry — and our volunteers make sure of it.
+  </div>
+
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <div class="app-name">🎒 Volunteer Hub</div>
+        <div class="app-sub">USANA Kids Eat</div>
+      </div>
+      <div style="padding:8px 6px;flex:1;">
+        <div class="nav-section">Main</div>
+        <div class="nav-item active" onclick="showPage('dashboard',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('volunteers',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Volunteers
+        </div>
+        <div class="nav-section">Schedule</div>
+        <div class="nav-item" onclick="showPage('packs',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Pack Schedule
+        </div>
+        <div class="nav-item" onclick="showPage('delivery',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Deliveries
+        </div>
+        <div class="nav-section">Admin</div>
+        <div class="nav-item" onclick="showPage('signin',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Sign-In
+        </div>
+        <div class="nav-item" onclick="showPage('reports',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Reports
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="content" id="mainContent">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="dashGreeting">Good morning 👋</div>
+            <div class="page-subtitle" id="dashDate">Loading...</div>
+          </div>
+          <button class="btn btn-primary" onclick="showPage('signin',document.querySelector('[onclick*=signin]'))">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Sign In Volunteer
+          </button>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid" id="dashMetrics">
+          <div class="metric"><div class="metric-label">Active Volunteers</div><div class="metric-value" id="metricActive">—</div></div>
+          <div class="metric"><div class="metric-label green">Hours This Month</div><div class="metric-value" id="metricHours">—</div></div>
+          <div class="metric"><div class="metric-label blue">Packs This Month</div><div class="metric-value" id="metricPacks">—</div></div>
+          <div class="metric"><div class="metric-label purple">Sign-Ins Today</div><div class="metric-value" id="metricToday">—</div></div>
+        </div>
+
+        <!-- This week -->
+        <div style="margin-bottom:8px;"><span style="font-size:13px;font-weight:700;color:var(--text);">This Week</span> <span id="weekRange" style="font-size:12px;color:var(--text-muted);margin-left:6px;"></span></div>
+        <div class="week-grid">
+          <!-- Birthdays -->
+          <div class="week-card">
+            <div class="week-card-head">
+              <div class="week-card-title">🎂 Birthdays This Week</div>
+            </div>
+            <div class="week-card-body" id="birthdayList"><div class="empty-state" style="padding:16px;border:none;"><div class="empty-icon">🎉</div>No birthdays this week</div></div>
+          </div>
+
+          <!-- Packs this week -->
+          <div class="week-card">
+            <div class="week-card-head">
+              <div class="week-card-title">📦 Packs This Week</div>
+              <button class="btn btn-sm" onclick="showPage('packs',document.querySelector('[onclick*=packs]'))">View All</button>
+            </div>
+            <div class="week-card-body" id="weekPackList"><div style="color:var(--text-muted);font-size:12px;">No packs scheduled this week</div></div>
+          </div>
+
+          <!-- Deliveries this week -->
+          <div class="week-card">
+            <div class="week-card-head">
+              <div class="week-card-title">🚚 Deliveries This Week</div>
+            </div>
+            <div class="week-card-body" id="weekDeliveryList">
+              <div id="deliveryThisWeek"></div>
+            </div>
+          </div>
+
+          <!-- Milestones -->
+          <div class="week-card">
+            <div class="week-card-head">
+              <div class="week-card-title">🏆 Recent Milestones</div>
+            </div>
+            <div class="week-card-body" id="milestoneList"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
+          </div>
+        </div>
+
+        <!-- Recent sign-ins -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div class="card-title">Recent Sign-Ins</div>
+            <button class="btn btn-sm btn-ghost" onclick="showPage('reports',document.querySelector('[onclick*=reports]'))">Full Report →</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table id="recentSignIns">
+                <thead><tr><th>Volunteer</th><th>Type</th><th>Date</th><th>Hours</th></tr></thead>
+                <tbody id="recentSignInsBody"><tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VOLUNTEERS -->
+      <div id="page-volunteers" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Volunteers</div>
+            <div class="page-subtitle" id="volCount">Loading...</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="view-toggle">
+              <button class="view-toggle-btn active" id="btnCardView" onclick="setVolView('card')">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1V2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H7a1 1 0 01-1-1V2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V2zM1 7a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1V7zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H7a1 1 0 01-1-1V7zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V7zM1 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1v-2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H7a1 1 0 01-1-1v-2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z"/></svg>
+                Cards
+              </button>
+              <button class="view-toggle-btn" id="btnListView" onclick="setVolView('list')">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5z"/></svg>
+                List
+              </button>
+            </div>
+            <button class="btn btn-primary" onclick="openAddVolunteer()">+ Add Volunteer</button>
+          </div>
+        </div>
+
+        <!-- Search & Filters -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+          <div class="search-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" class="search-input" id="volSearch" placeholder="Search volunteers..." oninput="filterVols()">
+          </div>
+        </div>
+        <div class="filter-row" id="volFilters">
+          <button class="filter-btn active" onclick="setVolFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setVolFilter('Active',this)">Active</button>
+          <button class="filter-btn" onclick="setVolFilter('Inactive',this)">Inactive</button>
+          <button class="filter-btn" onclick="setVolFilter('Delivery Driver',this)">Drivers</button>
+          <button class="filter-btn" onclick="setVolFilter('Delivery Assistant',this)">Assistants</button>
+          <button class="filter-btn" onclick="setVolFilter('Warehouse',this)">Warehouse</button>
+          <button class="filter-btn" onclick="setVolFilter('Pack Host',this)">Pack Hosts</button>
+          <button class="filter-btn" onclick="setVolFilter('Pack Host Lead',this)">Pack Leads</button>
+        </div>
+
+        <!-- Card View -->
+        <div class="vol-grid" id="volCardGrid"></div>
+
+        <!-- List View -->
+        <div id="volListView" style="display:none;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Lifetime Hrs</th><th>Level</th><th>Phone</th><th></th></tr></thead>
+              <tbody id="volListBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PACK SCHEDULE -->
+      <div id="page-packs" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Pack Schedule</div>
+            <div class="page-subtitle" id="packMonthLabel">Loading...</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn" onclick="changePackMonth(-1)">← Prev</button>
+            <button class="btn" onclick="changePackMonth(0)">Today</button>
+            <button class="btn" onclick="changePackMonth(1)">Next →</button>
+            <button class="btn btn-primary" onclick="openAddPack()">+ Add Pack Event</button>
+          </div>
+        </div>
+        <div id="packList" class="pack-month-grid"></div>
+      </div>
+
+      <!-- DELIVERY SCHEDULE -->
+      <div id="page-delivery" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Delivery Schedule</div>
+            <div class="page-subtitle">Weekly delivery rotation — Mon, Tue, Wed</div>
+          </div>
+        </div>
+
+        <div class="metrics-grid" style="max-width:600px;">
+          <div class="metric"><div class="metric-label">Mon Driver</div><div style="font-size:16px;font-weight:700;margin-top:4px;">Randy Crebs</div><div class="metric-sub">Every Monday</div></div>
+          <div class="metric"><div class="metric-label">Tue Driver</div><div style="font-size:16px;font-weight:700;margin-top:4px;">Brandi Savage</div><div class="metric-sub">Every Tuesday</div></div>
+          <div class="metric"><div class="metric-label">Wed Driver</div><div style="font-size:16px;font-weight:700;margin-top:4px;">Dennis Aardema</div><div class="metric-sub">Every Wednesday</div></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header" style="padding:16px 18px;">
+            <div class="card-title">Weekly Assistant Rotation</div>
+            <div style="font-size:12px;color:var(--text-muted)" id="delivWeekLabel"></div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table>
+                <thead><tr><th>Week</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Week 1</strong></td>
+                    <td><span class="badge badge-green">Dennis Aardema</span></td>
+                    <td><span style="font-size:12px;">Gerald Brady <em>or</em> Lorin Wyatt</span></td>
+                    <td><span style="font-size:12px;">Jessica Densley <em>or</em> Michelle Wilcock</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Week 2</strong></td>
+                    <td><span class="badge badge-green">Dennis Aardema</span></td>
+                    <td><span style="font-size:12px;">Laura Beristain</span></td>
+                    <td><span class="badge badge-gray">Brian Paul (staff)</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Week 3</strong></td>
+                    <td><span class="badge badge-green">Dennis Aardema</span></td>
+                    <td><span style="font-size:12px;">Samantha <em>or</em> Laura Beristain</span></td>
+                    <td><span style="font-size:12px;">Shelli Baxter <em>or</em> Suzanne Houghton</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Week 4</strong></td>
+                    <td><span class="badge badge-green">Dennis Aardema</span></td>
+                    <td><span style="font-size:12px;">Jaymee Brown <em>or</em> Candy Allen</span></td>
+                    <td><span style="font-size:12px;">Mike Sessions <em>or</em> HR Team</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Availability request generator -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div class="card-title">📲 Generate Availability Request</div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="form-row" style="margin:0;">
+                <label class="form-label">Day</label>
+                <select class="form-input" id="availDay" style="width:140px;">
+                  <option>Tuesday</option>
+                  <option>Wednesday</option>
+                </select>
+              </div>
+              <div class="form-row" style="margin:0;">
+                <label class="form-label">Delivery Date</label>
+                <input type="date" class="form-input" id="availDate" style="width:180px;">
+              </div>
+              <button class="btn btn-primary" onclick="generateAvailMsg()">Generate Message</button>
+            </div>
+            <div id="availMsgBox" style="display:none;margin-top:16px;">
+              <div style="background:var(--bg);border-radius:10px;padding:14px;font-size:13px;color:var(--text);border:1px solid var(--border);white-space:pre-wrap;" id="availMsgText"></div>
+              <button class="btn btn-primary" style="margin-top:10px;" onclick="copyAvailMsg()">📋 Copy Message</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warehouse schedule -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div class="card-title">🏭 Warehouse Schedule</div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table>
+                <thead><tr><th>Volunteer</th><th>Day</th><th>Shift</th><th>Type</th></tr></thead>
+                <tbody>
+                  <tr><td>Amy Taylor</td><td>Tuesday</td><td>9:00 AM – 12:00 PM</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
+                  <tr><td>Patti Gehring</td><td>Tuesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
+                  <tr><td>Steve Gehring</td><td>Tuesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
+                  <tr><td>Kay Duke</td><td>Wednesday</td><td>10:00 AM – 12:00 PM</td><td><span class="badge badge-gray">Processing</span></td></tr>
+                  <tr><td>Mark Duke</td><td>Wednesday</td><td>10:00 AM – 12:00 PM</td><td><span class="badge badge-gray">Processing</span></td></tr>
+                  <tr><td>Barbara Preite</td><td>Wednesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
+                  <tr><td>David Sorensen</td><td>Thursday</td><td>9:00 AM – 12:00 PM</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
+                  <tr><td>Stacey Mast</td><td>Thursday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIGN IN PAGE -->
+      <div id="page-signin" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Volunteer Sign-In</div>
+            <div class="page-subtitle">QR code links here — volunteers sign in and hours are auto-credited</div>
+          </div>
+          <button class="btn" onclick="printQR()">🖨 Print QR Code</button>
+        </div>
+
+        <div class="signin-wrap">
+          <!-- Step 1: Select name -->
+          <div id="siStep1" class="signin-card">
+            <div class="signin-header">
+              <div class="signin-icon">
+                <svg width="26" height="26" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <div class="signin-title">Welcome!</div>
+              <div class="signin-sub">Select your name to sign in</div>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Your Name</label>
+              <select class="form-input" id="siName" style="font-size:18px;height:52px;" onchange="siNameSelected()">
+                <option value="">— choose your name —</option>
+              </select>
+            </div>
+            <div id="siTypeRow" style="display:none;" class="form-row">
+              <label class="form-label">Signing in as</label>
+              <select class="form-input" id="siType" style="font-size:18px;height:52px;"></select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;margin-top:8px;" onclick="submitSignIn()">Sign In →</button>
+          </div>
+
+          <!-- Confirmation -->
+          <div id="siConfirm" style="display:none;" class="signin-card">
+            <div class="confirm-wrap">
+              <div class="confirm-icon">
+                <svg width="28" height="28" fill="none" stroke="var(--green-dark)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="confirm-name" id="siConfirmName">—</div>
+              <div class="confirm-hours" id="siConfirmHours">—</div>
+              <div class="confirm-detail" id="siConfirmDetail">—</div>
+              <div style="margin-top:20px;padding:14px;background:var(--bg);border-radius:10px;">
+                <div style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Lifetime Hours</div>
+                <div style="font-size:28px;font-weight:700;color:var(--text);" id="siLifetimeHours">—</div>
+                <div style="font-size:12px;font-weight:600;margin-top:4px;" id="siLevel">—</div>
+              </div>
+              <button class="btn" style="margin-top:20px;width:100%;" onclick="resetSignIn()">Sign In Another Volunteer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="page-reports" class="page">
+        <div class="page-header">
+          <div class="page-title">Reports</div>
+          <div style="display:flex;gap:8px;">
+            <select class="form-input" id="reportPeriod" style="width:160px;" onchange="loadReports()">
+              <option value="month">This Month</option>
+              <option value="quarter">This Quarter</option>
+              <option value="year">This Year</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="metrics-grid" style="margin-bottom:20px;">
+          <div class="metric"><div class="metric-label">Total Hours</div><div class="metric-value" id="rptHours">—</div></div>
+          <div class="metric"><div class="metric-label green">Sign-Ins</div><div class="metric-value" id="rptSignIns">—</div></div>
+          <div class="metric"><div class="metric-label blue">Active Vols</div><div class="metric-value" id="rptActive">—</div></div>
+          <div class="metric"><div class="metric-label purple">Milestones</div><div class="metric-value" id="rptMilestones">—</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap;">
+          <!-- Top volunteers -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">🏅 Top Volunteers by Hours</div></div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-wrap" style="border:none;border-radius:0;">
+                <table><thead><tr><th>#</th><th>Volunteer</th><th>Lifetime Hrs</th><th>Level</th></tr></thead>
+                <tbody id="rptTopVols"></tbody></table>
+              </div>
+            </div>
+          </div>
+          <!-- Milestone tracker -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">🎯 Close to Next Milestone</div></div>
+            <div class="card-body" id="rptMilestoneTracker"></div>
+          </div>
+        </div>
+
+        <!-- Birthday list -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div class="card-title">🎂 Birthday List</div>
+            <select class="form-input" id="bdayMonth" style="width:140px;" onchange="loadBirthdays()">
+              <option value="0">All Months</option>
+              <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+              <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+              <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+              <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+            </select>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table><thead><tr><th>Volunteer</th><th>Birthday</th><th>Type</th></tr></thead>
+              <tbody id="rptBirthdays"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-items">
+      <div class="mobile-nav-item active" onclick="showPage('dashboard',this)" id="mnav-dashboard">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Home
+      </div>
+      <div class="mobile-nav-item" onclick="showPage('volunteers',this)" id="mnav-volunteers">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Volunteers
+      </div>
+      <div class="mobile-nav-item" onclick="showPage('signin',this)" id="mnav-signin">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </div>
+      <div class="mobile-nav-item" onclick="showPage('packs',this)" id="mnav-packs">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Packs
+      </div>
+      <div class="mobile-nav-item" onclick="showPage('reports',this)" id="mnav-reports">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Reports
+      </div>
+    </div>
+  </nav>
+</div>
+
+<!-- VOLUNTEER PROFILE MODAL -->
+<div class="modal-overlay" id="volModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalName">Volunteer</div>
+      <button class="modal-close" onclick="closeModal('volModal')">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ADD VOLUNTEER MODAL -->
+<div class="modal-overlay" id="addVolModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Volunteer</div>
+      <button class="modal-close" onclick="closeModal('addVolModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label class="form-label">Full Name *</label><input type="text" class="form-input" id="newName" placeholder="First Last"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">Email</label><input type="email" class="form-input" id="newEmail"></div>
+        <div class="form-row"><label class="form-label">Phone</label><input type="tel" class="form-input" id="newPhone"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">T-Shirt Size</label>
+          <select class="form-input" id="newSize"><option value="">—</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option></select>
+        </div>
+        <div class="form-row"><label class="form-label">Birthday</label><input type="date" class="form-input" id="newBirthday"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Volunteer Type(s) *</label>
+        <select class="form-input" id="newType" multiple style="height:120px;" size="6"></select>
+        <div style="font-size:11px;color:var(--text-faint);margin-top:3px;">Hold Ctrl/Cmd to select multiple</div>
+      </div>
+      <div class="form-row"><label class="form-label">Starting Hours (past hours)</label><input type="number" class="form-input" id="newHours" value="0" min="0" step="0.5"></div>
+      <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="newNotes" rows="2" style="resize:vertical;"></textarea></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+        <button class="btn" onclick="closeModal('addVolModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveNewVolunteer()">Save Volunteer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PACK MODAL -->
+<div class="modal-overlay" id="addPackModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="addPackTitle">Add Pack Event</div>
+      <button class="modal-close" onclick="closeModal('addPackModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label class="form-label">Event Name / Sponsor *</label><input type="text" class="form-input" id="packName" placeholder="e.g. Sponsor: Azure Builders"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">Date *</label><input type="date" class="form-input" id="packDate"></div>
+        <div class="form-row"><label class="form-label">Time</label><input type="text" class="form-input" id="packTime" placeholder="e.g. 4:00pm"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">Lines (1 or 2)</label>
+          <select class="form-input" id="packLines"><option value="1">1 Line</option><option value="2">2 Lines</option></select>
+        </div>
+        <div class="form-row"><label class="form-label">Presenter</label><input type="text" class="form-input" id="packPresenter"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="packNotes" rows="2" style="resize:vertical;"></textarea></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+        <button class="btn" onclick="closeModal('addPackModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="savePackEvent()">Save Event</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://uvddmeefxbqdqiltugiz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2ZGRtZWVmeGJxZHFpbHR1Z2l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzY5MTgsImV4cCI6MjA5MzUxMjkxOH0.zAzOlv_vH7BQpN8DobXbOKA_SS0fwTWtZVlx0mkBINo';
+const HDR = {'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+
+async function sbGet(table, params=''){
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{headers:HDR});
+  if(!r.ok) throw new Error('Fetch '+table+' failed: '+r.status);
+  return r.json();
+}
+async function sbPost(table, body, prefer='return=representation'){
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{method:'POST',headers:{...HDR,'Prefer':prefer},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  return prefer.includes('representation') ? r.json() : null;
+}
+async function sbPatch(table, filter, body){
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`,{method:'PATCH',headers:{...HDR,'Prefer':'return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+}
+async function sbDelete(table, filter){
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`,{method:'DELETE',headers:HDR});
+}
+
+// Local date helper — never use toISOString (UTC shift bug)
+function localDate(d=new Date()){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+function fmtDate(str){
+  if(!str) return '—';
+  const d = new Date(str+'T12:00:00');
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+}
+function fmtDateShort(str){
+  if(!str) return '—';
+  const d = new Date(str+'T12:00:00');
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item,.mobile-nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  // Also sync both navs
+  document.querySelectorAll(`[onclick*="'${id}'"]`).forEach(n=>n.classList.add('active'));
+  if(id==='dashboard') loadDashboard();
+  if(id==='volunteers') loadVolunteers();
+  if(id==='packs') loadPacks();
+  if(id==='reports') loadReports();
+  if(id==='signin') loadSignInPage();
+}
+
+// ============================================================
+// DATA CACHE
+// ============================================================
+let _volunteers=[], _types=[], _signIns=[], _packs=[], _assignments=[];
+let packMonth = new Date();
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getLevel(hrs){
+  if(hrs>=1500) return {name:'Icon',cls:'level-icon'};
+  if(hrs>=1000) return {name:'Legend',cls:'level-legend'};
+  if(hrs>=750)  return {name:'Champion',cls:'level-champion'};
+  if(hrs>=500)  return {name:'Pillar',cls:'level-pillar'};
+  if(hrs>=250)  return {name:'Anchor',cls:'level-anchor'};
+  if(hrs>=100)  return {name:'Rising',cls:'level-rising'};
+  return {name:'Seedling',cls:'level-seedling'};
+}
+function nextMilestone(hrs){
+  const ms=[100,250,500,750,1000,1500];
+  return ms.find(m=>m>hrs)||null;
+}
+function typeClass(name){
+  const map={
+    'Delivery Driver':'type-delivery-driver',
+    'Delivery Assistant':'type-delivery-assistant',
+    'Warehouse AM':'type-warehouse-am',
+    'Warehouse PM':'type-warehouse-pm',
+    'Pack Host':'type-pack-host',
+    'Pack Host Lead':'type-pack-host-lead',
+    'Pack Host - Wed Night':'type-pack-host-wed-night',
+    'Processing':'type-processing',
+    'Admin':'type-admin'
+  };
+  return map[name]||'badge-gray';
+}
+function typeBadge(name){
+  return `<span class="badge ${typeClass(name)}" style="font-size:10px;">${name}</span>`;
+}
+function avatarInitials(name){
+  const p=name.trim().split(' ');
+  return (p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard(){
+  const now = new Date();
+  const h = now.getHours();
+  const greeting = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('dashGreeting').textContent = greeting + ' 👋';
+  document.getElementById('dashDate').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  // Week range
+  const mon = new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7));
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  document.getElementById('weekRange').textContent = fmtDateShort(localDate(mon))+' – '+fmtDateShort(localDate(sun));
+
+  try {
+    // Load data
+    const [vols, signIns, packs] = await Promise.all([
+      sbGet('volunteer_hours','select=id,name,status,lifetime_hours&order=lifetime_hours.desc'),
+      sbGet('sign_ins','select=*,volunteers(name),volunteer_types(name)&order=signed_in_at.desc&limit=50'),
+      sbGet('pack_events','select=*&order=event_date.asc')
+    ]);
+    _volunteers = vols; _signIns = signIns; _packs = packs;
+
+    // Metrics
+    document.getElementById('metricActive').textContent = vols.filter(v=>v.status==='Active').length;
+    const mStart = new Date(now.getFullYear(),now.getMonth(),1);
+    const monthSI = signIns.filter(s=>new Date(s.signed_in_at)>=mStart);
+    const monthHrs = monthSI.reduce((a,s)=>a+(s.hours_credited||0),0);
+    document.getElementById('metricHours').textContent = monthHrs.toFixed(1);
+    const monthPacks = packs.filter(p=>new Date(p.event_date+'T12:00')>=mStart && new Date(p.event_date+'T12:00')<=now);
+    document.getElementById('metricPacks').textContent = monthPacks.length;
+    const todaySI = signIns.filter(s=>s.signed_in_at&&s.signed_in_at.startsWith(localDate()));
+    document.getElementById('metricToday').textContent = todaySI.length;
+
+    // Birthdays this week (Mon–Sun including weekend)
+    const weekDates = [];
+    for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);weekDates.push(`${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);}
+    const allVols = await sbGet('volunteers','select=id,name,birthday&order=name.asc');
+    const bdays = allVols.filter(v=>v.birthday&&weekDates.includes(v.birthday.slice(5)));
+    const bdayEl = document.getElementById('birthdayList');
+    if(bdays.length){
+      bdayEl.innerHTML = bdays.map(v=>`
+        <div class="birthday-item">
+          <div class="birthday-avatar">${avatarInitials(v.name)}</div>
+          <div><div class="birthday-name">${v.name}</div><div class="birthday-date">🎂 ${fmtDateShort(v.birthday)}</div></div>
+        </div>`).join('');
+    } else {
+      bdayEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px 0;">No birthdays this week 🎉</div>';
+    }
+
+    // Packs this week
+    const monStr = localDate(mon), sunStr = localDate(sun);
+    const weekPacks = packs.filter(p=>p.event_date>=monStr && p.event_date<=sunStr);
+    const wpEl = document.getElementById('weekPackList');
+    if(weekPacks.length){
+      wpEl.innerHTML = weekPacks.map(p=>`
+        <div class="week-row">
+          <div>
+            <div class="week-row-val">${p.name}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${fmtDate(p.event_date)} · ${p.event_time||''} · ${p.lines} line${p.lines>1?'s':''}</div>
+          </div>
+          <span class="badge ${p.completed?'badge-green':'badge-amber'}">${p.completed?'Done':'Upcoming'}</span>
+        </div>`).join('');
+    } else {
+      wpEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No packs this week</div>';
+    }
+
+    // Delivery this week
+    const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const delivDays = ['Monday','Tuesday','Wednesday'];
+    let delivHTML = '';
+    for(const day of delivDays){
+      delivHTML += `<div class="week-row"><div class="week-row-label">${day}</div><div class="week-row-val slot-filled">✓ Scheduled</div></div>`;
+    }
+    document.getElementById('deliveryThisWeek').innerHTML = delivHTML;
+
+    // Milestones — check who recently crossed a threshold
+    const msEl = document.getElementById('milestoneList');
+    const recent = vols.filter(v=>{
+      const ms=[100,250,500,750,1000,1500];
+      return ms.some(m=>v.lifetime_hours>=m && v.lifetime_hours<m+10);
+    }).slice(0,5);
+    if(recent.length){
+      msEl.innerHTML = recent.map(v=>{
+        const lv=getLevel(v.lifetime_hours);
+        return `<div class="week-row"><div><div class="week-row-val">${v.name}</div><div style="font-size:11px;color:var(--text-muted);">${v.lifetime_hours.toFixed(1)} hrs</div></div><span class="vol-level ${lv.cls}">${lv.name}</span></div>`;
+      }).join('');
+    } else {
+      msEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No recent milestones</div>';
+    }
+
+    // Recent sign-ins table
+    const tbody = document.getElementById('recentSignInsBody');
+    tbody.innerHTML = signIns.slice(0,10).map(s=>`
+      <tr>
+        <td><strong>${s.volunteers?.name||'—'}</strong></td>
+        <td>${s.volunteer_types?typeBadge(s.volunteer_types.name):''}</td>
+        <td>${fmtDate(s.signed_in_at?.slice(0,10))}</td>
+        <td><strong>${s.hours_credited}</strong> hrs</td>
+      </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">No sign-ins yet</td></tr>';
+
+  } catch(e){ console.error(e); }
+}
+
+// ============================================================
+// VOLUNTEERS
+// ============================================================
+let volFilter='all', volView='card', volSearchTerm='';
+
+async function loadVolunteers(){
+  try {
+    const [vols, assignments, types] = await Promise.all([
+      sbGet('volunteer_levels','select=id,name,lifetime_hours,level_name&order=name.asc'),
+      sbGet('volunteer_type_assignments','select=volunteer_id,volunteer_types(id,name)'),
+      sbGet('volunteer_types','select=*&order=sort_order.asc')
+    ]);
+    const volDetails = await sbGet('volunteers','select=*&order=name.asc');
+    _types = types;
+
+    // Merge
+    _volunteers = volDetails.map(v=>{
+      const hrs = vols.find(h=>h.id===v.id);
+      const myTypes = assignments.filter(a=>a.volunteer_id===v.id).map(a=>a.volunteer_types?.name).filter(Boolean);
+      return {...v, lifetime_hours: hrs?.lifetime_hours||v.past_hours, level_name: hrs?.level_name||'Seedling', types: myTypes};
+    });
+
+    document.getElementById('volCount').textContent = `${_volunteers.filter(v=>v.status==='Active').length} active volunteers`;
+
+    // Populate sign-in dropdown
+    const siSel = document.getElementById('siName');
+    siSel.innerHTML = '<option value="">— choose your name —</option>';
+    _volunteers.filter(v=>v.status==='Active').sort((a,b)=>a.name.localeCompare(b.name)).forEach(v=>{
+      siSel.innerHTML += `<option value="${v.id}">${v.name}</option>`;
+    });
+
+    // Populate add vol type select
+    const newTypeSel = document.getElementById('newType');
+    newTypeSel.innerHTML = types.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+
+    renderVols();
+  } catch(e){ console.error(e); }
+}
+
+function filterVols(){
+  volSearchTerm = document.getElementById('volSearch').value.toLowerCase();
+  renderVols();
+}
+function setVolFilter(f, el){
+  volFilter=f;
+  document.querySelectorAll('#volFilters .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderVols();
+}
+function setVolView(v){
+  volView=v;
+  document.getElementById('btnCardView').classList.toggle('active',v==='card');
+  document.getElementById('btnListView').classList.toggle('active',v==='list');
+  document.getElementById('volCardGrid').style.display = v==='card'?'grid':'none';
+  document.getElementById('volListView').style.display = v==='list'?'block':'none';
+  renderVols();
+}
+function getFilteredVols(){
+  return _volunteers.filter(v=>{
+    const matchSearch = !volSearchTerm || v.name.toLowerCase().includes(volSearchTerm) || (v.email||'').toLowerCase().includes(volSearchTerm);
+    let matchFilter = true;
+    if(volFilter==='Active') matchFilter = v.status==='Active';
+    else if(volFilter==='Inactive') matchFilter = v.status==='Inactive';
+    else if(volFilter!=='all') matchFilter = (v.types||[]).some(t=>t.includes(volFilter));
+    return matchSearch && matchFilter;
+  });
+}
+function renderVols(){
+  const filtered = getFilteredVols();
+  if(volView==='card') renderCardView(filtered);
+  else renderListView(filtered);
+}
+function renderCardView(vols){
+  const grid = document.getElementById('volCardGrid');
+  if(!vols.length){ grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🔍</div>No volunteers match your search</div>'; return; }
+  grid.innerHTML = vols.map(v=>{
+    const lv = getLevel(v.lifetime_hours||0);
+    const typeBadges = (v.types||[]).map(t=>`<span class="badge ${typeClass(t)}" style="font-size:10px;">${t}</span>`).join('');
+    return `
+    <div class="vol-card" onclick="openVolProfile('${v.id}')">
+      <div class="vol-card-photo">${avatarInitials(v.name)}</div>
+      <div class="vol-card-body">
+        <div class="vol-card-name">${v.name}</div>
+        <div class="vol-card-types">${typeBadges}</div>
+        <div class="vol-card-info">${v.phone||''}</div>
+        <div class="vol-card-footer">
+          <div class="vol-card-hours">${(v.lifetime_hours||0).toFixed(1)} hrs</div>
+          <span class="vol-level ${lv.cls}">${lv.name}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderListView(vols){
+  const tbody = document.getElementById('volListBody');
+  tbody.innerHTML = vols.map(v=>{
+    const lv = getLevel(v.lifetime_hours||0);
+    const typeBadges = (v.types||[]).map(t=>`<span class="badge ${typeClass(t)}" style="font-size:10px;margin-right:2px;">${t}</span>`).join('');
+    return `<tr onclick="openVolProfile('${v.id}')" style="cursor:pointer;">
+      <td><strong>${v.name}</strong></td>
+      <td>${typeBadges}</td>
+      <td><span class="badge ${v.status==='Active'?'badge-green':'badge-gray'}">${v.status}</span></td>
+      <td><strong>${(v.lifetime_hours||0).toFixed(1)}</strong></td>
+      <td><span class="vol-level ${lv.cls}">${lv.name}</span></td>
+      <td>${v.phone||'—'}</td>
+      <td><button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openVolProfile('${v.id}')">View</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">No volunteers found</td></tr>';
+}
+
+async function openVolProfile(id){
+  const v = _volunteers.find(x=>x.id===id);
+  if(!v) return;
+  const lv = getLevel(v.lifetime_hours||0);
+  const next = nextMilestone(v.lifetime_hours||0);
+  const pct = next ? Math.min(100,((v.lifetime_hours||0)/next)*100) : 100;
+
+  document.getElementById('modalName').textContent = v.name;
+
+  // Load sign-ins for this volunteer
+  let siHistory = [];
+  try { siHistory = await sbGet('sign_ins',`volunteer_id=eq.${id}&select=*,volunteer_types(name)&order=signed_in_at.desc&limit=10`); } catch(e){}
+
+  const typeBadges = (v.types||[]).map(t=>`<span class="badge ${typeClass(t)}" style="margin-right:3px;">${t}</span>`).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="vol-profile-top">
+      <div class="vol-profile-photo">${avatarInitials(v.name)}</div>
+      <div class="vol-profile-info">
+        <div class="vol-profile-name">${v.name}</div>
+        <div class="vol-profile-types">${typeBadges}</div>
+        <span class="badge ${v.status==='Active'?'badge-green':'badge-gray'}">${v.status}</span>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><label>Email</label><span>${v.email||'—'}</span></div>
+      <div class="info-item"><label>Phone</label><span>${v.phone||'—'}</span></div>
+      <div class="info-item"><label>T-Shirt</label><span>${v.tshirt_size||'—'}</span></div>
+      <div class="info-item"><label>Birthday</label><span>${v.birthday?fmtDateShort(v.birthday):'—'}</span></div>
+      <div class="info-item"><label>Started</label><span>${v.date_started?fmtDateShort(v.date_started):'—'}</span></div>
+      <div class="info-item"><label>Gift Card</label><span>${v.received_gift_card?'✓ Yes':'No'}</span></div>
+    </div>
+    ${v.notes?`<div style="background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13px;color:var(--text-muted);margin-bottom:14px;font-style:italic;">"${v.notes}"</div>`:''}
+    <div class="hours-section">
+      <div style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Lifetime Hours</div>
+      <div class="hours-big">${(v.lifetime_hours||0).toFixed(1)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+        <span class="vol-level ${lv.cls}" style="font-size:12px;padding:3px 10px;">${lv.name}</span>
+        ${next?`<span style="font-size:11px;color:var(--text-muted);">${(next-(v.lifetime_hours||0)).toFixed(1)} hrs to ${getLevel(next).name}</span>`:'<span style="font-size:11px;color:var(--primary-text);font-weight:600;">🏆 Maximum Level!</span>'}
+      </div>
+      ${next?`<div class="milestone-bar-wrap" style="margin-top:8px;"><div class="milestone-bar" style="width:${pct}%"></div></div>`:''}
+    </div>
+    <div style="margin-bottom:10px;">
+      <label class="form-label">Update Starting Hours</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="number" class="form-input" id="editHours_${id}" value="${v.past_hours||0}" min="0" step="0.5" style="width:120px;">
+        <button class="btn btn-sm btn-primary" onclick="saveStartingHours('${id}')">Save</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:3px;">These are the hours carried over from before this system</div>
+    </div>
+    <hr class="divider">
+    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;">Recent Sign-Ins</div>
+    ${siHistory.length ? siHistory.map(s=>`
+      <div class="sign-in-row">
+        <span>${fmtDate(s.signed_in_at?.slice(0,10))}</span>
+        <span>${s.volunteer_types?.name||'—'}</span>
+        <strong>+${s.hours_credited} hrs</strong>
+      </div>`).join('') : '<div style="color:var(--text-muted);font-size:12px;">No sign-ins recorded yet</div>'}
+  `;
+  openModal('volModal');
+}
+
+async function saveStartingHours(id){
+  const val = parseFloat(document.getElementById('editHours_'+id).value)||0;
+  try {
+    await sbPatch('volunteers','id=eq.'+id,{past_hours:val});
+    const v = _volunteers.find(x=>x.id===id);
+    if(v) v.past_hours = val;
+    showToast('✓ Starting hours updated');
+  } catch(e){ showToast('Error saving hours'); }
+}
+
+async function openAddVolunteer(){
+  document.getElementById('newName').value='';
+  document.getElementById('newEmail').value='';
+  document.getElementById('newPhone').value='';
+  document.getElementById('newSize').value='';
+  document.getElementById('newBirthday').value='';
+  document.getElementById('newHours').value='0';
+  document.getElementById('newNotes').value='';
+  openModal('addVolModal');
+}
+
+async function saveNewVolunteer(){
+  const name = document.getElementById('newName').value.trim();
+  if(!name){ showToast('Name is required'); return; }
+  const typeIds = Array.from(document.getElementById('newType').selectedOptions).map(o=>o.value);
+  if(!typeIds.length){ showToast('Select at least one volunteer type'); return; }
+  try {
+    const [newVol] = await sbPost('volunteers',{
+      name, email:document.getElementById('newEmail').value||null,
+      phone:document.getElementById('newPhone').value||null,
+      tshirt_size:document.getElementById('newSize').value||null,
+      birthday:document.getElementById('newBirthday').value||null,
+      past_hours:parseFloat(document.getElementById('newHours').value)||0,
+      notes:document.getElementById('newNotes').value||null, status:'Active'
+    });
+    for(const tid of typeIds){
+      await sbPost('volunteer_type_assignments',{volunteer_id:newVol.id,type_id:tid,is_primary:typeIds.indexOf(tid)===0},'return=minimal');
+    }
+    closeModal('addVolModal');
+    showToast('✓ Volunteer added!');
+    loadVolunteers();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+// ============================================================
+// PACK SCHEDULE
+// ============================================================
+async function loadPacks(){
+  const y = packMonth.getFullYear(), m = packMonth.getMonth();
+  const start = `${y}-${String(m+1).padStart(2,'0')}-01`;
+  const end   = `${y}-${String(m+1).padStart(2,'0')}-31`;
+  document.getElementById('packMonthLabel').textContent = packMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+
+  try {
+    const [events, signups] = await Promise.all([
+      sbGet('pack_events',`event_date=gte.${start}&event_date=lte.${end}&order=event_date.asc`),
+      sbGet('pack_signups','select=*,volunteers(name),pack_events(event_date)&order=signed_up_at.asc')
+    ]);
+    _packs = events;
+    const el = document.getElementById('packList');
+    if(!events.length){
+      el.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div>No pack events scheduled for this month.<br>Click "+ Add Pack Event" to add one.</div>';
+      return;
+    }
+    el.innerHTML = events.map(e=>{
+      const d = new Date(e.event_date+'T12:00');
+      const eSignups = signups.filter(s=>s.pack_event_id===e.id);
+      const leadSlot = eSignups.find(s=>s.role==='Pack Lead');
+      const hostSlots = eSignups.filter(s=>s.role==='Pack Host');
+      const linesNeeded = e.lines||1;
+
+      const leadBadge = leadSlot
+        ? `<span class="pack-slot filled">Pack Lead: ${leadSlot.volunteers?.name||'?'}</span>`
+        : `<span class="pack-slot open">Pack Lead: Open</span>`;
+      const hostBadges = Array.from({length:linesNeeded}).map((_,i)=>{
+        const h = hostSlots[i];
+        return h ? `<span class="pack-slot filled">Host ${linesNeeded>1?i+1+': ':''}${h.volunteers?.name||'?'}</span>`
+                 : `<span class="pack-slot open">Host${linesNeeded>1?' '+(i+1):''}: Open</span>`;
+      }).join('');
+
+      return `
+      <div class="pack-event-card">
+        <div class="pack-date-block">
+          <div class="pack-date-day">${d.getDate()}</div>
+          <div class="pack-date-mon">${d.toLocaleDateString('en-US',{month:'short'})}</div>
+        </div>
+        <div class="pack-event-info">
+          <div class="pack-event-name">${e.name}</div>
+          <div class="pack-event-meta">${d.toLocaleDateString('en-US',{weekday:'long'})}${e.event_time?' · '+e.event_time:''} · ${e.lines} line${e.lines>1?'s':''} ${e.presenter?'· '+e.presenter:''}</div>
+          <div class="pack-slots">${leadBadge}${hostBadges}</div>
+          ${e.bags_packed?`<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">🎒 ${e.bags_packed} bags packed${e.total_volunteers?' · '+e.total_volunteers+' volunteers':''}</div>`:''}
+        </div>
+        <div class="pack-event-actions">
+          <span class="badge ${e.completed?'badge-green':e.cancelled?'badge-red':'badge-amber'}">${e.completed?'Done':e.cancelled?'Cancelled':'Scheduled'}</span>
+          <button class="btn btn-sm" onclick="openEditPack('${e.id}')">Edit</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(err){ console.error(err); }
+}
+
+function changePackMonth(dir){
+  if(dir===0){ packMonth=new Date(); }
+  else { packMonth = new Date(packMonth.getFullYear(), packMonth.getMonth()+dir, 1); }
+  loadPacks();
+}
+
+function openAddPack(){
+  document.getElementById('addPackTitle').textContent='Add Pack Event';
+  document.getElementById('packName').value='';
+  document.getElementById('packDate').value='';
+  document.getElementById('packTime').value='';
+  document.getElementById('packLines').value='1';
+  document.getElementById('packPresenter').value='';
+  document.getElementById('packNotes').value='';
+  openModal('addPackModal');
+}
+
+async function savePackEvent(){
+  const name = document.getElementById('packName').value.trim();
+  const date = document.getElementById('packDate').value;
+  if(!name||!date){ showToast('Name and date are required'); return; }
+  try {
+    await sbPost('pack_events',{
+      name, event_date:date,
+      event_time:document.getElementById('packTime').value||null,
+      lines:parseInt(document.getElementById('packLines').value)||1,
+      presenter:document.getElementById('packPresenter').value||null,
+      notes:document.getElementById('packNotes').value||null
+    },'return=minimal');
+    closeModal('addPackModal');
+    showToast('✓ Pack event added!');
+    loadPacks();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+async function openEditPack(id){
+  const pack = _packs.find(p=>p.id===id);
+  if(!pack) return;
+  document.getElementById('addPackTitle').textContent = 'Edit Pack Event';
+  document.getElementById('packName').value = pack.name;
+  document.getElementById('packDate').value = pack.event_date;
+  document.getElementById('packTime').value = pack.event_time||'';
+  document.getElementById('packLines').value = pack.lines||1;
+  document.getElementById('packPresenter').value = pack.presenter||'';
+  document.getElementById('packNotes').value = pack.notes||'';
+  // Override save to patch
+  document.querySelector('#addPackModal .btn-primary').onclick = async ()=>{
+    try {
+      await sbPatch('pack_events','id=eq.'+id,{
+        name:document.getElementById('packName').value,
+        event_date:document.getElementById('packDate').value,
+        event_time:document.getElementById('packTime').value||null,
+        lines:parseInt(document.getElementById('packLines').value)||1,
+        presenter:document.getElementById('packPresenter').value||null,
+        notes:document.getElementById('packNotes').value||null
+      });
+      closeModal('addPackModal');
+      showToast('✓ Event updated!');
+      loadPacks();
+      document.querySelector('#addPackModal .btn-primary').onclick = savePackEvent;
+    } catch(e){ showToast('Error: '+e.message); }
+  };
+  openModal('addPackModal');
+}
+
+// ============================================================
+// SIGN-IN
+// ============================================================
+function loadSignInPage(){
+  // Volunteers already loaded if loadVolunteers() was called
+  if(!_volunteers.length) loadVolunteers();
+}
+
+async function siNameSelected(){
+  const id = document.getElementById('siName').value;
+  if(!id){ document.getElementById('siTypeRow').style.display='none'; return; }
+  const v = _volunteers.find(x=>x.id===id);
+  if(!v) return;
+  const types = v.types||[];
+  if(types.length<=1){
+    document.getElementById('siTypeRow').style.display='none';
+  } else {
+    document.getElementById('siTypeRow').style.display='block';
+    const sel = document.getElementById('siType');
+    sel.innerHTML = types.map(t=>`<option value="${t}">${t}</option>`).join('');
+  }
+}
+
+async function submitSignIn(){
+  const id = document.getElementById('siName').value;
+  if(!id){ showToast('Please select your name'); return; }
+  const v = _volunteers.find(x=>x.id===id);
+  if(!v){ showToast('Volunteer not found'); return; }
+
+  const types = v.types||[];
+  let typeName = types[0];
+  if(types.length>1) typeName = document.getElementById('siType').value||types[0];
+
+  // Get type record
+  const typeRec = _types.find(t=>t.name===typeName);
+  if(!typeRec){ showToast('Type not found, please contact admin'); return; }
+  const hrs = typeRec.hours_per_signin||0;
+
+  try {
+    await sbPost('sign_ins',{
+      volunteer_id:id, type_id:typeRec.id,
+      signed_in_at: new Date().toISOString(),
+      hours_credited: hrs
+    },'return=minimal');
+
+    // Load updated lifetime hours
+    const [updated] = await sbGet('volunteer_levels',`id=eq.${id}&select=lifetime_hours,level_name`);
+    const newLifetime = updated?.lifetime_hours||0;
+    const lv = getLevel(newLifetime);
+
+    document.getElementById('siConfirmName').textContent = v.name;
+    document.getElementById('siConfirmHours').textContent = `+${hrs} hours credited ✓`;
+    document.getElementById('siConfirmDetail').textContent = typeName + ' · ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    document.getElementById('siLifetimeHours').textContent = newLifetime.toFixed(1)+' hrs';
+    document.getElementById('siLevel').innerHTML = `<span class="vol-level ${lv.cls}" style="display:inline-block;font-size:13px;padding:4px 12px;">${lv.name}</span>`;
+
+    document.getElementById('siStep1').style.display='none';
+    document.getElementById('siConfirm').style.display='block';
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+function resetSignIn(){
+  document.getElementById('siStep1').style.display='block';
+  document.getElementById('siConfirm').style.display='none';
+  document.getElementById('siName').value='';
+  document.getElementById('siTypeRow').style.display='none';
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+async function loadReports(){
+  const period = document.getElementById('reportPeriod').value;
+  const now = new Date();
+  let startDate;
+  if(period==='month') startDate = new Date(now.getFullYear(),now.getMonth(),1);
+  else if(period==='quarter') startDate = new Date(now.getFullYear(),Math.floor(now.getMonth()/3)*3,1);
+  else if(period==='year') startDate = new Date(now.getFullYear(),0,1);
+  else startDate = new Date('2020-01-01');
+
+  try {
+    const [signIns, volLevels] = await Promise.all([
+      sbGet('sign_ins',`signed_in_at=gte.${startDate.toISOString()}&select=*,volunteers(name,status),volunteer_types(name)`),
+      sbGet('volunteer_levels','select=*&order=lifetime_hours.desc')
+    ]);
+
+    const totalHrs = signIns.reduce((a,s)=>a+(s.hours_credited||0),0);
+    document.getElementById('rptHours').textContent = totalHrs.toFixed(1);
+    document.getElementById('rptSignIns').textContent = signIns.length;
+    const activeVols = new Set(signIns.map(s=>s.volunteer_id));
+    document.getElementById('rptActive').textContent = activeVols.size;
+    const milestones = [100,250,500,750,1000,1500];
+    const msCount = volLevels.filter(v=>milestones.some(m=>v.lifetime_hours>=m && v.lifetime_hours<m+5)).length;
+    document.getElementById('rptMilestones').textContent = msCount;
+
+    // Top volunteers
+    document.getElementById('rptTopVols').innerHTML = volLevels.slice(0,15).map((v,i)=>{
+      const lv=getLevel(v.lifetime_hours||0);
+      return `<tr><td><strong>#${i+1}</strong></td><td>${v.name}</td><td><strong>${(v.lifetime_hours||0).toFixed(1)}</strong></td><td><span class="vol-level ${lv.cls}">${lv.name}</span></td></tr>`;
+    }).join('');
+
+    // Milestone tracker
+    const tracker = document.getElementById('rptMilestoneTracker');
+    const closeTo = volLevels.filter(v=>{
+      const next = nextMilestone(v.lifetime_hours||0);
+      return next && (next-(v.lifetime_hours||0)) <= 20;
+    }).slice(0,8);
+    if(closeTo.length){
+      tracker.innerHTML = closeTo.map(v=>{
+        const next = nextMilestone(v.lifetime_hours||0);
+        const pct = Math.min(100,((v.lifetime_hours||0)/next)*100);
+        const remaining = (next-(v.lifetime_hours||0)).toFixed(1);
+        return `<div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;">
+            <strong>${v.name}</strong>
+            <span style="color:var(--text-muted);font-size:11px;">${remaining} hrs to ${getLevel(next).name}</span>
+          </div>
+          <div class="milestone-bar-wrap"><div class="milestone-bar" style="width:${pct}%"></div></div>
+          <div style="font-size:11px;color:var(--text-faint);margin-top:2px;">${(v.lifetime_hours||0).toFixed(1)} / ${next} hrs</div>
+        </div>`;
+      }).join('');
+    } else {
+      tracker.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No volunteers close to a milestone right now</div>';
+    }
+
+    loadBirthdays();
+  } catch(e){ console.error(e); }
+}
+
+async function loadBirthdays(){
+  const month = parseInt(document.getElementById('bdayMonth').value)||0;
+  try {
+    const vols = await sbGet('volunteers','select=name,birthday,status&order=birthday.asc&not.birthday.is.null');
+    let filtered = vols.filter(v=>v.birthday);
+    if(month>0) filtered = filtered.filter(v=>parseInt(v.birthday.split('-')[1])===month);
+    document.getElementById('rptBirthdays').innerHTML = filtered.map(v=>{
+      const d = new Date(v.birthday+'T12:00');
+      return `<tr>
+        <td><strong>${v.name}</strong></td>
+        <td>${d.toLocaleDateString('en-US',{month:'long',day:'numeric'})}</td>
+        <td><span class="badge ${v.status==='Active'?'badge-green':'badge-gray'}">${v.status}</span></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:16px;">No birthdays found</td></tr>';
+  } catch(e){ console.error(e); }
+}
+
+// ============================================================
+// DELIVERY — AVAILABILITY MESSAGE
+// ============================================================
+function generateAvailMsg(){
+  const day = document.getElementById('availDay').value;
+  const date = document.getElementById('availDate').value;
+  if(!date){ showToast('Please select a delivery date'); return; }
+  const d = new Date(date+'T12:00');
+  const fDate = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  const pairs = {
+    'Tuesday':{
+      1:['Gerald Brady','Lorin Wyatt'],
+      2:['Laura Beristain'],
+      3:['Samantha Flores','Laura Beristain'],
+      4:['Jaymee Brown','Candy Allen']
+    },
+    'Wednesday':{
+      1:['Jessica Densley','Michelle Wilcock'],
+      2:['Brian Paul (staff)'],
+      3:['Shelli Baxter','Suzanne Houghton'],
+      4:['Mike Sessions','HR Team']
+    }
+  };
+
+  // Calc week of month
+  const firstDay = new Date(d.getFullYear(),d.getMonth(),1);
+  const week = Math.ceil((d.getDate()+firstDay.getDay())/7);
+  const pair = (pairs[day]||{})[Math.min(week,4)];
+  const names = pair ? pair.join(' and ') : 'the assigned assistant';
+
+  const msg = `Hey ${names}! 👋\n\nCan you make the ${day} delivery this week?\n📅 ${fDate}\n\nPlease reply YES or NO so we can plan accordingly.\n\nThank you! 🎒\n— USANA Kids Eat`;
+
+  document.getElementById('availMsgText').textContent = msg;
+  document.getElementById('availMsgBox').style.display = 'block';
+}
+function copyAvailMsg(){
+  const txt = document.getElementById('availMsgText').textContent;
+  navigator.clipboard.writeText(txt).then(()=>showToast('✓ Message copied!')).catch(()=>showToast('Copy failed — select text manually'));
+}
+
+// QR placeholder
+function printQR(){
+  alert('QR code for this sign-in page:\n\n'+window.location.href+'\n\nBookmark this page or print this URL to generate a QR code at qr-code-generator.com');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', async ()=>{
+  // Set today's date on delivery input
+  document.getElementById('availDate').value = localDate();
+
+  await loadVolunteers();
+  loadDashboard();
+});
+</script>
+</body>
+</html>
