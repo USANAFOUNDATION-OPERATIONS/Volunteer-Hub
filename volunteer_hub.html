@@ -125,9 +125,10 @@ select.form-input{cursor:pointer;}
 .vol-card{background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(120,53,15,0.08);transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;cursor:pointer;border:none;position:relative;}
 .vol-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 16px 40px rgba(120,53,15,0.16);}
 .vol-card:active{transform:translateY(-1px) scale(0.99);}
-.vol-card-hero{position:relative;height:140px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.vol-card-hero img{width:100%;height:100%;object-fit:cover;}
-.vol-card-avatar{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;color:#fff;letter-spacing:-2px;text-shadow:0 2px 8px rgba(0,0,0,0.15);}
+.vol-card-hero{position:relative;height:140px;display:flex;align-items:center;justify-content:center;}
+.vol-card-photo-ring{width:88px;height:88px;border-radius:50%;border:4px solid rgba(255,255,255,0.92);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px;flex-shrink:0;}
+.vol-card-photo-ring img{width:100%;height:100%;object-fit:cover;}
+.vol-card-avatar{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px;}
 .vol-card-status-dot{position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
 .vol-card-status-dot.active{background:#22c55e;}
 .vol-card-status-dot.inactive{background:#94a3b8;}
@@ -288,6 +289,12 @@ select.form-input{cursor:pointer;}
 .tab-bar{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:18px;}
 .tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:var(--text-muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
 .tab-btn.active{color:var(--primary-dark);border-bottom-color:var(--primary);font-weight:600;}
+.cell-edit{background:none;border:none;font-family:inherit;font-size:12px;color:var(--text);cursor:pointer;padding:2px 4px;border-radius:4px;width:100%;text-align:left;min-width:60px;}
+.cell-edit:hover{background:var(--primary-light);}
+.cell-edit:focus{outline:2px solid var(--primary);background:#fff;border-radius:4px;}
+.cell-missing{color:var(--red-text);font-style:italic;font-size:11px;}
+.cell-select{font-family:inherit;font-size:12px;border:1px solid var(--border);border-radius:4px;padding:2px 4px;background:#fff;color:var(--text);cursor:pointer;}
+.list-avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;margin-right:6px;flex-shrink:0;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -468,9 +475,22 @@ select.form-input{cursor:pointer;}
 
         <!-- List View -->
         <div id="volListView" style="display:none;">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">💡 Click any cell to edit inline · Missing info shown in red</div>
           <div class="table-wrap">
-            <table>
-              <thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Lifetime Hrs</th><th>Level</th><th>Phone</th><th></th></tr></thead>
+            <table id="volListTable" style="font-size:12px;">
+              <thead><tr>
+                <th>Name</th>
+                <th>Type(s)</th>
+                <th>Status</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>T-Shirt</th>
+                <th>Birthday</th>
+                <th>Lifetime Hrs</th>
+                <th>Level</th>
+                <th>Gift Card</th>
+                <th>Notes</th>
+              </tr></thead>
               <tbody id="volListBody"></tbody>
             </table>
           </div>
@@ -1245,13 +1265,15 @@ function renderCardView(vols){
     const statusDotClass = v.status==='Active'?'active':v.status==='On Leave'?'onleave':'inactive';
     const heroGrad = (v.types||[]).length ? typeGradient(v.types) : avatarGradient(v.name);
     const initials = avatarInitials(v.name);
-    const heroContent = v.photo_url
-      ? `<img src="${v.photo_url}" alt="${v.name}" style="width:100%;height:100%;object-fit:cover;" data-grad="${heroGrad}" data-initials="${initials}" onload="this.style.opacity=1" onerror="this.outerHTML='<div class=vol-card-avatar style=background:'+this.dataset.grad+'>'+this.dataset.initials+'</div>'">`
-      : `<div class="vol-card-avatar" style="background:${heroGrad};">${initials}</div>`;
+    // Hybrid: colored hero background + circular photo/initials in center
+    const ringInner = v.photo_url
+      ? `<img src="${v.photo_url}" alt="${v.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.background='${heroGrad}';this.parentElement.innerHTML='${initials}'">`
+      : `${initials}`;
+    const ringBg = v.photo_url ? '' : `background:${heroGrad};`;
     return `
     <div class="vol-card" onclick="openVolProfile('${v.id}')">
-      <div class="vol-card-hero">
-        ${heroContent}
+      <div class="vol-card-hero" style="background:${heroGrad};">
+        <div class="vol-card-photo-ring" style="${ringBg}">${ringInner}</div>
         <div class="vol-card-status-dot ${statusDotClass}"></div>
         <div class="vol-card-level-badge" style="${levelOverlayStyle(lv.cls)}">${lv.name}</div>
       </div>
@@ -1268,19 +1290,80 @@ function renderCardView(vols){
 }
 function renderListView(vols){
   const tbody = document.getElementById('volListBody');
+  const sizes = ['XS','S','M','L','XL','2XL','3XL','XXL'];
+  const statuses = ['Active','Inactive','On Leave'];
   tbody.innerHTML = vols.map(v=>{
     const lv = getLevel(v.lifetime_hours||0);
-    const typeBadges = (v.types||[]).map(t=>`<span class="badge ${typeClass(t)}" style="font-size:10px;margin-right:2px;">${t}</span>`).join('');
-    return `<tr onclick="openVolProfile('${v.id}')" style="cursor:pointer;">
-      <td><strong>${v.name}</strong></td>
-      <td>${typeBadges}</td>
-      <td><span class="badge ${v.status==='Active'?'badge-green':'badge-gray'}">${v.status}</span></td>
-      <td><strong>${(v.lifetime_hours||0).toFixed(1)}</strong></td>
+    const grad = (v.types||[]).length ? typeGradient(v.types) : avatarGradient(v.name);
+    const typeBadges = (v.types||[]).map(t=>`<span class="badge ${typeClass(t)}" style="font-size:10px;margin:1px;">${t}</span>`).join('');
+    const missing = s => s ? `<span style="color:var(--text);">${s}</span>` : `<span class="cell-missing">missing</span>`;
+    const statusColor = v.status==='Active'?'badge-green':v.status==='On Leave'?'badge-amber':'badge-gray';
+    return `<tr>
+      <td style="white-space:nowrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="list-avatar" style="background:${grad};">${avatarInitials(v.name)}</div>
+          <input class="cell-edit" value="${v.name}" style="font-weight:600;min-width:120px;"
+            onblur="saveListField('${v.id}','name',this.value,this)">
+        </div>
+      </td>
+      <td>
+        <div style="display:flex;flex-wrap:wrap;gap:2px;align-items:center;">
+          ${typeBadges}
+          <button class="btn btn-sm btn-ghost" style="font-size:10px;padding:1px 6px;" onclick="openEditVolunteer('${v.id}')">edit</button>
+        </div>
+      </td>
+      <td>
+        <select class="cell-select ${statusColor}" onchange="saveListField('${v.id}','status',this.value,this)">
+          ${statuses.map(s=>`<option ${v.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <input class="cell-edit" value="${v.email||''}" placeholder="—" type="email" style="min-width:140px;${!v.email?'color:var(--red-text);':''}"
+          onblur="saveListField('${v.id}','email',this.value||null,this)">
+      </td>
+      <td>
+        <input class="cell-edit" value="${v.phone||''}" placeholder="—" type="tel" style="min-width:110px;${!v.phone?'color:var(--red-text);':''}"
+          onblur="saveListField('${v.id}','phone',this.value||null,this)">
+      </td>
+      <td>
+        <select class="cell-select" onchange="saveListField('${v.id}','tshirt_size',this.value||null,this)" style="${!v.tshirt_size?'color:var(--red-text);':''}">
+          <option value="">—</option>
+          ${sizes.map(s=>`<option ${v.tshirt_size===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <input class="cell-edit" value="${v.birthday||''}" type="date" style="min-width:120px;${!v.birthday?'color:var(--red-text);':''}"
+          onchange="saveListField('${v.id}','birthday',this.value||null,this)">
+      </td>
+      <td style="text-align:right;font-weight:700;">${(v.lifetime_hours||0).toFixed(1)}</td>
       <td><span class="vol-level ${lv.cls}">${lv.name}</span></td>
-      <td>${v.phone||'—'}</td>
-      <td><button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openVolProfile('${v.id}')">View</button></td>
+      <td style="text-align:center;">
+        <label class="toggle-switch" style="margin:0 auto;">
+          <input type="checkbox" ${v.received_gift_card?'checked':''} onchange="saveListField('${v.id}','received_gift_card',this.checked,this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <input class="cell-edit" value="${(v.notes||'').replace(/"/g,'&quot;')}" placeholder="add note…" style="min-width:140px;"
+          onblur="saveListField('${v.id}','notes',this.value||null,this)">
+      </td>
     </tr>`;
-  }).join('')||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">No volunteers found</td></tr>';
+  }).join('')||'<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--text-muted);">No volunteers found</td></tr>';
+}
+
+async function saveListField(id, field, value, el){
+  try {
+    await sbPatch('volunteers','id=eq.'+id,{[field]:value});
+    // Update local cache
+    const v = _volunteers.find(x=>x.id===id);
+    if(v) v[field] = value;
+    // Visual feedback
+    if(el && el.tagName !== 'SELECT' && el.type !== 'checkbox'){
+      el.style.background = 'rgba(34,197,94,0.1)';
+      setTimeout(()=>el.style.background='',1200);
+    }
+    showToast('✓ Saved');
+  } catch(e){ showToast('Error saving: '+e.message); }
 }
 
 async function openVolProfile(id){
