@@ -269,6 +269,16 @@ select.form-input{cursor:pointer;}
 .level-icon{background:linear-gradient(135deg,#fef08a,#fbbf24);color:#78350F;}
 
 .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:22px;transition:.2s;}
+.toggle-slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-switch input:checked+.toggle-slider{background:var(--primary);}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(18px);}
+.giftcard-banner{background:var(--amber-light);border:1px solid var(--amber);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--amber-text);display:inline-flex;align-items:center;gap:6px;}
+.tab-bar{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:18px;}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:var(--text-muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab-btn.active{color:var(--primary-dark);border-bottom-color:var(--primary);font-weight:600;}
 </style>
 </head>
 <body>
@@ -305,6 +315,10 @@ select.form-input{cursor:pointer;}
         <div class="nav-item" onclick="showPage('delivery',this)">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
           Deliveries
+        </div>
+        <div class="nav-item" onclick="showPage('warehouse',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Warehouse
         </div>
         <div class="nav-section">Admin</div>
         <div class="nav-item" onclick="showPage('signin',this)">
@@ -478,62 +492,83 @@ select.form-input{cursor:pointer;}
           </div>
         </div>
 
-        <div class="metrics-grid" style="max-width:600px;">
-          <div class="metric"><div class="metric-label">Mon Driver</div><div style="font-size:16px;font-weight:700;margin-top:4px;">Randy Crebs</div><div class="metric-sub">Every Monday</div></div>
-          <div class="metric"><div class="metric-label">Tue Driver</div><div style="font-size:16px;font-weight:700;margin-top:4px;">Brandi Savage</div><div class="metric-sub">Every Tuesday</div></div>
-          <div class="metric"><div class="metric-label">Wed Driver</div><div style="font-size:16px;font-weight:700;margin-top:4px;">Dennis Aardema</div><div class="metric-sub">Every Wednesday</div></div>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <div class="card-header" style="padding:16px 18px;">
-            <div class="card-title">Weekly Assistant Rotation</div>
-            <div style="font-size:12px;color:var(--text-muted)" id="delivWeekLabel"></div>
+        <!-- This week's deliveries -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <div class="card-title">🚚 This Week's Deliveries</div>
+            <div style="font-size:12px;color:var(--text-muted);" id="delivWeekLabel"></div>
           </div>
           <div class="card-body" style="padding:0;">
             <div class="table-wrap" style="border:none;border-radius:0;">
               <table>
-                <thead><tr><th>Week</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Week 1</strong></td>
-                    <td><span class="badge badge-green">Dennis Aardema</span></td>
-                    <td><span style="font-size:12px;">Gerald Brady <em>or</em> Lorin Wyatt</span></td>
-                    <td><span style="font-size:12px;">Jessica Densley <em>or</em> Michelle Wilcock</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Week 2</strong></td>
-                    <td><span class="badge badge-green">Dennis Aardema</span></td>
-                    <td><span style="font-size:12px;">Laura Beristain</span></td>
-                    <td><span class="badge badge-gray">Brian Paul (staff)</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Week 3</strong></td>
-                    <td><span class="badge badge-green">Dennis Aardema</span></td>
-                    <td><span style="font-size:12px;">Samantha <em>or</em> Laura Beristain</span></td>
-                    <td><span style="font-size:12px;">Shelli Baxter <em>or</em> Suzanne Houghton</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Week 4</strong></td>
-                    <td><span class="badge badge-green">Dennis Aardema</span></td>
-                    <td><span style="font-size:12px;">Jaymee Brown <em>or</em> Candy Allen</span></td>
-                    <td><span style="font-size:12px;">Mike Sessions <em>or</em> HR Team</span></td>
-                  </tr>
+                <thead><tr><th>Day</th><th>Driver</th><th>Assistant</th><th>Status</th></tr></thead>
+                <tbody id="thisWeekDeliveries">
+                  <tr><td>Monday</td><td><span class="badge badge-primary">Randy Crebs</span></td><td><span class="badge badge-green">Dennis Aardema</span></td><td><span class="badge badge-green">✓ Set</span></td></tr>
+                  <tr><td>Tuesday</td><td><span class="badge badge-primary">Brandi Savage</span></td><td id="tuesdayAsst"><span class="badge badge-amber">Select assistant →</span></td><td id="tuesdayStat">—</td></tr>
+                  <tr><td>Wednesday</td><td><span class="badge badge-primary">Dennis Aardema</span></td><td id="wednesdayAsst"><span class="badge badge-amber">Select assistant →</span></td><td id="wednesdayStat">—</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- Availability request generator -->
-        <div class="card" style="margin-top:16px;">
-          <div class="card-header">
-            <div class="card-title">📲 Generate Availability Request</div>
-          </div>
+        <!-- Assistant confirmation -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><div class="card-title">✅ Confirm This Week's Assistants</div></div>
           <div class="card-body">
-            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
-              <div class="form-row" style="margin:0;">
-                <label class="form-label">Day</label>
-                <select class="form-input" id="availDay" style="width:140px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div>
+                <label class="form-label">Tuesday Assistant</label>
+                <select class="form-input" id="tuesdayConfirm">
+                  <option value="">— select who confirmed —</option>
+                  <option>Gerald Brady</option>
+                  <option>Lorin Wyatt</option>
+                  <option>Laura Beristain</option>
+                  <option>Samantha Flores</option>
+                  <option>Jaymee Brown</option>
+                  <option>Candy Allen</option>
+                </select>
+                <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="confirmAssistant('Tuesday')">Confirm Tuesday</button>
+              </div>
+              <div>
+                <label class="form-label">Wednesday Assistant</label>
+                <select class="form-input" id="wednesdayConfirm">
+                  <option value="">— select who confirmed —</option>
+                  <option>Jessica Densley</option>
+                  <option>Michelle Wilcock</option>
+                  <option>Brian Paul (staff)</option>
+                  <option>Shelli Baxter</option>
+                  <option>Suzanne Houghton</option>
+                  <option>Mike Sessions</option>
+                  <option>HR Team</option>
+                </select>
+                <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="confirmAssistant('Wednesday')">Confirm Wednesday</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full rotation reference -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Full Assistant Rotation Reference</div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table>
+                <thead><tr><th>Week</th><th>Monday</th><th>Tuesday Options</th><th>Wednesday Options</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Week 1</strong></td><td><span class="badge badge-green">Dennis Aardema</span></td><td>Gerald Brady <em>or</em> Lorin Wyatt</td><td>Jessica Densley <em>or</em> Michelle Wilcock</td></tr>
+                  <tr><td><strong>Week 2</strong></td><td><span class="badge badge-green">Dennis Aardema</span></td><td>Laura Beristain</td><td><span class="badge badge-gray">Brian Paul (staff)</span></td></tr>
+                  <tr><td><strong>Week 3</strong></td><td><span class="badge badge-green">Dennis Aardema</span></td><td>Samantha <em>or</em> Laura Beristain</td><td>Shelli Baxter <em>or</em> Suzanne Houghton</td></tr>
+                  <tr><td><strong>Week 4</strong></td><td><span class="badge badge-green">Dennis Aardema</span></td><td>Jaymee Brown <em>or</em> Candy Allen</td><td>Mike Sessions <em>or</em> HR Team</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="delivThisWeekDetail"></div>
+      </div>
                   <option>Tuesday</option>
                   <option>Wednesday</option>
                 </select>
@@ -542,20 +577,25 @@ select.form-input{cursor:pointer;}
                 <label class="form-label">Delivery Date</label>
                 <input type="date" class="form-input" id="availDate" style="width:180px;">
               </div>
-              <button class="btn btn-primary" onclick="generateAvailMsg()">Generate Message</button>
+              <button class="btn btn-primary" onclick="loadDeliveryWeek()">Load This Week</button>
             </div>
-            <div id="availMsgBox" style="display:none;margin-top:16px;">
-              <div style="background:var(--bg);border-radius:10px;padding:14px;font-size:13px;color:var(--text);border:1px solid var(--border);white-space:pre-wrap;" id="availMsgText"></div>
-              <button class="btn btn-primary" style="margin-top:10px;" onclick="copyAvailMsg()">📋 Copy Message</button>
-            </div>
+
+            <!-- This week's confirmed assignments -->
+            <div id="delivThisWeekDetail" style="margin-top:14px;"></div>
           </div>
         </div>
+      </div>
 
-        <!-- Warehouse schedule -->
-        <div class="card" style="margin-top:16px;">
-          <div class="card-header">
-            <div class="card-title">🏭 Warehouse Schedule</div>
+      <!-- WAREHOUSE PAGE -->
+      <div id="page-warehouse" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Warehouse & Admin Schedule</div>
+            <div class="page-subtitle">Regular weekly volunteers — scheduled shifts</div>
           </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🏭 Warehouse Volunteers</div></div>
           <div class="card-body" style="padding:0;">
             <div class="table-wrap" style="border:none;border-radius:0;">
               <table>
@@ -564,11 +604,27 @@ select.form-input{cursor:pointer;}
                   <tr><td>Amy Taylor</td><td>Tuesday</td><td>9:00 AM – 12:00 PM</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
                   <tr><td>Patti Gehring</td><td>Tuesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
                   <tr><td>Steve Gehring</td><td>Tuesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
+                  <tr><td>Nancy Hughes</td><td>Tuesday/Thu</td><td>Various</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
                   <tr><td>Kay Duke</td><td>Wednesday</td><td>10:00 AM – 12:00 PM</td><td><span class="badge badge-gray">Processing</span></td></tr>
                   <tr><td>Mark Duke</td><td>Wednesday</td><td>10:00 AM – 12:00 PM</td><td><span class="badge badge-gray">Processing</span></td></tr>
                   <tr><td>Barbara Preite</td><td>Wednesday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
                   <tr><td>David Sorensen</td><td>Thursday</td><td>9:00 AM – 12:00 PM</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
                   <tr><td>Stacey Mast</td><td>Thursday</td><td>2:00 PM – 4:00 PM</td><td><span class="badge badge-green">Warehouse PM</span></td></tr>
+                  <tr><td>Scott Nichols</td><td>Varies</td><td>—</td><td><span class="badge badge-green">Warehouse AM</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header"><div class="card-title">⚙️ Admin Volunteers</div></div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table>
+                <thead><tr><th>Volunteer</th><th>Role</th><th>Hours/Visit</th></tr></thead>
+                <tbody>
+                  <tr><td>Cassidee Bowen</td><td><span class="badge" style="background:#fdf4ff;color:#7e22ce;">Admin</span></td><td>3 hrs</td></tr>
+                  <tr><td>Nancy Hughes</td><td><span class="badge" style="background:#fdf4ff;color:#7e22ce;">Admin / Warehouse PM</span></td><td>2–3 hrs</td></tr>
                 </tbody>
               </table>
             </div>
@@ -776,16 +832,57 @@ select.form-input{cursor:pointer;}
         <div class="form-row"><label class="form-label">Date *</label><input type="date" class="form-input" id="packDate"></div>
         <div class="form-row"><label class="form-label">Time</label><input type="text" class="form-input" id="packTime" placeholder="e.g. 4:00pm"></div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-row"><label class="form-label">Lines (1 or 2)</label>
-          <select class="form-input" id="packLines"><option value="1">1 Line</option><option value="2">2 Lines</option></select>
-        </div>
-        <div class="form-row"><label class="form-label">Presenter</label><input type="text" class="form-input" id="packPresenter"></div>
+      <div class="form-row"><label class="form-label">Lines (1 or 2)</label>
+        <select class="form-input" id="packLines"><option value="1">1 Line</option><option value="2">2 Lines</option></select>
       </div>
       <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="packNotes" rows="2" style="resize:vertical;"></textarea></div>
+      <div style="display:flex;gap:10px;justify-content:space-between;margin-top:16px;">
+        <button class="btn" id="packDeleteBtn" style="display:none;color:var(--red-text);border-color:var(--red);" onclick="deletePackEvent()">🗑 Delete Event</button>
+        <div style="display:flex;gap:10px;margin-left:auto;">
+          <button class="btn" onclick="closeModal('addPackModal')">Cancel</button>
+          <button class="btn btn-primary" id="packSaveBtn" onclick="savePackEvent()">Save Event</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT VOLUNTEER MODAL -->
+<div class="modal-overlay" id="editVolModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Volunteer</div>
+      <button class="modal-close" onclick="closeModal('editVolModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editVolId">
+      <div class="form-row"><label class="form-label">Full Name *</label><input type="text" class="form-input" id="editName"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">Email</label><input type="email" class="form-input" id="editEmail"></div>
+        <div class="form-row"><label class="form-label">Phone</label><input type="tel" class="form-input" id="editPhone"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">T-Shirt Size</label>
+          <select class="form-input" id="editSize"><option value="">—</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option><option>XXL</option></select>
+        </div>
+        <div class="form-row"><label class="form-label">Birthday</label><input type="date" class="form-input" id="editBirthday"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">Status</label>
+          <select class="form-input" id="editStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="On Leave">On Leave</option></select>
+        </div>
+        <div class="form-row"><label class="form-label">Starting Hours</label><input type="number" class="form-input" id="editPastHours" min="0" step="0.5"></div>
+      </div>
+      <div class="form-row">
+        <label class="form-label" style="display:flex;align-items:center;gap:10px;">
+          <label class="toggle-switch"><input type="checkbox" id="editGiftCard"><span class="toggle-slider"></span></label>
+          Received Gift Card / Thank You
+        </label>
+      </div>
+      <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="editNotes" rows="3" style="resize:vertical;"></textarea></div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
-        <button class="btn" onclick="closeModal('addPackModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="savePackEvent()">Save Event</button>
+        <button class="btn" onclick="closeModal('editVolModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEditVolunteer()">Save Changes</button>
       </div>
     </div>
   </div>
@@ -851,6 +948,8 @@ function showPage(id, el){
   if(id==='packs') loadPacks();
   if(id==='reports') loadReports();
   if(id==='signin') loadSignInPage();
+  if(id==='delivery') loadDeliveryPage();
+  if(id==='warehouse') {} // static for now
 }
 
 // ============================================================
@@ -981,19 +1080,35 @@ async function loadDashboard(){
     }
     document.getElementById('deliveryThisWeek').innerHTML = delivHTML;
 
-    // Milestones — check who recently crossed a threshold
+    // Milestones — check who recently crossed a threshold, excluding acknowledged
     const msEl = document.getElementById('milestoneList');
+    let acknowledged = [];
+    try { acknowledged = await sbGet('milestone_acknowledgements','select=volunteer_id,milestone_hours'); } catch(e){}
+    const ackSet = new Set(acknowledged.map(a=>`${a.volunteer_id}-${a.milestone_hours}`));
+    const milestoneThresholds = [100,250,500,750,1000,1500];
     const recent = vols.filter(v=>{
-      const ms=[100,250,500,750,1000,1500];
-      return ms.some(m=>v.lifetime_hours>=m && v.lifetime_hours<m+10);
-    }).slice(0,5);
+      return milestoneThresholds.some(m=>{
+        const key = `${v.id}-${m}`;
+        return v.lifetime_hours>=m && v.lifetime_hours<m+10 && !ackSet.has(key);
+      });
+    }).slice(0,6);
     if(recent.length){
       msEl.innerHTML = recent.map(v=>{
         const lv=getLevel(v.lifetime_hours);
-        return `<div class="week-row"><div><div class="week-row-val">${v.name}</div><div style="font-size:11px;color:var(--text-muted);">${v.lifetime_hours.toFixed(1)} hrs</div></div><span class="vol-level ${lv.cls}">${lv.name}</span></div>`;
+        const milestone = milestoneThresholds.filter(m=>v.lifetime_hours>=m).pop();
+        return `<div class="week-row">
+          <div>
+            <div class="week-row-val">${v.name}</div>
+            <div style="font-size:11px;color:var(--text-muted);">🎉 Hit ${milestone} hrs · ${v.lifetime_hours.toFixed(1)} total</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="vol-level ${lv.cls}">${lv.name}</span>
+            <button onclick="acknowledgeMilestone('${v.id}',${milestone},this)" class="btn btn-sm" title="Mark as acknowledged" style="padding:3px 8px;">✓</button>
+          </div>
+        </div>`;
       }).join('');
     } else {
-      msEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No recent milestones</div>';
+      msEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px 0;">No new milestones to acknowledge 🎉</div>';
     }
 
     // Recent sign-ins table
@@ -1128,9 +1243,8 @@ async function openVolProfile(id){
 
   document.getElementById('modalName').textContent = v.name;
 
-  // Load sign-ins for this volunteer
   let siHistory = [];
-  try { siHistory = await sbGet('sign_ins',`volunteer_id=eq.${id}&select=*,volunteer_types(name)&order=signed_in_at.desc&limit=10`); } catch(e){}
+  try { siHistory = await sbGet('sign_ins',`volunteer_id=eq.${id}&select=*,volunteer_types(name)&order=signed_in_at.desc&limit=15`); } catch(e){}
 
   const typeBadges = (v.types||[]).map(t=>`<span class="badge ${typeClass(t)}" style="margin-right:3px;">${t}</span>`).join('');
 
@@ -1140,8 +1254,14 @@ async function openVolProfile(id){
       <div class="vol-profile-info">
         <div class="vol-profile-name">${v.name}</div>
         <div class="vol-profile-types">${typeBadges}</div>
-        <span class="badge ${v.status==='Active'?'badge-green':'badge-gray'}">${v.status}</span>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;">
+          <span class="badge ${v.status==='Active'?'badge-green':v.status==='On Leave'?'badge-amber':'badge-gray'}">${v.status}</span>
+          ${v.received_gift_card?'<span class="giftcard-banner">🎁 Gift Card Received</span>':''}
+        </div>
       </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <button class="btn btn-sm btn-primary" onclick="openEditVolunteer('${id}')">✏️ Edit Profile</button>
     </div>
     <div class="info-grid">
       <div class="info-item"><label>Email</label><span>${v.email||'—'}</span></div>
@@ -1161,21 +1281,17 @@ async function openVolProfile(id){
       </div>
       ${next?`<div class="milestone-bar-wrap" style="margin-top:8px;"><div class="milestone-bar" style="width:${pct}%"></div></div>`:''}
     </div>
-    <div style="margin-bottom:10px;">
-      <label class="form-label">Update Starting Hours</label>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input type="number" class="form-input" id="editHours_${id}" value="${v.past_hours||0}" min="0" step="0.5" style="width:120px;">
-        <button class="btn btn-sm btn-primary" onclick="saveStartingHours('${id}')">Save</button>
-      </div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:3px;">These are the hours carried over from before this system</div>
-    </div>
     <hr class="divider">
-    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;">Recent Sign-Ins</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text);">Recent Sign-Ins</div>
+      <div style="font-size:11px;color:var(--text-faint);">Click × to delete erroneous entries</div>
+    </div>
     ${siHistory.length ? siHistory.map(s=>`
       <div class="sign-in-row">
         <span>${fmtDate(s.signed_in_at?.slice(0,10))}</span>
         <span>${s.volunteer_types?.name||'—'}</span>
         <strong>+${s.hours_credited} hrs</strong>
+        <button onclick="deleteSignIn('${s.id}','${id}')" style="background:none;border:none;color:var(--red-text);cursor:pointer;font-size:14px;padding:0 4px;" title="Delete this sign-in">×</button>
       </div>`).join('') : '<div style="color:var(--text-muted);font-size:12px;">No sign-ins recorded yet</div>'}
   `;
   openModal('volModal');
@@ -1189,6 +1305,56 @@ async function saveStartingHours(id){
     if(v) v.past_hours = val;
     showToast('✓ Starting hours updated');
   } catch(e){ showToast('Error saving hours'); }
+}
+
+async function deleteSignIn(signInId, volId){
+  if(!confirm('Delete this sign-in entry? This will reduce their hours.')) return;
+  try {
+    await sbDelete('sign_ins','id=eq.'+signInId);
+    showToast('✓ Sign-in deleted');
+    openVolProfile(volId); // refresh modal
+    loadVolunteers(); // refresh hours
+  } catch(e){ showToast('Error deleting sign-in'); }
+}
+
+function openEditVolunteer(id){
+  const v = _volunteers.find(x=>x.id===id);
+  if(!v) return;
+  document.getElementById('editVolId').value = id;
+  document.getElementById('editName').value = v.name||'';
+  document.getElementById('editEmail').value = v.email||'';
+  document.getElementById('editPhone').value = v.phone||'';
+  document.getElementById('editSize').value = v.tshirt_size||'';
+  document.getElementById('editBirthday').value = v.birthday||'';
+  document.getElementById('editStatus').value = v.status||'Active';
+  document.getElementById('editPastHours').value = v.past_hours||0;
+  document.getElementById('editGiftCard').checked = !!v.received_gift_card;
+  document.getElementById('editNotes').value = v.notes||'';
+  closeModal('volModal');
+  openModal('editVolModal');
+}
+
+async function saveEditVolunteer(){
+  const id = document.getElementById('editVolId').value;
+  const name = document.getElementById('editName').value.trim();
+  if(!name){ showToast('Name is required'); return; }
+  try {
+    await sbPatch('volunteers','id=eq.'+id,{
+      name,
+      email:document.getElementById('editEmail').value||null,
+      phone:document.getElementById('editPhone').value||null,
+      tshirt_size:document.getElementById('editSize').value||null,
+      birthday:document.getElementById('editBirthday').value||null,
+      status:document.getElementById('editStatus').value,
+      past_hours:parseFloat(document.getElementById('editPastHours').value)||0,
+      received_gift_card:document.getElementById('editGiftCard').checked,
+      notes:document.getElementById('editNotes').value||null
+    });
+    closeModal('editVolModal');
+    showToast('✓ Volunteer updated!');
+    await loadVolunteers();
+    openVolProfile(id);
+  } catch(e){ showToast('Error: '+e.message); }
 }
 
 async function openAddVolunteer(){
@@ -1294,8 +1460,9 @@ function openAddPack(){
   document.getElementById('packDate').value='';
   document.getElementById('packTime').value='';
   document.getElementById('packLines').value='1';
-  document.getElementById('packPresenter').value='';
   document.getElementById('packNotes').value='';
+  document.getElementById('packDeleteBtn').style.display='none';
+  document.getElementById('packSaveBtn').onclick = savePackEvent;
   openModal('addPackModal');
 }
 
@@ -1308,7 +1475,6 @@ async function savePackEvent(){
       name, event_date:date,
       event_time:document.getElementById('packTime').value||null,
       lines:parseInt(document.getElementById('packLines').value)||1,
-      presenter:document.getElementById('packPresenter').value||null,
       notes:document.getElementById('packNotes').value||null
     },'return=minimal');
     closeModal('addPackModal');
@@ -1317,34 +1483,46 @@ async function savePackEvent(){
   } catch(e){ showToast('Error: '+e.message); }
 }
 
+let _editingPackId = null;
 async function openEditPack(id){
   const pack = _packs.find(p=>p.id===id);
   if(!pack) return;
+  _editingPackId = id;
   document.getElementById('addPackTitle').textContent = 'Edit Pack Event';
   document.getElementById('packName').value = pack.name;
   document.getElementById('packDate').value = pack.event_date;
   document.getElementById('packTime').value = pack.event_time||'';
   document.getElementById('packLines').value = pack.lines||1;
-  document.getElementById('packPresenter').value = pack.presenter||'';
   document.getElementById('packNotes').value = pack.notes||'';
-  // Override save to patch
-  document.querySelector('#addPackModal .btn-primary').onclick = async ()=>{
+  document.getElementById('packDeleteBtn').style.display='inline-flex';
+  document.getElementById('packSaveBtn').onclick = async ()=>{
     try {
       await sbPatch('pack_events','id=eq.'+id,{
         name:document.getElementById('packName').value,
         event_date:document.getElementById('packDate').value,
         event_time:document.getElementById('packTime').value||null,
         lines:parseInt(document.getElementById('packLines').value)||1,
-        presenter:document.getElementById('packPresenter').value||null,
         notes:document.getElementById('packNotes').value||null
       });
       closeModal('addPackModal');
       showToast('✓ Event updated!');
       loadPacks();
-      document.querySelector('#addPackModal .btn-primary').onclick = savePackEvent;
+      document.getElementById('packSaveBtn').onclick = savePackEvent;
     } catch(e){ showToast('Error: '+e.message); }
   };
   openModal('addPackModal');
+}
+
+async function deletePackEvent(){
+  if(!_editingPackId) return;
+  if(!confirm('Delete this pack event? This cannot be undone.')) return;
+  try {
+    await sbDelete('pack_events','id=eq.'+_editingPackId);
+    closeModal('addPackModal');
+    showToast('✓ Event deleted');
+    loadPacks();
+    _editingPackId = null;
+  } catch(e){ showToast('Error: '+e.message); }
 }
 
 // ============================================================
@@ -1380,9 +1558,13 @@ async function submitSignIn(){
   let typeName = types[0];
   if(types.length>1) typeName = document.getElementById('siType').value||types[0];
 
-  // Get type record
-  const typeRec = _types.find(t=>t.name===typeName);
-  if(!typeRec){ showToast('Type not found, please contact admin'); return; }
+  // Always fetch type fresh from DB — don't rely on cached _types array
+  let typeRec = null;
+  try {
+    const typeResults = await sbGet('volunteer_types',`name=eq.${encodeURIComponent(typeName)}&select=id,name,hours_per_signin`);
+    typeRec = typeResults[0];
+  } catch(e){}
+  if(!typeRec){ showToast('Volunteer type not found — please contact admin'); return; }
   const hrs = typeRec.hours_per_signin||0;
 
   try {
@@ -1496,42 +1678,67 @@ async function loadBirthdays(){
 // ============================================================
 // DELIVERY — AVAILABILITY MESSAGE
 // ============================================================
-function generateAvailMsg(){
-  const day = document.getElementById('availDay').value;
-  const date = document.getElementById('availDate').value;
-  if(!date){ showToast('Please select a delivery date'); return; }
-  const d = new Date(date+'T12:00');
-  const fDate = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-
-  const pairs = {
-    'Tuesday':{
-      1:['Gerald Brady','Lorin Wyatt'],
-      2:['Laura Beristain'],
-      3:['Samantha Flores','Laura Beristain'],
-      4:['Jaymee Brown','Candy Allen']
-    },
-    'Wednesday':{
-      1:['Jessica Densley','Michelle Wilcock'],
-      2:['Brian Paul (staff)'],
-      3:['Shelli Baxter','Suzanne Houghton'],
-      4:['Mike Sessions','HR Team']
-    }
-  };
-
-  // Calc week of month
-  const firstDay = new Date(d.getFullYear(),d.getMonth(),1);
-  const week = Math.ceil((d.getDate()+firstDay.getDay())/7);
-  const pair = (pairs[day]||{})[Math.min(week,4)];
-  const names = pair ? pair.join(' and ') : 'the assigned assistant';
-
-  const msg = `Hey ${names}! 👋\n\nCan you make the ${day} delivery this week?\n📅 ${fDate}\n\nPlease reply YES or NO so we can plan accordingly.\n\nThank you! 🎒\n— USANA Kids Eat`;
-
-  document.getElementById('availMsgText').textContent = msg;
-  document.getElementById('availMsgBox').style.display = 'block';
+async function acknowledgeMilestone(volId, milestone, btn){
+  try {
+    await sbPost('milestone_acknowledgements',{volunteer_id:volId,milestone_hours:milestone},'return=minimal');
+    btn.closest('.week-row').remove();
+    showToast('✓ Milestone acknowledged!');
+  } catch(e){ showToast('Already acknowledged'); }
 }
-function copyAvailMsg(){
-  const txt = document.getElementById('availMsgText').textContent;
-  navigator.clipboard.writeText(txt).then(()=>showToast('✓ Message copied!')).catch(()=>showToast('Copy failed — select text manually'));
+
+// ============================================================
+// DELIVERY PAGE
+// ============================================================
+function loadDeliveryPage(){
+  const now = new Date();
+  const mon = new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7));
+  const week = Math.ceil((mon.getDate()+new Date(mon.getFullYear(),mon.getMonth(),1).getDay())/7);
+  document.getElementById('delivWeekLabel').textContent =
+    'Week of '+mon.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' · Week '+week+' of month';
+
+  // Load confirmed assistants for this week
+  loadConfirmedAssistants(localDate(mon));
+}
+
+async function loadConfirmedAssistants(weekStart){
+  try {
+    const confirmed = await sbGet('delivery_confirmations',`week_start_date=eq.${weekStart}&select=*`);
+    const tuConf = confirmed.find(c=>c.notes?.includes('Tuesday'));
+    const wedConf = confirmed.find(c=>c.notes?.includes('Wednesday'));
+    if(tuConf?.confirmed_name){
+      document.getElementById('tuesdayAsst').innerHTML = `<span class="badge badge-green">${tuConf.confirmed_name}</span>`;
+      document.getElementById('tuesdayStat').innerHTML = '<span class="badge badge-green">✓ Confirmed</span>';
+    }
+    if(wedConf?.confirmed_name){
+      document.getElementById('wednesdayAsst').innerHTML = `<span class="badge badge-green">${wedConf.confirmed_name}</span>`;
+      document.getElementById('wednesdayStat').innerHTML = '<span class="badge badge-green">✓ Confirmed</span>';
+    }
+  } catch(e){}
+}
+
+async function confirmAssistant(day){
+  const selectId = day.toLowerCase()+'Confirm';
+  const name = document.getElementById(selectId).value;
+  if(!name){ showToast('Please select a name first'); return; }
+  const now = new Date();
+  const mon = new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7));
+  const weekStart = localDate(mon);
+
+  try {
+    // Upsert-style: delete then insert
+    const existing = await sbGet('delivery_confirmations',`week_start_date=eq.${weekStart}&notes=like.*${day}*&select=id`);
+    for(const e of existing) await sbDelete('delivery_confirmations','id=eq.'+e.id);
+    await sbPost('delivery_confirmations',{
+      delivery_slot_id: null, // simplified — no slot lookup needed
+      week_start_date: weekStart,
+      confirmed_name: name,
+      notes: day
+    },'return=minimal');
+    // Update UI
+    document.getElementById(day.toLowerCase()+'Asst').innerHTML = `<span class="badge badge-green">${name}</span>`;
+    document.getElementById(day.toLowerCase()+'Stat').innerHTML = '<span class="badge badge-green">✓ Confirmed</span>';
+    showToast(`✓ ${day} assistant confirmed: ${name}`);
+  } catch(e){ showToast('Saved locally — '+e.message); }
 }
 
 // QR placeholder
