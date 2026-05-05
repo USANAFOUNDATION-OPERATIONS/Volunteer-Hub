@@ -895,6 +895,11 @@ select.form-input{cursor:pointer;}
         </label>
       </div>
       <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="editNotes" rows="3" style="resize:vertical;"></textarea></div>
+      <div class="form-row">
+        <label class="form-label">Volunteer Type(s)</label>
+        <div id="editTypeCheckboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);"></div>
+        <div style="font-size:11px;color:var(--text-faint);margin-top:4px;">Check all that apply — each type has its own auto-credited hours</div>
+      </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
         <button class="btn" onclick="closeModal('editVolModal')">Cancel</button>
         <button class="btn btn-primary" onclick="saveEditVolunteer()">Save Changes</button>
@@ -1479,6 +1484,19 @@ function openEditVolunteer(id){
   document.getElementById('editPastHours').value = v.past_hours||0;
   document.getElementById('editGiftCard').checked = !!v.received_gift_card;
   document.getElementById('editNotes').value = v.notes||'';
+
+  // Populate type checkboxes
+  const currentTypes = v.types||[];
+  const checkboxContainer = document.getElementById('editTypeCheckboxes');
+  checkboxContainer.innerHTML = _types.map(t=>`
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:4px;">
+      <input type="checkbox" id="editType_${t.id}" value="${t.id}" ${currentTypes.includes(t.name)?'checked':''} style="width:15px;height:15px;cursor:pointer;accent-color:var(--primary);">
+      <span>
+        <span class="badge ${typeClass(t.name)}" style="font-size:10px;">${t.name}</span>
+        <span style="color:var(--text-faint);margin-left:4px;">${t.hours_per_signin}h</span>
+      </span>
+    </label>`).join('');
+
   closeModal('volModal');
   openModal('editVolModal');
 }
@@ -1487,7 +1505,15 @@ async function saveEditVolunteer(){
   const id = document.getElementById('editVolId').value;
   const name = document.getElementById('editName').value.trim();
   if(!name){ showToast('Name is required'); return; }
+
+  // Get selected type IDs from checkboxes
+  const selectedTypeIds = _types
+    .filter(t=>document.getElementById('editType_'+t.id)?.checked)
+    .map(t=>t.id);
+  if(!selectedTypeIds.length){ showToast('Please select at least one volunteer type'); return; }
+
   try {
+    // Save basic info
     await sbPatch('volunteers','id=eq.'+id,{
       name,
       email:document.getElementById('editEmail').value||null,
@@ -1499,6 +1525,17 @@ async function saveEditVolunteer(){
       received_gift_card:document.getElementById('editGiftCard').checked,
       notes:document.getElementById('editNotes').value||null
     });
+
+    // Update type assignments — delete all then re-insert
+    await sbDelete('volunteer_type_assignments','volunteer_id=eq.'+id);
+    for(let i=0; i<selectedTypeIds.length; i++){
+      await sbPost('volunteer_type_assignments',{
+        volunteer_id:id,
+        type_id:selectedTypeIds[i],
+        is_primary:i===0
+      },'return=minimal');
+    }
+
     closeModal('editVolModal');
     showToast('✓ Volunteer updated!');
     await loadVolunteers();
