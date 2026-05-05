@@ -132,7 +132,7 @@ select.form-input{cursor:pointer;}
 .vol-card-status-dot.active{background:#22c55e;}
 .vol-card-status-dot.inactive{background:#94a3b8;}
 .vol-card-status-dot.onleave{background:#f59e0b;}
-.vol-card-level-badge{position:absolute;bottom:10px;left:10px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.3);}
+.vol-card-level-badge{position:absolute;bottom:8px;left:8px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.4);z-index:2;white-space:nowrap;}
 .vol-card-body{padding:12px 14px 14px;}
 .vol-card-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.01em;}
 .vol-card-types{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px;min-height:20px;}
@@ -579,22 +579,6 @@ select.form-input{cursor:pointer;}
           </div>
         </div>
         <div id="delivThisWeekDetail"></div>
-      </div>
-                  <option>Tuesday</option>
-                  <option>Wednesday</option>
-                </select>
-              </div>
-              <div class="form-row" style="margin:0;">
-                <label class="form-label">Delivery Date</label>
-                <input type="date" class="form-input" id="availDate" style="width:180px;">
-              </div>
-              <button class="btn btn-primary" onclick="loadDeliveryWeek()">Load This Week</button>
-            </div>
-
-            <!-- This week's confirmed assignments -->
-            <div id="delivThisWeekDetail" style="margin-top:14px;"></div>
-          </div>
-        </div>
       </div>
 
       <!-- WAREHOUSE PAGE -->
@@ -1262,7 +1246,7 @@ function renderCardView(vols){
     const heroGrad = (v.types||[]).length ? typeGradient(v.types) : avatarGradient(v.name);
     const initials = avatarInitials(v.name);
     const heroContent = v.photo_url
-      ? `<img src="${v.photo_url}" alt="${v.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div class=\\"vol-card-avatar\\" style=\\"background:${heroGrad};width:100%;height:100%;display:flex;align-items:center;justify-content:center;\\">${initials}</div>'">`
+      ? `<img src="${v.photo_url}" alt="${v.name}" style="width:100%;height:100%;object-fit:cover;" data-grad="${heroGrad}" data-initials="${initials}" onload="this.style.opacity=1" onerror="this.outerHTML='<div class=vol-card-avatar style=background:'+this.dataset.grad+'>'+this.dataset.initials+'</div>'">`
       : `<div class="vol-card-avatar" style="background:${heroGrad};">${initials}</div>`;
     return `
     <div class="vol-card" onclick="openVolProfile('${v.id}')">
@@ -1314,7 +1298,7 @@ async function openVolProfile(id){
   const typeBadges = (v.types||[]).map(t=>`<span class="badge ${typeClass(t)}" style="margin-right:3px;">${t}</span>`).join('');
   const profileGrad = (v.types||[]).length ? typeGradient(v.types) : avatarGradient(v.name);
   const profilePhotoHTML = v.photo_url
-    ? `<div class="vol-profile-photo"><img src="${v.photo_url}" alt="${v.name}" onerror="this.parentElement.style.background='${profileGrad}';this.parentElement.innerHTML='${avatarInitials(v.name)}'"></div>`
+    ? `<div class="vol-profile-photo"><img src="${v.photo_url}" alt="${v.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.background='${profileGrad}';this.parentElement.textContent='${avatarInitials(v.name)}'"></div>`
     : `<div class="vol-profile-photo" style="background:${profileGrad};">${avatarInitials(v.name)}</div>`;
 
   document.getElementById('modalBody').innerHTML = `
@@ -1832,9 +1816,6 @@ function printQR(){
 // INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', async ()=>{
-  // Set today's date on delivery input
-  document.getElementById('availDate').value = localDate();
-
   await loadVolunteers();
   loadDashboard();
 });
