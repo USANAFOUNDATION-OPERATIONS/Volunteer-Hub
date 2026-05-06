@@ -390,6 +390,10 @@ select.form-input{cursor:pointer;}
           Warehouse
         </div>
         <div class="nav-section">Admin</div>
+        <div class="nav-item" onclick="showPage('timeoff',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/></svg>
+          Time Off
+        </div>
         <div class="nav-item" onclick="showPage('signin',this)">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
           Sign-In
@@ -1067,6 +1071,56 @@ select.form-input{cursor:pointer;}
       </div>
 
       <!-- STAFF PAGE -->
+      <!-- ── TIME OFF ── -->
+      <div id="page-timeoff" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Time Off Requests</div>
+            <div class="page-subtitle">Mark a volunteer as unavailable — they'll show as OUT on the command center</div>
+          </div>
+        </div>
+
+        <!-- Add form -->
+        <div class="card" style="margin-bottom:18px;">
+          <div class="card-header"><div class="card-title">Add Time Off</div></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;">
+              <div>
+                <label class="form-label">Volunteer</label>
+                <select class="form-input" id="toVolunteer">
+                  <option value="">— select volunteer —</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Start Date</label>
+                <input class="form-input" type="date" id="toStart">
+              </div>
+              <div>
+                <label class="form-label">End Date</label>
+                <input class="form-input" type="date" id="toEnd">
+              </div>
+              <button class="btn btn-primary" onclick="addTimeOff()">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current & upcoming -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Upcoming & Active Time Off</div>
+            <button class="btn" style="font-size:12px;padding:5px 12px;" onclick="loadTimeOff()">↻ Refresh</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table>
+                <thead><tr><th>Volunteer</th><th>Start</th><th>End</th><th>Status</th><th></th></tr></thead>
+                <tbody id="timeOffBody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="page-staff" class="page">
         <div class="page-header">
           <div>
@@ -1459,6 +1513,7 @@ function showPage(id, el){
   if(id==='portal'){ loadPortalPage(); }
   if(id==='packsignup'){ loadPackSignupPage(); }
   if(id==='staff'){ loadStaff(); }
+  if(id==='timeoff'){ loadTimeOff(); populateTimeOffVolunteers(); }
 }
 
 // ============================================================
@@ -3838,6 +3893,77 @@ window.addEventListener('DOMContentLoaded', async ()=>{
     </div>`;
   }
 });
+
+// ── TIME OFF ────────────────────────────────────────────────────
+async function populateTimeOffVolunteers(){
+  const sel=document.getElementById('toVolunteer');
+  if(sel.options.length>1) return; // already loaded
+  try{
+    const vols=await get('volunteers','select=id,name&order=name.asc');
+    vols.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v.id; o.textContent=v.name;
+      sel.appendChild(o);
+    });
+  }catch(e){ console.error(e); }
+}
+
+async function loadTimeOff(){
+  const tbody=document.getElementById('timeOffBody');
+  tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</td></tr>';
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const rows=await get('volunteer_time_off',
+      `end_date=gte.${today}&select=id,start_date,end_date,volunteers(name)&order=start_date.asc`);
+    if(!rows.length){
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">No upcoming time off</td></tr>';
+      return;
+    }
+    tbody.innerHTML=rows.map(r=>{
+      const today2=new Date().toISOString().slice(0,10);
+      const active=r.start_date<=today2&&r.end_date>=today2;
+      const status=active
+        ?'<span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">Out Now</span>'
+        :'<span style="background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">Upcoming</span>';
+      return `<tr>
+        <td style="font-weight:600;">${r.volunteers?.name||'—'}</td>
+        <td>${r.start_date}</td>
+        <td>${r.end_date}</td>
+        <td>${status}</td>
+        <td><button class="btn" style="font-size:11px;padding:3px 10px;color:var(--danger);" onclick="deleteTimeOff('${r.id}')">Remove</button></td>
+      </tr>`;
+    }).join('');
+  }catch(e){ console.error(e); tbody.innerHTML='<tr><td colspan="5" style="color:red;padding:16px;">Error loading time off</td></tr>'; }
+}
+
+async function addTimeOff(){
+  const vid=document.getElementById('toVolunteer').value;
+  const start=document.getElementById('toStart').value;
+  const end=document.getElementById('toEnd').value;
+  if(!vid||!start||!end){ showToast('Please fill in all fields'); return; }
+  if(end<start){ showToast('End date must be on or after start date'); return; }
+  try{
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/volunteer_time_off`,{
+      method:'POST',
+      headers:{...HDR,'Prefer':'return=minimal'},
+      body:JSON.stringify({volunteer_id:vid,start_date:start,end_date:end})
+    });
+    if(!r.ok) throw new Error(await r.text());
+    document.getElementById('toVolunteer').value='';
+    document.getElementById('toStart').value='';
+    document.getElementById('toEnd').value='';
+    showToast('Time off saved');
+    loadTimeOff();
+  }catch(e){ console.error(e); showToast('Error saving — check console'); }
+}
+
+async function deleteTimeOff(id){
+  if(!confirm('Remove this time off entry?')) return;
+  try{
+    await fetch(`${SUPABASE_URL}/rest/v1/volunteer_time_off?id=eq.${id}`,{method:'DELETE',headers:HDR});
+    loadTimeOff();
+  }catch(e){ console.error(e); }
+}
 </script>
 </body>
 </html>
