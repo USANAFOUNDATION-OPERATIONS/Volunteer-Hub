@@ -325,15 +325,15 @@ body::before{
   transition:opacity .3s,filter .3s;
 }
 .sched-row.out{
-  opacity:0.4;filter:grayscale(0.6);
-  background:#f5f5f5;border-color:rgba(200,200,200,0.4);
+  opacity:0.65;filter:grayscale(0.3);
+  background:#4A7A78;border-color:#5A9A98;
 }
 .out-badge{
   font-size:8px;font-weight:800;color:var(--red);
   background:#320A0A;padding:2px 7px;
   border-radius:10px;margin-left:3px;
 }
-.sched-time{font-size:10px;color:rgba(0,30,30,0.70);width:86px;flex-shrink:0;font-weight:600;}
+.sched-time{font-size:10px;color:#ffffff;width:86px;flex-shrink:0;font-weight:600;}
 .sched-name{font-size:12px;font-weight:700;color:#001A1A;flex:1;}
 .sched-type{font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;}
 .wh-am{background:rgba(0,0,0,0.22);color:#001A1A;}
@@ -629,68 +629,72 @@ async function loadDeliveries(){
   const now=new Date();
   const fom=new Date(now.getFullYear(),now.getMonth(),1);
   function nth(day,d){let n=0;const c=new Date(fom);while(c<=d){if(c.getDay()===day)n++;c.setDate(c.getDate()+1);}return Math.min(n,4);}
-  const tu=nth(2,now),we=nth(3,now);
-  const sc={
-    Monday:{drv:'Randy Crebs',ast:{1:'Dennis Aardema',2:'Dennis Aardema',3:'Dennis Aardema',4:'Dennis Aardema'}},
-    Tuesday:{drv:'Brandi Savage',ast:{1:'Gerald Brady / Lorin Wyatt',2:'Laura Beristain',3:'Samantha / Laura Beristain',4:'Jaymee Brown / Candy Allen'}},
-    Wednesday:{drv:'Dennis Aardema',ast:{1:'Jessica / Michelle',2:'Brian (staff)',3:'Shelli / Suzanne',4:'Mike / HR Team'}}
-  };
+  const mo=nth(1,now),tu=nth(2,now),we=nth(3,now);
+  const weekStart=ld(mon(now));
+
+  let slots=[],confs=[];
+  try{ slots=await get('delivery_slots','role=eq.Driver&select=day_of_week,week_of_month,volunteers(name)'); }catch(e){}
+  try{ confs=await get('delivery_confirmations',`week_start_date=eq.${weekStart}&select=confirmed_name,notes`); }catch(e){}
+
+  function getDriver(day,wk){
+    const s=slots.find(s=>s.day_of_week===day&&s.week_of_month===wk);
+    return s?.volunteers?.name||'—';
+  }
+  function getAsst(day){
+    const c=confs.find(c=>c.notes===day);
+    return c?.confirmed_name||null;
+  }
+
   document.getElementById('delivList').innerHTML=
-    [{d:'Monday',n:null},{d:'Tuesday',n:tu},{d:'Wednesday',n:we}].map(({d,n})=>{
-      const s=sc[d];const a=s.ast[n||1];
+    [{d:'Monday',n:mo},{d:'Tuesday',n:tu},{d:'Wednesday',n:we}].map(({d,n})=>{
+      const drv=getDriver(d,n);
+      const ast=getAsst(d);
       return `<div class="day-block">
         <div class="day-label">${d}</div>
-        <div class="person-row"><div class="person-dot" style="background:var(--orange);"></div><div class="person-name">${s.drv}</div><span class="role-pill driver-pill">🚐 Driver</span></div>
-        <div class="person-row"><div class="person-dot" style="background:var(--blue);"></div><div class="person-name">${a}</div><span class="role-pill asst-pill">👐 Assistant</span></div>
+        <div class="person-row"><div class="person-dot" style="background:var(--orange);"></div><div class="person-name">${drv}</div><span class="role-pill driver-pill">🚐 Driver</span></div>
+        ${ast?`<div class="person-row"><div class="person-dot" style="background:var(--blue);"></div><div class="person-name">${ast}</div><span class="role-pill asst-pill">👐 Assistant</span></div>`:''}
       </div>`;
     }).join('');
 }
 
-// Schedule (with time-off support)
+// Schedule — pulled live from volunteer_schedules + volunteer_types
 async function loadSchedule(){
   const now=new Date();
   const ms=ld(mon(now)),ss=ld(sun(now));
-  let timeOff=[];
-  try{
-    timeOff=await get('volunteer_time_off',
-      `start_date=lte.${ss}&end_date=gte.${ms}&select=volunteer_id,start_date,end_date,volunteers(name)`);
-  }catch(e){}
 
-  function isOff(name,day){
-    const dm={'Tuesday':2,'Wednesday':3,'Thursday':4};
+  let schedRows=[],timeOff=[];
+  try{ schedRows=await get('volunteer_schedules','select=volunteer_id,day_of_week,shift_time,volunteer_types(name),volunteers(name)&order=created_at.asc'); }catch(e){}
+  try{ timeOff=await get('volunteer_time_off',`start_date=lte.${ss}&end_date=gte.${ms}&select=volunteer_id,start_date,end_date`); }catch(e){}
+
+  const typeMap={
+    'Warehouse AM':{cls:'wh-am',label:'WH AM'},
+    'Warehouse PM':{cls:'wh-pm',label:'WH PM'},
+    'Processing':  {cls:'proc', label:'Processing'},
+    'Admin':       {cls:'adm',  label:'Admin'},
+  };
+
+  function isOff(vid,day){
+    const dm={Tuesday:2,Wednesday:3,Thursday:4};
     const td=dm[day];if(!td)return false;
     const d=new Date(mon(now));
     while(d.getDay()!==td)d.setDate(d.getDate()+1);
     const ds=ld(d);
-    return timeOff.some(t=>t.volunteers?.name===name&&t.start_date<=ds&&t.end_date>=ds);
+    return timeOff.some(t=>t.volunteer_id===vid&&t.start_date<=ds&&t.end_date>=ds);
   }
 
-  const sched=[
-    {day:'Tuesday',   name:'Amy Taylor',     time:'9:00–12:00',   type:'wh-am',label:'WH AM'},
-    {day:'Tuesday',   name:'Patti Gehring',  time:'2:00–4:00 PM', type:'wh-pm',label:'WH PM'},
-    {day:'Tuesday',   name:'Steve Gehring',  time:'2:00–4:00 PM', type:'wh-pm',label:'WH PM'},
-    {day:'Tuesday',   name:'Nancy Hughes',   time:'Various',       type:'adm',  label:'Admin'},
-    {day:'Tuesday',   name:'Cassidee Bowen', time:'9:00–12:00',   type:'adm',  label:'Admin'},
-    {day:'Wednesday', name:'Kay Duke',       time:'10:00–12:00',  type:'proc', label:'Processing'},
-    {day:'Wednesday', name:'Mark Duke',      time:'10:00–12:00',  type:'proc', label:'Processing'},
-    {day:'Wednesday', name:'Scott Nichols',  time:'9:00–12:00',   type:'wh-am',label:'WH AM'},
-    {day:'Wednesday', name:'Barbara Preite', time:'2:00–4:00 PM', type:'wh-pm',label:'WH PM'},
-    {day:'Thursday',  name:'David Sorensen', time:'9:00–12:00',   type:'wh-am',label:'WH AM'},
-    {day:'Thursday',  name:'Stacey Mast',    time:'2:00–4:00 PM', type:'wh-pm',label:'WH PM'},
-  ];
-
   const byDay={Tuesday:[],Wednesday:[],Thursday:[]};
-  sched.forEach(s=>{if(byDay[s.day])byDay[s.day].push(s);});
+  schedRows.forEach(r=>{ if(byDay[r.day_of_week]) byDay[r.day_of_week].push(r); });
 
   document.getElementById('schedList').innerHTML=Object.entries(byDay).map(([day,rows])=>`
     <div class="sched-day-block">
       <div class="sched-day-label">${day}</div>
       ${rows.map(r=>{
-        const off=isOff(r.name,day);
+        const off=isOff(r.volunteer_id,day);
+        const t=typeMap[r.volunteer_types?.name]||{cls:'proc',label:r.volunteer_types?.name||''};
         return `<div class="sched-row ${off?'out':''}">
-          <div class="sched-time">${r.time}</div>
-          <div class="sched-name">${r.name}${off?'<span class="out-badge">OUT</span>':''}</div>
-          <span class="sched-type ${r.type}">${r.label}</span>
+          <div class="sched-time">${r.shift_time||''}</div>
+          <div class="sched-name">${r.volunteers?.name||''}${off?'<span class="out-badge">OUT</span>':''}</div>
+          <span class="sched-type ${t.cls}">${t.label}</span>
         </div>`;
       }).join('')}
     </div>`).join('');
