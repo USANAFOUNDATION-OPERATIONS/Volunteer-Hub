@@ -482,14 +482,6 @@ select.form-input{cursor:pointer;}
             <div class="week-card-body" id="anniversaryList"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
           </div>
 
-          <!-- Volunteer of the Month -->
-          <div class="week-card">
-            <div class="week-card-head">
-              <div class="week-card-title">⭐ Volunteer of the Month</div>
-              <button class="btn btn-sm" onclick="openVolOfMonthPicker()">Select</button>
-            </div>
-            <div class="week-card-body" id="volOfMonthDisplay"><div style="color:var(--text-muted);font-size:12px;">No one selected yet this month</div></div>
-          </div>
         </div>
 
         <!-- Recent sign-ins -->
@@ -1101,30 +1093,6 @@ select.form-input{cursor:pointer;}
   </div>
 </div>
 
-<!-- VOL OF MONTH PICKER -->
-<div class="modal-overlay" id="volOfMonthModal">
-  <div class="modal" style="max-width:400px;">
-    <div class="modal-header">
-      <div class="modal-title">Select Volunteer of the Month</div>
-      <button class="modal-close" onclick="closeModal('volOfMonthModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <label class="form-label">Volunteer</label>
-        <select class="form-input" id="vomSelect" style="font-size:16px;"></select>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Month</label>
-        <input type="month" class="form-input" id="vomMonth">
-      </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
-        <button class="btn" onclick="closeModal('volOfMonthModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="saveVolOfMonth()">Save</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- BIRTHDAY MESSAGE MODAL -->
 <div class="modal-overlay" id="birthdayMsgModal">
   <div class="modal" style="max-width:420px;">
@@ -1491,12 +1459,30 @@ async function loadDashboard(){
       wpEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No packs this week</div>';
     }
 
-    // Delivery this week
-    const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const delivDays = ['Monday','Tuesday','Wednesday'];
+    // Delivery this week — show actual driver + assistant per day
+    const weekOfMonth = Math.ceil((mon.getDate() + new Date(mon.getFullYear(), mon.getMonth(), 1).getDay()) / 7);
+    const clampedWeek = Math.min(weekOfMonth, 4);
+
+    const deliverySchedule = {
+      Monday:    { driver: 'Randy Crebs',   assistants: { 1:'Dennis Aardema', 2:'Dennis Aardema', 3:'Dennis Aardema', 4:'Dennis Aardema' } },
+      Tuesday:   { driver: 'Brandi Savage', assistants: { 1:'Gerald Brady / Lorin Wyatt', 2:'Laura Beristain', 3:'Samantha / Laura Beristain', 4:'Jaymee Brown / Candy Allen' } },
+      Wednesday: { driver: 'Dennis Aardema', assistants: { 1:'Jessica Densley / Michelle Wilcock', 2:'Brian Paul (staff)', 3:'Shelli Baxter / Suzanne Houghton', 4:'Mike Sessions / HR Team' } }
+    };
+
     let delivHTML = '';
-    for(const day of delivDays){
-      delivHTML += `<div class="week-row"><div class="week-row-label">${day}</div><div class="week-row-val slot-filled">✓ Scheduled</div></div>`;
+    for(const day of ['Monday','Tuesday','Wednesday']){
+      const sched = deliverySchedule[day];
+      const asst = sched.assistants[clampedWeek];
+      delivHTML += `
+        <div class="week-row">
+          <div>
+            <div class="week-row-val">${day}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+              🚗 ${sched.driver} &nbsp;·&nbsp; 👤 ${asst}
+            </div>
+          </div>
+          <span class="badge badge-green" style="font-size:10px;">Week ${clampedWeek}</span>
+        </div>`;
     }
     document.getElementById('deliveryThisWeek').innerHTML = delivHTML;
 
@@ -1543,7 +1529,6 @@ async function loadDashboard(){
 
     // Load additional dashboard sections safely
     try { loadAnniversaries(); } catch(e){ console.error('Anniversary error:',e); }
-    try { loadVolOfMonth(); } catch(e){ console.error('VOM error:',e); }
     try { loadImpactNumbers(); } catch(e){ console.error('Impact error:',e); }
 
   } catch(e){ console.error(e); }
