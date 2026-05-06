@@ -1281,6 +1281,25 @@ select.form-input{cursor:pointer;}
 <div class="toast" id="toast"></div>
 
 <script>
+
+// Global error catcher - shows any crash on screen
+window.onerror = function(msg, src, line, col, err) {
+  document.body.innerHTML = '<div style="padding:30px;font-family:monospace;background:#fff;">'
+    + '<h2 style="color:red;">JavaScript Error</h2>'
+    + '<p><b>Message:</b> ' + msg + '</p>'
+    + '<p><b>Line:</b> ' + line + '</p>'
+    + '<p><b>Stack:</b> ' + (err && err.stack ? err.stack : 'none') + '</p>'
+    + '</div>';
+  return true;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  document.body.innerHTML = '<div style="padding:30px;font-family:monospace;background:#fff;">'
+    + '<h2 style="color:red;">Unhandled Promise Rejection</h2>'
+    + '<p>' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)) + '</p>'
+    + '<p>' + (e.reason && e.reason.stack ? e.reason.stack : '') + '</p>'
+    + '</div>';
+});
+
 // ============================================================
 // CONFIG
 // ============================================================
