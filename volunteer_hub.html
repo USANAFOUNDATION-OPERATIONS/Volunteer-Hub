@@ -2875,7 +2875,8 @@ async function generateCertificate(id){
 }
 
 // ============================================================
-// VOLUNTEER STORY (Claude API)
+// ============================================================
+// VOLUNTEER STORY — Smart Template Engine
 // ============================================================
 let _storyVolId = null;
 let _currentStoryText = '';
@@ -2884,71 +2885,124 @@ async function generateStory(id){
   const v = _volunteers.find(x=>x.id===id);
   if(!v) return;
   _storyVolId = id;
+  const firstName = v.name.split(' ')[0];
   document.getElementById('storyModalTitle').textContent = `✨ ${v.name}'s Story`;
   document.getElementById('storyContent').innerHTML = `
     <div style="text-align:center;padding:20px;color:var(--text-muted);">
       <div style="font-size:24px;margin-bottom:8px;">✨</div>
-      <div style="font-size:14px;">Writing ${v.name}'s personal story...</div>
-      <div style="font-size:12px;margin-top:4px;color:var(--text-faint);">This takes about 10 seconds</div>
+      <div style="font-size:14px;">Building ${firstName}'s story...</div>
     </div>`;
   document.getElementById('storyActions').style.display='none';
   closeModal('volModal');
   openModal('storyModal');
 
   try {
-    // Get sign-in data for this volunteer
-    const signIns = await sbGet('sign_ins',
-      `volunteer_id=eq.${id}&signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited,volunteer_types(name)&order=signed_in_at.desc`
-    );
-    const totalYearHrs = signIns.reduce((a,s)=>a+(s.hours_credited||0),0);
+    // Load their real data
+    const [signIns, allSI] = await Promise.all([
+      sbGet('sign_ins',`volunteer_id=eq.${id}&signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited,signed_in_at,volunteer_types(name)&order=signed_in_at.asc`),
+      sbGet('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`)
+    ]);
+
+    const yearHrs = signIns.reduce((a,s)=>a+(s.hours_credited||0),0);
     const signInCount = signIns.length;
-    const typeBreakdown = {};
-    signIns.forEach(s=>{ const t=s.volunteer_types?.name||'Volunteer'; typeBreakdown[t]=(typeBreakdown[t]||0)+s.hours_credited; });
+    const lifetimeHrs = v.lifetime_hours||0;
+    const lv = getLevel(lifetimeHrs);
 
-    // Get pack signups
-    const packSignups = await sbGet('pack_signups',`volunteer_id=eq.${id}&select=role,pack_events(name,event_date)`);
+    // Backpacks estimate
+    const totalBags = parseInt(document.getElementById('impactBags')?.textContent?.replace(/,/g,'')||'35000');
+    const totalHrs = allSI.reduce((a,s)=>a+(s.hours_credited||0),0)||1;
+    const volBags = calcBackpacksFromHours(lifetimeHrs, totalBags, totalHrs);
+    const volMeals = volBags * 7;
 
-    // Calculate bags estimate
-    const totalBags = parseInt(document.getElementById('impactBags').textContent.replace(/,/g,''))||35000;
-    const allSignIns = await sbGet('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
-    const totalHrs = allSignIns.reduce((a,s)=>a+(s.hours_credited||0),0);
-    const volBags = calcBackpacksFromHours(totalYearHrs, totalBags, totalHrs);
+    // Years serving
+    const yearsServing = v.date_started
+      ? Math.floor((new Date()-new Date(v.date_started+'T12:00:00'))/(1000*60*60*24*365))
+      : null;
 
-    const yearsServing = v.date_started ? Math.round((new Date()-new Date(v.date_started+'T12:00:00'))/(1000*60*60*24*365)) : null;
+    // Primary role
+    const types = v.types||[];
+    const primaryType = types[0]||'Volunteer';
+    const isDriver = types.some(t=>t.includes('Driver'));
+    const isWarehouse = types.some(t=>t.includes('Warehouse'));
+    const isPackHost = types.some(t=>t.includes('Pack Host'));
+    const isLead = types.some(t=>t.includes('Lead'));
+    const isDeliveryAsst = types.some(t=>t.includes('Delivery Assistant'));
+    const isProcessing = types.some(t=>t.includes('Processing'));
 
-    const prompt = `You are writing a warm, personal, heartfelt end-of-year message for a volunteer at the USANA Kids Eat program — a nonprofit that packs backpacks of food for children who might otherwise go hungry over the weekend.
+    // Build role-specific sentences
+    let rolePhrase = '';
+    if(isDriver) rolePhrase = `Every delivery run you make means food arrives where it needs to go.`;
+    else if(isDeliveryAsst) rolePhrase = `Riding along and making sure every delivery goes smoothly — that's what you do.`;
+    else if(isWarehouse && isPackHost) rolePhrase = `Whether you're on the warehouse floor or leading a pack line, you show up.`;
+    else if(isWarehouse) rolePhrase = `Behind the scenes, keeping everything running — that's where you live.`;
+    else if(isLead) rolePhrase = `Leading a pack line takes skill and presence, and you bring both every single time.`;
+    else if(isPackHost) rolePhrase = `Pack after pack, you make sure every backpack gets filled with care.`;
+    else if(isProcessing) rolePhrase = `The work you do in processing keeps the whole operation moving.`;
+    else rolePhrase = `Every time you show up, you make the mission possible.`;
 
-Write a short, personal message (3-4 sentences) FROM the organization TO this specific volunteer. Make it feel genuinely human and specific to them — not generic. Reference their actual numbers naturally, not in a list. Use their first name. End with something that makes them feel genuinely seen and valued.
+    // Build year-specific sentence
+    let yearPhrase = '';
+    if(signInCount === 0){
+      yearPhrase = `We're grateful you're part of the Kids Eat family.`;
+    } else if(signInCount === 1){
+      yearPhrase = `This school year you came in and gave ${yearHrs.toFixed(1)} hours — every hour counts.`;
+    } else {
+      yearPhrase = `This school year you signed in ${signInCount} times, contributing ${yearHrs.toFixed(1)} hours to the mission.`;
+    }
 
-Volunteer: ${v.name.split(' ')[0]}
-Role(s): ${(v.types||[]).join(', ')||'Volunteer'}
-This school year: ${signInCount} sign-ins, ${totalYearHrs.toFixed(1)} hours volunteered
-Estimated backpacks they helped pack: approximately ${volBags}
-${yearsServing?`Years serving: ${yearsServing}`:''}
-${v.notes?`Notes about this volunteer: ${v.notes}`:''}
-Current level: ${getLevel(v.lifetime_hours||0).name} (${(v.lifetime_hours||0).toFixed(0)} lifetime hours)
+    // Impact sentence
+    let impactPhrase = '';
+    if(volBags > 0){
+      impactPhrase = volMeals >= 1000
+        ? `Across your time with us, your hours represent roughly ${volBags.toLocaleString()} backpacks — that's ${volMeals.toLocaleString()} meals delivered to children who needed them.`
+        : `Your time has helped put food in the hands of kids who need it most.`;
+    }
 
-Write the message directly — no subject line, no "Dear [name]:", just the message itself. Warm, genuine, specific. Sign it "— The Kids Eat Team 🎒"`;
+    // Years sentence
+    let yearsPhrase = '';
+    if(yearsServing && yearsServing >= 1){
+      yearsPhrase = yearsServing === 1
+        ? `One full year with Kids Eat — and we hope for many more.`
+        : `${yearsServing} years of showing up. That kind of loyalty is rare and it means everything to us.`;
+    }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{role:'user', content: prompt}]
-      })
-    });
-    const data = await response.json();
-    const storyText = data.content?.[0]?.text || 'Unable to generate story. Please try again.';
-    _currentStoryText = storyText;
+    // Milestone sentence
+    let milestonePhrase = '';
+    if(lifetimeHrs >= 1000) milestonePhrase = `At ${lifetimeHrs.toFixed(0)} lifetime hours, you are a Legend in this program — and we mean that.`;
+    else if(lifetimeHrs >= 500) milestonePhrase = `${lifetimeHrs.toFixed(0)} lifetime hours puts you among our most dedicated volunteers. You are a Pillar of what we do.`;
+    else if(lifetimeHrs >= 250) milestonePhrase = `${lifetimeHrs.toFixed(0)} lifetime hours — you've earned your Anchor status and then some.`;
+    else if(lifetimeHrs >= 100) milestonePhrase = `Crossing 100 hours is a milestone worth celebrating, and you've done it.`;
+
+    // Notes-based personal touch
+    let personalPhrase = '';
+    if(v.notes){
+      const n = v.notes.toLowerCase();
+      if(n.includes('reliable') || n.includes('always')) personalPhrase = `Your reliability is something we count on — and it never lets us down.`;
+      else if(n.includes('presentation') || n.includes('present')) personalPhrase = `The way you connect with groups and give the presentation — it sets the tone for the whole event.`;
+      else if(n.includes('whatever') || n.includes('anywhere')) personalPhrase = `Your willingness to do whatever is needed, wherever you're needed, makes you invaluable.`;
+      else if(n.includes('hard worker') || n.includes('hard work')) personalPhrase = `You work hard every single time — and it shows in everything you do.`;
+    }
+
+    // Assemble the story — pick the best sentences, don't use all of them
+    const sentences = [
+      yearPhrase,
+      rolePhrase,
+      impactPhrase || milestonePhrase,
+      personalPhrase || yearsPhrase,
+    ].filter(Boolean);
+
+    const closing = `— The Kids Eat Team 🎒`;
+    const story = `${firstName} —\n\n${sentences.join(' ')}\n\nThank you for being part of this. No child should ever go hungry — and you help make sure of it.\n\n${closing}`;
+
+    _currentStoryText = story;
 
     document.getElementById('storyContent').innerHTML = `
-      <div class="story-card">${storyText.replace(/\n/g,'<br>')}</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:8px;text-align:right;">Generated for ${v.name} · ${new Date().toLocaleDateString()}</div>`;
+      <div class="story-card" style="font-style:normal;white-space:pre-wrap;">${story}</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:10px;text-align:right;">${v.name} · ${lifetimeHrs.toFixed(0)} lifetime hrs · ${lv.name}</div>`;
     document.getElementById('storyActions').style.display='flex';
+
   } catch(e){
-    document.getElementById('storyContent').innerHTML = `<div style="color:var(--red-text);padding:16px;">Error generating story: ${e.message}</div>`;
+    document.getElementById('storyContent').innerHTML = `<div style="color:var(--red-text);padding:16px;">Error building story: ${e.message}</div>`;
   }
 }
 
@@ -3063,36 +3117,33 @@ async function loadSponsorReport(){
 
 async function generateSponsorLetter(name, packs, bags, vols){
   document.getElementById('storyModalTitle').textContent = `📧 Sponsor Letter — ${name}`;
-  document.getElementById('storyContent').innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:24px;">✨</div><div>Writing sponsor letter...</div></div>`;
   document.getElementById('storyActions').style.display='none';
   _storyVolId = null;
   openModal('storyModal');
-  try {
-    const prompt = `Write a warm, professional end-of-year thank you letter from the USANA Kids Eat program to a sponsor/group. 
 
-Kids Eat is a nonprofit that packs backpacks of food for children who might otherwise go hungry over the weekend. Volunteers pack these bags at packing events that sponsors often bring their teams to.
+  const meals = (bags * 7).toLocaleString();
+  const bagsFormatted = bags.toLocaleString();
+  const volsFormatted = vols ? vols.toLocaleString() : 'your team';
+  const packWord = packs === 1 ? 'packing event' : 'packing events';
+  const shortName = name.replace(/^Sponsor:\s*/i,'').replace(/^Potential Sponsor:\s*/i,'');
 
-Sponsor/Group: ${name}
-Number of packing events they participated in this school year: ${packs}
-Total backpacks packed with their help: ${bags.toLocaleString()}
-Total meals delivered because of their involvement: ${(bags*7).toLocaleString()}
-Volunteers they brought: approximately ${vols}
+  const letter = `Dear ${shortName} Team,
 
-Write a 3-4 paragraph letter. Make it specific to their numbers. Warm, genuine, impactful. Include the mission ("no child should ever go hungry"). Don't be corporate or salesy — be human. End by expressing hope to partner again next school year.
+On behalf of everyone at USANA Kids Eat, we want to take a moment to say thank you — genuinely, from the bottom of our hearts.
 
-Format as a proper letter but skip the address/date header — just start with the greeting.`;
+This school year, you showed up ${packs} ${packWord} and helped pack ${bagsFormatted} backpacks. That's ${meals} meals delivered to children in our community who might otherwise have gone hungry over the weekend. Those aren't just numbers — that's real impact, made possible because your team chose to give their time.
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-    });
-    const data = await response.json();
-    const text = data.content?.[0]?.text||'Unable to generate. Please try again.';
-    _currentStoryText = text;
-    document.getElementById('storyContent').innerHTML = `<div class="story-card" style="font-style:normal;line-height:1.8;">${text.replace(/\n/g,'<br>')}</div>`;
-    document.getElementById('storyActions').style.display='flex';
-  } catch(e){ document.getElementById('storyContent').innerHTML=`<div style="color:var(--red-text);">Error: ${e.message}</div>`; }
+No child should ever go hungry. That's the mission that drives everything we do, and partners like you are the reason we can keep that promise. When ${volsFormatted > 1 ? `your ${volsFormatted} volunteers` : 'your team'} walked through our doors, they brought energy, heart, and purpose. We felt it every time.
+
+We hope this is just the beginning of a long partnership. We would be honored to have you back next school year, and we'll be reaching out soon to plan ahead. Until then, please know that the work you did here mattered — more than you know.
+
+With gratitude,
+Stephen Cook & The Kids Eat Team
+USANA Foundation 🎒`;
+
+  _currentStoryText = letter;
+  document.getElementById('storyContent').innerHTML = `<div class="story-card" style="font-style:normal;line-height:1.9;white-space:pre-wrap;">${letter}</div>`;
+  document.getElementById('storyActions').style.display='flex';
 }
 
 // ============================================================
