@@ -11,28 +11,28 @@
   --orange: #FF7A2F;
   --orange-light: #2D1506;
   --orange-mid: #FF9557;
-  --orange-dark: #D95A10;
-  --teal: #2BB5B0;
-  --teal-light: #0A2220;
-  --teal-dark: #1A8F8B;
+  --orange-dark: #FF5500;
+  --teal: #00E5DF;
+  --teal-light: #081F1E;
+  --teal-dark: #00C8C2;
   --yellow: #FFD035;
   --yellow-light: #221800;
-  --green: #3CC97A;
-  --green-light: #0A2015;
-  --blue: #3A9BD5;
-  --blue-light: #0A1A28;
-  --purple: #9B6DD6;
-  --purple-light: #1A0D2E;
-  --red: #E8504A;
-  --bg: #120E08;
-  --surface: #1E1610;
-  --card-border: rgba(255,122,47,0.18);
+  --green: #00F07A;
+  --green-light: #051A0F;
+  --blue: #44B8FF;
+  --blue-light: #071525;
+  --purple: #C084FF;
+  --purple-light: #150926;
+  --red: #FF5A54;
+  --bg: #E86000;
+  --surface: #1A1208;
+  --card-border: rgba(255,122,47,0.30);
   --text: #F0E6DA;
-  --text-muted: #B8906A;
-  --text-faint: #7A5A3E;
+  --text-muted: #C8A882;
+  --text-faint: #9A7A5E;
   --radius: 20px;
-  --shadow: 0 4px 20px rgba(0,0,0,0.40);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.55);
+  --shadow: 0 4px 20px rgba(0,0,0,0.55);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.70);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;height:100%;overflow:hidden;}
@@ -44,14 +44,12 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* Fun squiggly background pattern */
+/* subtle vignette on orange background */
 body::before{
   content:'';
   position:fixed;inset:0;
   background-image:
-    radial-gradient(circle at 15% 20%, rgba(255,208,53,0.18) 0%, transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(43,181,176,0.15) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(255,122,47,0.06) 0%, transparent 60%);
+    radial-gradient(circle at 50% 50%, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.25) 100%);
   pointer-events:none;
   z-index:0;
 }
@@ -256,8 +254,8 @@ body::before{
 .pack-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .pack-slots{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
 .slot-pill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;}
-.slot-filled{background:rgba(60,201,122,0.15);color:#1E8449;}
-.slot-open{background:rgba(232,80,74,0.12);color:#C0392B;}
+.slot-filled{background:rgba(0,240,122,0.18);color:#00F07A;}
+.slot-open{background:rgba(255,90,84,0.18);color:#FF5A54;}
 .bags-row{display:flex;gap:5px;align-items:center;}
 .bags-inputs{display:flex;flex-direction:column;gap:3px;}
 .bags-wrap{display:flex;align-items:center;gap:4px;}
@@ -279,7 +277,7 @@ body::before{
 .save-btn:hover{background:var(--orange-dark);transform:scale(1.04);}
 .done-pill{
   font-size:10px;font-weight:800;padding:3px 10px;
-  border-radius:20px;background:rgba(60,201,122,0.15);color:#1E8449;
+  border-radius:20px;background:rgba(0,240,122,0.18);color:#00F07A;
 }
 
 /* ── DELIVERIES ── */
@@ -316,14 +314,14 @@ body::before{
 }
 .sched-day-label::after{
   content:'';flex:1;height:2px;
-  background:linear-gradient(90deg,rgba(43,181,176,0.30),transparent);
+  background:linear-gradient(90deg,rgba(0,229,223,0.45),transparent);
   border-radius:1px;
 }
 .sched-row{
   display:flex;align-items:center;gap:7px;
   padding:5px 10px;background:var(--teal-light);
   border-radius:9px;margin-bottom:3px;
-  border:1.5px solid rgba(43,181,176,0.20);
+  border:1.5px solid rgba(0,229,223,0.25);
   transition:opacity .3s,filter .3s;
 }
 .sched-row.out{
@@ -338,9 +336,9 @@ body::before{
 .sched-time{font-size:10px;color:var(--text-muted);width:86px;flex-shrink:0;font-weight:600;}
 .sched-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
 .sched-type{font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;}
-.wh-am{background:rgba(60,201,122,0.15);color:#1E8449;}
-.wh-pm{background:rgba(43,181,176,0.15);color:var(--teal-dark);}
-.proc{background:rgba(100,116,139,0.12);color:#475569;}
+.wh-am{background:rgba(0,240,122,0.18);color:#00F07A;}
+.wh-pm{background:rgba(0,229,223,0.18);color:var(--teal);}
+.proc{background:rgba(160,180,200,0.15);color:#A0C0D8;}
 .adm{background:var(--purple-light);color:var(--purple);}
 
 /* ── CELEBRATIONS ── */
