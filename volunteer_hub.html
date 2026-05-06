@@ -3897,9 +3897,9 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 // ── TIME OFF ────────────────────────────────────────────────────
 async function populateTimeOffVolunteers(){
   const sel=document.getElementById('toVolunteer');
-  if(sel.options.length>1) return; // already loaded
+  if(sel.options.length>1) return;
   try{
-    const vols=await get('volunteers','select=id,name&order=name.asc');
+    const vols=await sbGet('volunteers','select=id,name&order=name.asc');
     vols.forEach(v=>{
       const o=document.createElement('option');
       o.value=v.id; o.textContent=v.name;
@@ -3913,7 +3913,7 @@ async function loadTimeOff(){
   tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</td></tr>';
   try{
     const today=new Date().toISOString().slice(0,10);
-    const rows=await get('volunteer_time_off',
+    const rows=await sbGet('volunteer_time_off',
       `end_date=gte.${today}&select=id,start_date,end_date,volunteers(name)&order=start_date.asc`);
     if(!rows.length){
       tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">No upcoming time off</td></tr>';
