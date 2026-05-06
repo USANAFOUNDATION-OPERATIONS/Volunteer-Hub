@@ -120,10 +120,13 @@ body::before{
 /* ── MAIN GRID ── */
 .cc-main{
   display:grid;
-  grid-template-columns:1.3fr 1fr 1fr;
+  grid-template-columns:1.3fr 1fr 1.5fr;
   grid-template-rows:1fr 1fr;
   gap:10px;padding:10px;overflow:hidden;
 }
+.cc-packs{grid-column:3;grid-row:1/3;}
+.cc-sched{grid-column:2;grid-row:1;}
+.cc-deliv{grid-column:2;grid-row:2;}
 .cc-card{
   background:var(--surface);
   border:2px solid var(--card-border);
@@ -248,19 +251,20 @@ body::before{
 .pack-item.needs-update{border-color:rgba(255,208,53,0.5);background:var(--yellow-light);}
 .pack-name{font-size:13px;font-weight:800;color:var(--text);margin-bottom:1px;}
 .pack-meta{font-size:10px;color:var(--text-muted);margin-bottom:5px;font-weight:600;}
-.pack-slots{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;}
+.pack-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pack-slots{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
 .slot-pill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;}
 .slot-filled{background:rgba(60,201,122,0.15);color:#1E8449;}
 .slot-open{background:rgba(232,80,74,0.12);color:#C0392B;}
-.bags-row{display:flex;gap:8px;align-items:center;}
-.bags-inputs{display:flex;flex-direction:column;gap:5px;flex:1;}
-.bags-wrap{display:flex;align-items:center;gap:6px;}
-.bags-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);}
+.bags-row{display:flex;gap:5px;align-items:center;}
+.bags-inputs{display:flex;flex-direction:column;gap:3px;}
+.bags-wrap{display:flex;align-items:center;gap:4px;}
+.bags-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);min-width:26px;}
 .bags-inp{
-  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
   background:white;border:2px solid rgba(255,122,47,0.25);
-  border-radius:10px;color:var(--text);padding:3px 8px;
-  width:66px;text-align:center;outline:none;transition:all .15s;
+  border-radius:8px;color:var(--text);padding:2px 6px;
+  width:54px;text-align:center;outline:none;transition:all .15s;
 }
 .bags-inp:focus{border-color:var(--orange);background:var(--orange-light);}
 .save-btn{
@@ -360,6 +364,58 @@ body::before{
 }
 *{scrollbar-width:none;}
 *::-webkit-scrollbar{display:none;}
+
+/* ── TASKS SECTION ── */
+.tasks-section{padding:10px 14px 14px;border-top:1.5px solid rgba(255,122,47,0.15);margin-top:8px;}
+.tasks-header{font-family:'Fredoka One',sans-serif;font-size:13px;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.task-add-row{display:flex;gap:6px;margin-bottom:8px;}
+.task-input{
+  flex:1;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  padding:7px 11px;border:2px solid rgba(255,122,47,0.25);border-radius:10px;
+  background:#fff;color:var(--text);outline:none;transition:all .15s;
+}
+.task-input:focus{border-color:var(--orange);background:var(--orange-light);}
+.task-add-btn{
+  font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;
+  width:34px;height:34px;border-radius:10px;border:none;
+  background:var(--orange);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .15s;box-shadow:0 2px 8px rgba(255,122,47,0.3);
+}
+.task-add-btn:hover{background:var(--orange-dark);transform:scale(1.05);}
+.task-item{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,122,47,0.07);border-radius:10px;
+  padding:8px 10px;margin-bottom:5px;
+}
+.task-text{flex:1;font-size:12px;font-weight:700;color:var(--text);line-height:1.3;}
+.task-del{
+  font-size:14px;background:none;border:none;cursor:pointer;
+  color:var(--text-faint);padding:2px 4px;border-radius:6px;
+  transition:all .15s;flex-shrink:0;
+}
+.task-del:hover{background:rgba(232,80,74,0.12);color:var(--red);}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  html,body{overflow:auto;}
+  .cc-shell{grid-template-rows:60px 1fr;height:auto;min-height:100vh;}
+  .cc-header{padding:0 12px;flex-wrap:wrap;}
+  .cc-time{font-size:22px;}
+  .cc-next-refresh{display:none;}
+  .cc-main{
+    display:flex;flex-direction:column;
+    height:auto;overflow:visible;
+    padding:8px;gap:8px;
+  }
+  .cc-packs,.cc-sched,.cc-deliv,.cc-impact{
+    grid-column:unset;grid-row:unset;
+    min-height:280px;max-height:none;
+  }
+  .cc-card-body{overflow-y:visible;max-height:none;}
+  .impact-body{padding:12px 14px;}
+  .impact-big-num{font-size:44px;}
+}
 </style>
 </head>
 <body>
@@ -395,10 +451,31 @@ body::before{
           <div class="impact-sub"><div class="impact-sub-num" id="impactHours">—</div><div class="impact-sub-label">⏰ hours given</div></div>
         </div>
       </div>
+      <!-- TASKS -->
+      <div class="tasks-section">
+        <div class="tasks-header">📋 Today's Tasks</div>
+        <div class="task-add-row">
+          <input class="task-input" id="taskInput" type="text" placeholder="Add a task for volunteers..." maxlength="120"
+            onkeydown="if(event.key==='Enter')addTask()">
+          <button class="task-add-btn" onclick="addTask()">+</button>
+        </div>
+        <div id="taskList"></div>
+      </div>
     </div>
 
-    <!-- THIS WEEK'S PACKS -->
-    <div class="cc-card">
+    <!-- WEEKLY SCHEDULE (middle top) -->
+    <div class="cc-card cc-sched">
+      <div class="cc-card-header">
+        <div class="cc-card-title">
+          <div class="dot" style="background:var(--teal);color:var(--teal);"></div>
+          Weekly Schedule 📅
+        </div>
+      </div>
+      <div class="cc-card-body" id="schedList"><div class="cc-empty">Loading...</div></div>
+    </div>
+
+    <!-- THIS WEEK'S PACKS (full right column) -->
+    <div class="cc-card cc-packs">
       <div class="cc-card-header">
         <div class="cc-card-title">
           <div class="dot" style="background:var(--orange);color:var(--orange);"></div>
@@ -409,19 +486,8 @@ body::before{
       <div class="cc-card-body" id="packList"><div class="cc-empty">Loading...</div></div>
     </div>
 
-    <!-- BIRTHDAYS & ANNIVERSARIES -->
-    <div class="cc-card">
-      <div class="cc-card-header">
-        <div class="cc-card-title">
-          <div class="dot" style="background:var(--purple);color:var(--purple);"></div>
-          Birthdays &amp; Anniversaries 🎉
-        </div>
-      </div>
-      <div class="cc-card-body" id="celebList"><div class="cc-empty">Loading...</div></div>
-    </div>
-
-    <!-- DELIVERIES -->
-    <div class="cc-card">
+    <!-- DELIVERIES (middle bottom) -->
+    <div class="cc-card cc-deliv">
       <div class="cc-card-header">
         <div class="cc-card-title">
           <div class="dot" style="background:var(--blue);color:var(--blue);"></div>
@@ -429,17 +495,6 @@ body::before{
         </div>
       </div>
       <div class="cc-card-body" id="delivList"><div class="cc-empty">Loading...</div></div>
-    </div>
-
-    <!-- SCHEDULE -->
-    <div class="cc-card">
-      <div class="cc-card-header">
-        <div class="cc-card-title">
-          <div class="dot" style="background:var(--teal);color:var(--teal);"></div>
-          Weekly Schedule 📅
-        </div>
-      </div>
-      <div class="cc-card-body" id="schedList"><div class="cc-empty">Loading...</div></div>
     </div>
 
   </div>
@@ -530,13 +585,15 @@ async function loadPacks(){
       return `<div class="pack-item ${cls}">
         <div class="pack-name">${e.name}</div>
         <div class="pack-meta">${day}${e.event_time?' · '+e.event_time:''} · ${lines} line${lines>1?'s':''}</div>
-        <div class="pack-slots">${lp}${hp}</div>
-        <div class="bags-row">
-          <div class="bags-inputs">
-            <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0"></div>
-            <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0"></div>
+        <div class="pack-bottom">
+          <div class="pack-slots">${lp}${hp}</div>
+          <div class="bags-row">
+            <div class="bags-inputs">
+              <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0"></div>
+              <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0"></div>
+            </div>
+            ${done?'<span class="done-pill">✓ Done!</span>':`<button class="save-btn" onclick="savePack('${e.id}')">Save</button>`}
           </div>
-          ${done?'<span class="done-pill">✓ Done!</span>':`<button class="save-btn" onclick="savePack('${e.id}')">Save</button>`}
         </div>
       </div>`;
     }).join('');
@@ -665,9 +722,43 @@ async function loadCelebrations(){
   }catch(e){console.error(e);}
 }
 
+// ── TASKS ──
+async function loadTasks(){
+  const el=document.getElementById('taskList');
+  try{
+    const tasks=await get('volunteer_tasks','select=id,title&order=created_at.asc');
+    if(!tasks.length){el.innerHTML='<div style="font-size:11px;color:var(--text-faint);text-align:center;padding:8px 0;">No tasks yet — add one above!</div>';return;}
+    el.innerHTML=tasks.map(t=>`
+      <div class="task-item" id="task-${t.id}">
+        <span class="task-text">${t.title.replace(/</g,'&lt;')}</span>
+        <button class="task-del" onclick="deleteTask('${t.id}')" title="Remove">✕</button>
+      </div>`).join('');
+  }catch(e){console.error(e);}
+}
+async function addTask(){
+  const inp=document.getElementById('taskInput');
+  const title=inp.value.trim();
+  if(!title)return;
+  inp.value='';
+  try{
+    await fetch(`${SB}/rest/v1/volunteer_tasks`,{
+      method:'POST',
+      headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({title})
+    });
+    loadTasks();
+  }catch(e){console.error(e);}
+}
+async function deleteTask(id){
+  try{
+    await fetch(`${SB}/rest/v1/volunteer_tasks?id=eq.${id}`,{method:'DELETE',headers:H});
+    document.getElementById('task-'+id)?.remove();
+  }catch(e){console.error(e);}
+}
+
 async function refreshAll(){
   startTimer();
-  await Promise.all([loadImpact(),loadPacks(),loadDeliveries(),loadCelebrations(),loadSchedule()]);
+  await Promise.all([loadImpact(),loadPacks(),loadDeliveries(),loadSchedule(),loadTasks()]);
 }
 window.addEventListener('DOMContentLoaded',()=>{refreshAll();startTimer();});
 </script>
