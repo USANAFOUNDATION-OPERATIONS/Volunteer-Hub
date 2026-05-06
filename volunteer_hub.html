@@ -642,27 +642,14 @@ select.form-input{cursor:pointer;}
               <div>
                 <label class="form-label">Tuesday Assistant</label>
                 <select class="form-input" id="tuesdayConfirm">
-                  <option value="">— select who confirmed —</option>
-                  <option>Gerald Brady</option>
-                  <option>Lorin Wyatt</option>
-                  <option>Laura Beristain</option>
-                  <option>Samantha Flores</option>
-                  <option>Jaymee Brown</option>
-                  <option>Candy Allen</option>
+                  <option value="">— loading… —</option>
                 </select>
                 <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="confirmAssistant('Tuesday')">Confirm Tuesday</button>
               </div>
               <div>
                 <label class="form-label">Wednesday Assistant</label>
                 <select class="form-input" id="wednesdayConfirm">
-                  <option value="">— select who confirmed —</option>
-                  <option>Jessica Densley</option>
-                  <option>Michelle Wilcock</option>
-                  <option>Brian Paul (staff)</option>
-                  <option>Shelli Baxter</option>
-                  <option>Suzanne Houghton</option>
-                  <option>Mike Sessions</option>
-                  <option>HR Team</option>
+                  <option value="">— loading… —</option>
                 </select>
                 <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="confirmAssistant('Wednesday')">Confirm Wednesday</button>
               </div>
@@ -2815,15 +2802,60 @@ async function saveScheduleRows(volId){
     },'return=minimal');
   }
 }
-function loadDeliveryPage(){
+async function loadDeliveryPage(){
   const now = new Date();
   const mon = new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7));
-  const week = Math.ceil((mon.getDate()+new Date(mon.getFullYear(),mon.getMonth(),1).getDay())/7);
+  const weekNum = Math.ceil((mon.getDate()+new Date(mon.getFullYear(),mon.getMonth(),1).getDay())/7);
   document.getElementById('delivWeekLabel').textContent =
-    'Week of '+mon.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' · Week '+week+' of month';
+    'Week of '+mon.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' · Week '+weekNum+' of month';
+
+  // Populate assistant dropdowns from DB
+  await populateAssistantDropdowns(weekNum);
 
   // Load confirmed assistants for this week
   loadConfirmedAssistants(localDate(mon));
+}
+
+async function populateAssistantDropdowns(weekNum){
+  // Warehouse AM type ID
+  const WH_AM_TYPE = '93eb15ea-5f99-4f3e-a67f-056f46cec928';
+  let slots=[], whVols=[];
+  try{
+    slots = await sbGet('delivery_slots',
+      `role=eq.Assistant&week_of_month=eq.${weekNum}&select=day_of_week,volunteers(name),is_staff,notes&order=day_of_week`);
+  }catch(e){}
+  try{
+    whVols = await sbGet('volunteer_type_assignments',
+      `type_id=eq.${WH_AM_TYPE}&select=volunteers(name)&order=volunteers(name).asc`);
+  }catch(e){}
+
+  ['Tuesday','Wednesday'].forEach(day=>{
+    const sel = document.getElementById(day.toLowerCase()+'Confirm');
+    sel.innerHTML = '<option value="">— select who confirmed —</option>';
+
+    // This week's scheduled options for this day
+    const daySlots = slots.filter(s=>s.day_of_week===day);
+    if(daySlots.length){
+      const grp = document.createElement('optgroup');
+      grp.label = 'Scheduled Options';
+      daySlots.forEach(s=>{
+        const name = s.is_staff ? (s.notes||'Staff') : (s.volunteers?.name||'');
+        if(name){ const o=document.createElement('option'); o.textContent=name; grp.appendChild(o); }
+      });
+      if(grp.children.length) sel.appendChild(grp);
+    }
+
+    // Warehouse AM volunteers as backup
+    if(whVols.length){
+      const grp = document.createElement('optgroup');
+      grp.label = 'Warehouse AM (backup)';
+      whVols.forEach(v=>{
+        const name = v.volunteers?.name;
+        if(name){ const o=document.createElement('option'); o.textContent=name; grp.appendChild(o); }
+      });
+      if(grp.children.length) sel.appendChild(grp);
+    }
+  });
 }
 
 async function loadConfirmedAssistants(weekStart){
