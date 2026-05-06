@@ -394,6 +394,10 @@ select.form-input{cursor:pointer;}
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
           Sign-In
         </div>
+        <div class="nav-item" onclick="showPage('staff',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Staff
+        </div>
         <div class="nav-item" onclick="showPage('portal',this)">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           Volunteer Portal
@@ -1062,6 +1066,27 @@ select.form-input{cursor:pointer;}
         </div>
       </div>
 
+      <!-- STAFF PAGE -->
+      <div id="page-staff" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Staff</div>
+            <div class="page-subtitle">Team members who can fill pack slots and receive notifications</div>
+          </div>
+          <button class="btn btn-primary" onclick="openAddStaff()">+ Add Staff</button>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table>
+                <thead><tr><th>Name</th><th>Full Name</th><th>Email</th><th>Status</th><th></th></tr></thead>
+                <tbody id="staffTableBody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -1165,6 +1190,35 @@ select.form-input{cursor:pointer;}
 
 <!-- PRINT AREA (hidden except when printing) -->
 <div id="printArea" style="display:none;"></div>
+
+<!-- STAFF MODAL -->
+<div class="modal-overlay" id="staffModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title" id="staffModalTitle">Add Staff Member</div>
+      <button class="modal-close" onclick="closeModal('staffModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="staffId">
+      <div class="form-row"><label class="form-label">Display Name * <span style="color:var(--text-faint);font-weight:400;">(shown on pack slots)</span></label><input type="text" class="form-input" id="staffDisplay" placeholder="e.g. Hemsley"></div>
+      <div class="form-row"><label class="form-label">Full Name</label><input type="text" class="form-input" id="staffFull" placeholder="e.g. Matthew Hemsley"></div>
+      <div class="form-row"><label class="form-label">Email</label><input type="email" class="form-input" id="staffEmail" placeholder="first.last@usanainc.com"></div>
+      <div class="form-row">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <label class="toggle-switch"><input type="checkbox" id="staffActive" checked><span class="toggle-slider"></span></label>
+          <span style="font-size:13px;color:var(--text-muted);">Active</span>
+        </label>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:space-between;margin-top:16px;">
+        <button class="btn" id="staffDeleteBtn" style="display:none;color:var(--red-text);border-color:var(--red-light);background:var(--red-light);" onclick="deleteStaff()">🗑 Delete</button>
+        <div style="display:flex;gap:10px;margin-left:auto;">
+          <button class="btn" onclick="closeModal('staffModal')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveStaff()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- VOLUNTEER PROFILE MODAL -->
 <div class="modal-overlay" id="volModal">
@@ -1404,6 +1458,7 @@ function showPage(id, el){
   if(id==='warehouse') loadWarehousePage();
   if(id==='portal'){ loadPortalPage(); }
   if(id==='packsignup'){ loadPackSignupPage(); }
+  if(id==='staff'){ loadStaff(); }
 }
 
 // ============================================================
@@ -2058,6 +2113,88 @@ async function saveNewVolunteer(){
 }
 
 // ============================================================
+// STAFF
+// ============================================================
+let _staff = [];
+
+async function loadStaff(){
+  try {
+    _staff = await sbGet('staff','select=*&order=display_name.asc');
+    const tbody = document.getElementById('staffTableBody');
+    if(!_staff.length){
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">No staff yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = _staff.map(s=>`
+      <tr>
+        <td><strong>${s.display_name}</strong></td>
+        <td>${s.full_name||'—'}</td>
+        <td>${s.email||'—'}</td>
+        <td><span class="badge ${s.active?'badge-green':'badge-gray'}">${s.active?'Active':'Inactive'}</span></td>
+        <td><button class="btn btn-sm btn-ghost" onclick="openEditStaff('${s.id}')">Edit</button></td>
+      </tr>`).join('');
+  } catch(e){ console.error(e); }
+}
+
+function openAddStaff(){
+  document.getElementById('staffId').value='';
+  document.getElementById('staffDisplay').value='';
+  document.getElementById('staffFull').value='';
+  document.getElementById('staffEmail').value='';
+  document.getElementById('staffActive').checked=true;
+  document.getElementById('staffDeleteBtn').style.display='none';
+  document.getElementById('staffModalTitle').textContent='Add Staff Member';
+  openModal('staffModal');
+}
+
+function openEditStaff(id){
+  const s = _staff.find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById('staffId').value=id;
+  document.getElementById('staffDisplay').value=s.display_name||'';
+  document.getElementById('staffFull').value=s.full_name||'';
+  document.getElementById('staffEmail').value=s.email||'';
+  document.getElementById('staffActive').checked=!!s.active;
+  document.getElementById('staffDeleteBtn').style.display='inline-flex';
+  document.getElementById('staffModalTitle').textContent='Edit Staff Member';
+  openModal('staffModal');
+}
+
+async function saveStaff(){
+  const id = document.getElementById('staffId').value;
+  const display = document.getElementById('staffDisplay').value.trim();
+  if(!display){ showToast('Display name is required'); return; }
+  const body = {
+    display_name: display,
+    full_name: document.getElementById('staffFull').value||null,
+    email: document.getElementById('staffEmail').value||null,
+    active: document.getElementById('staffActive').checked
+  };
+  try {
+    if(id){
+      await sbPatch('staff','id=eq.'+id, body);
+    } else {
+      await sbPost('staff', body, 'return=minimal');
+    }
+    closeModal('staffModal');
+    showToast('✓ Staff saved!');
+    loadStaff();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+async function deleteStaff(){
+  const id = document.getElementById('staffId').value;
+  const name = document.getElementById('staffDisplay').value;
+  if(!confirm(`Remove ${name} from staff? This cannot be undone.`)) return;
+  try {
+    await sbDelete('staff','id=eq.'+id);
+    closeModal('staffModal');
+    showToast(`✓ ${name} removed`);
+    loadStaff();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+// ============================================================
 // PACK SCHEDULE
 // ============================================================
 let _signupMonthOpen = false;
@@ -2080,7 +2217,7 @@ async function loadPacks(){
   try {
     const [events, signups] = await Promise.all([
       sbGet('pack_events',`event_date=gte.${start}&event_date=lte.${end}&order=event_date.asc,event_time.asc`),
-      sbGet('pack_signups',`select=*,volunteers(name)&order=signed_up_at.asc`)
+      sbGet('pack_signups',`select=*,volunteers(name),staff(display_name)&order=signed_up_at.asc`)
     ]);
     _packs = events;
     const el = document.getElementById('packList');
@@ -2096,13 +2233,14 @@ async function loadPacks(){
       const hostSlots = eSignups.filter(s=>s.role==='Pack Host');
       const linesNeeded = e.lines||1;
 
+      const slotName = s => s.staff?.display_name || s.volunteers?.name || '?';
       const leadBadge = leadSlot
-        ? `<span class="pack-slot filled">👤 ${leadSlot.volunteers?.name||'?'} <small style="opacity:.7">(Lead)</small></span>`
+        ? `<span class="pack-slot filled">👤 ${slotName(leadSlot)} <small style="opacity:.7">(Lead)</small></span>`
         : `<span class="pack-slot open">Pack Lead: Open</span>`;
       const hostBadges = Array.from({length:linesNeeded}).map((_,i)=>{
         const h = hostSlots[i];
         return h
-          ? `<span class="pack-slot filled">👤 ${h.volunteers?.name||'?'} <small style="opacity:.7">(Host${linesNeeded>1?' '+(i+1):''})</small></span>`
+          ? `<span class="pack-slot filled">👤 ${slotName(h)} <small style="opacity:.7">(Host${linesNeeded>1?' '+(i+1):''})</small></span>`
           : `<span class="pack-slot open">Host${linesNeeded>1?' '+(i+1):''}: Open</span>`;
       }).join('');
 
@@ -3408,13 +3546,32 @@ async function loadPackSignupSlots_Admin(packId, lines){
   container.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Loading...</div>';
 
   try {
-    const signups = await sbGet('pack_signups',`pack_event_id=eq.${packId}&select=id,role,volunteer_id,volunteers(id,name)&order=role.asc`);
+    // Load staff if not already loaded
+    if(!_staff.length) _staff = await sbGet('staff','select=*&active=eq.true&order=display_name.asc');
+
+    const signups = await sbGet('pack_signups',`pack_event_id=eq.${packId}&select=id,role,volunteer_id,staff_id,volunteers(id,name),staff(id,display_name)&order=role.asc`);
     const leadSignup = signups.find(s=>s.role==='Pack Lead');
     const hostSignups = signups.filter(s=>s.role==='Pack Host');
 
-    // Build eligible volunteer lists
-    const leadEligible = _volunteers.filter(v=>v.status==='Active' && (v.types||[]).some(t=>t==='Pack Host Lead'));
-    const hostEligible = _volunteers.filter(v=>v.status==='Active' && (v.types||[]).some(t=>t.includes('Pack Host')));
+    // Build combined volunteer + staff options for each dropdown
+    const activeStaff = _staff.filter(s=>s.active);
+    const leadVols = _volunteers.filter(v=>v.status==='Active' && (v.types||[]).some(t=>t==='Pack Host Lead'));
+    const hostVols = _volunteers.filter(v=>v.status==='Active' && (v.types||[]).some(t=>t.includes('Pack Host')));
+
+    function buildOptions(vols, existingVolId, existingStaffId){
+      let opts = '<option value="">— Open —</option>';
+      opts += '<optgroup label="Staff">';
+      activeStaff.forEach(s=>{ opts += `<option value="staff:${s.id}" ${existingStaffId===s.id?'selected':''}>${s.display_name}</option>`; });
+      opts += '</optgroup><optgroup label="Volunteers">';
+      vols.forEach(v=>{ opts += `<option value="vol:${v.id}" ${existingVolId===v.id?'selected':''}>${v.name}</option>`; });
+      opts += '</optgroup>';
+      return opts;
+    }
+
+    function slotName(signup){
+      if(!signup) return null;
+      return signup.staff?.display_name || signup.volunteers?.name || '?';
+    }
 
     let html = '';
 
@@ -3423,8 +3580,7 @@ async function loadPackSignupSlots_Admin(packId, lines){
       <div style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Pack Lead</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <select class="form-input" id="slot-lead" style="flex:1;font-size:13px;">
-          <option value="">— Open —</option>
-          ${leadEligible.map(v=>`<option value="${v.id}" ${leadSignup?.volunteer_id===v.id?'selected':''}>${v.name}</option>`).join('')}
+          ${buildOptions(leadVols, leadSignup?.volunteer_id, leadSignup?.staff_id)}
         </select>
         <button class="btn btn-sm btn-primary" onclick="saveSlot('${packId}','Pack Lead','slot-lead')">Save</button>
         ${leadSignup ? `<button class="btn btn-sm" style="color:var(--red-text);" onclick="removeSlot('${leadSignup.id}','${packId}',${lines})">✕</button>` : ''}
@@ -3438,8 +3594,7 @@ async function loadPackSignupSlots_Admin(packId, lines){
         <div style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Pack Host${lines>1?' '+(i+1):''}</div>
         <div style="display:flex;align-items:center;gap:8px;">
           <select class="form-input" id="slot-host-${i}" style="flex:1;font-size:13px;">
-            <option value="">— Open —</option>
-            ${hostEligible.map(v=>`<option value="${v.id}" ${existing?.volunteer_id===v.id?'selected':''}>${v.name}</option>`).join('')}
+            ${buildOptions(hostVols, existing?.volunteer_id, existing?.staff_id)}
           </select>
           <button class="btn btn-sm btn-primary" onclick="saveSlot('${packId}','Pack Host','slot-host-${i}')">Save</button>
           ${existing ? `<button class="btn btn-sm" style="color:var(--red-text);" onclick="removeSlot('${existing.id}','${packId}',${lines})">✕</button>` : ''}
@@ -3448,23 +3603,32 @@ async function loadPackSignupSlots_Admin(packId, lines){
     }
 
     container.innerHTML = html;
-  } catch(e){ container.innerHTML = `<div style="color:var(--red-text);font-size:12px;">Error loading signups: ${e.message}</div>`; }
+  } catch(e){ container.innerHTML = `<div style="color:var(--red-text);font-size:12px;">Error: ${e.message}</div>`; }
 }
 
 async function saveSlot(packId, role, selectId){
-  const volId = document.getElementById(selectId).value;
-  if(!volId){ showToast('Select a volunteer first'); return; }
+  const val = document.getElementById(selectId).value;
+  if(!val){ showToast('Select a person first'); return; }
+
+  const isStaff = val.startsWith('staff:');
+  const actualId = val.replace('staff:','').replace('vol:','');
+
   try {
-    // Remove existing signup for this role on this event (allow only one lead, and one host per slot)
-    // For hosts, remove any existing signup by this volunteer on this event first
-    await sbDelete('pack_signups',`pack_event_id=eq.${packId}&volunteer_id=eq.${volId}`);
-    // For lead, remove any existing lead
+    // Remove any existing signup for this role
     if(role==='Pack Lead') await sbDelete('pack_signups',`pack_event_id=eq.${packId}&role=eq.Pack Lead`);
-    await sbPost('pack_signups',{pack_event_id:packId, volunteer_id:volId, role},'return=minimal');
+    // Remove any existing signup by this person on this event
+    if(isStaff) await sbDelete('pack_signups',`pack_event_id=eq.${packId}&staff_id=eq.${actualId}`);
+    else await sbDelete('pack_signups',`pack_event_id=eq.${packId}&volunteer_id=eq.${actualId}`);
+
+    const body = {pack_event_id:packId, role};
+    if(isStaff) body.staff_id = actualId;
+    else body.volunteer_id = actualId;
+
+    await sbPost('pack_signups', body, 'return=minimal');
     showToast(`✓ ${role} assigned!`);
     const pack = _packs.find(p=>p.id===packId);
     loadPackSignupSlots_Admin(packId, pack?.lines||1);
-    loadPacks(); // refresh schedule view
+    loadPacks();
   } catch(e){ showToast('Error: '+e.message); }
 }
 
