@@ -625,9 +625,9 @@ select.form-input{cursor:pointer;}
               <table>
                 <thead><tr><th>Day</th><th>Driver</th><th>Assistant</th><th>Status</th></tr></thead>
                 <tbody id="thisWeekDeliveries">
-                  <tr><td>Monday</td><td><span class="badge badge-primary">Randy Crebs</span></td><td><span class="badge badge-green">Dennis Aardema</span></td><td><span class="badge badge-green">✓ Set</span></td></tr>
-                  <tr><td>Tuesday</td><td><span class="badge badge-primary">Brandi Savage</span></td><td id="tuesdayAsst"><span class="badge badge-amber">Select assistant →</span></td><td id="tuesdayStat">—</td></tr>
-                  <tr><td>Wednesday</td><td><span class="badge badge-primary">Dennis Aardema</span></td><td id="wednesdayAsst"><span class="badge badge-amber">Select assistant →</span></td><td id="wednesdayStat">—</td></tr>
+                  <tr><td>Monday</td><td id="mondayDrv">—</td><td id="mondayAsst"><span class="badge badge-amber">Select assistant →</span></td><td id="mondayStat">—</td></tr>
+                  <tr><td>Tuesday</td><td id="tuesdayDrv">—</td><td id="tuesdayAsst"><span class="badge badge-amber">Select assistant →</span></td><td id="tuesdayStat">—</td></tr>
+                  <tr><td>Wednesday</td><td id="wednesdayDrv">—</td><td id="wednesdayAsst"><span class="badge badge-amber">Select assistant →</span></td><td id="wednesdayStat">—</td></tr>
                 </tbody>
               </table>
             </div>
@@ -636,9 +636,16 @@ select.form-input{cursor:pointer;}
 
         <!-- Assistant confirmation -->
         <div class="card" style="margin-bottom:16px;">
-          <div class="card-header"><div class="card-title">✅ Confirm This Week's Assistants</div></div>
+          <div class="card-header"><div class="card-title">✅ Confirm This Week's Team</div></div>
           <div class="card-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+              <div>
+                <label class="form-label">Monday Assistant</label>
+                <select class="form-input" id="mondayConfirm">
+                  <option value="">— loading… —</option>
+                </select>
+                <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="confirmAssistant('Monday')">Confirm Monday</button>
+              </div>
               <div>
                 <label class="form-label">Tuesday Assistant</label>
                 <select class="form-input" id="tuesdayConfirm">
@@ -2809,6 +2816,17 @@ async function loadDeliveryPage(){
   document.getElementById('delivWeekLabel').textContent =
     'Week of '+mon.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' · Week '+weekNum+' of month';
 
+  // Load drivers from delivery_slots
+  try{
+    const drivers = await sbGet('delivery_slots',
+      `role=eq.Driver&week_of_month=eq.${weekNum}&select=day_of_week,volunteers(name)`);
+    ['Monday','Tuesday','Wednesday'].forEach(day=>{
+      const d=drivers.find(s=>s.day_of_week===day);
+      const el=document.getElementById(day.toLowerCase()+'Drv');
+      if(el) el.innerHTML=`<span class="badge badge-primary">${d?.volunteers?.name||'—'}</span>`;
+    });
+  }catch(e){}
+
   // Populate assistant dropdowns from DB
   await populateAssistantDropdowns(weekNum);
 
@@ -2817,7 +2835,6 @@ async function loadDeliveryPage(){
 }
 
 async function populateAssistantDropdowns(weekNum){
-  // Warehouse AM type ID
   const WH_AM_TYPE = '93eb15ea-5f99-4f3e-a67f-056f46cec928';
   let slots=[], whVols=[];
   try{
@@ -2829,11 +2846,10 @@ async function populateAssistantDropdowns(weekNum){
       `type_id=eq.${WH_AM_TYPE}&select=volunteers(name)&order=volunteers(name).asc`);
   }catch(e){}
 
-  ['Tuesday','Wednesday'].forEach(day=>{
+  ['Monday','Tuesday','Wednesday'].forEach(day=>{
     const sel = document.getElementById(day.toLowerCase()+'Confirm');
     sel.innerHTML = '<option value="">— select who confirmed —</option>';
 
-    // This week's scheduled options for this day
     const daySlots = slots.filter(s=>s.day_of_week===day);
     if(daySlots.length){
       const grp = document.createElement('optgroup');
@@ -2845,7 +2861,6 @@ async function populateAssistantDropdowns(weekNum){
       if(grp.children.length) sel.appendChild(grp);
     }
 
-    // Warehouse AM volunteers as backup
     if(whVols.length){
       const grp = document.createElement('optgroup');
       grp.label = 'Warehouse AM (backup)';
@@ -2861,16 +2876,13 @@ async function populateAssistantDropdowns(weekNum){
 async function loadConfirmedAssistants(weekStart){
   try {
     const confirmed = await sbGet('delivery_confirmations',`week_start_date=eq.${weekStart}&select=*`);
-    const tuConf = confirmed.find(c=>c.notes?.includes('Tuesday'));
-    const wedConf = confirmed.find(c=>c.notes?.includes('Wednesday'));
-    if(tuConf?.confirmed_name){
-      document.getElementById('tuesdayAsst').innerHTML = `<span class="badge badge-green">${tuConf.confirmed_name}</span>`;
-      document.getElementById('tuesdayStat').innerHTML = '<span class="badge badge-green">✓ Confirmed</span>';
-    }
-    if(wedConf?.confirmed_name){
-      document.getElementById('wednesdayAsst').innerHTML = `<span class="badge badge-green">${wedConf.confirmed_name}</span>`;
-      document.getElementById('wednesdayStat').innerHTML = '<span class="badge badge-green">✓ Confirmed</span>';
-    }
+    ['Monday','Tuesday','Wednesday'].forEach(day=>{
+      const c = confirmed.find(c=>c.notes===day);
+      if(c?.confirmed_name){
+        document.getElementById(day.toLowerCase()+'Asst').innerHTML = `<span class="badge badge-green">${c.confirmed_name}</span>`;
+        document.getElementById(day.toLowerCase()+'Stat').innerHTML = '<span class="badge badge-green">✓ Confirmed</span>';
+      }
+    });
   } catch(e){}
 }
 
