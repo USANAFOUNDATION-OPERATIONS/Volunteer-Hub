@@ -1415,7 +1415,9 @@ async function loadDashboard(){
       sbGet('sign_ins','select=*,volunteers(name),volunteer_types(name)&order=signed_in_at.desc&limit=50'),
       sbGet('pack_events','select=*&order=event_date.asc')
     ]);
-    _volunteers = vols; _signIns = signIns; _packs = packs;
+    _signIns = signIns; _packs = packs;
+    // Only update _volunteers from dashboard if not already loaded with full data
+    if(!_volunteers.length) _volunteers = vols;
 
     // Metrics
     document.getElementById('metricActive').textContent = vols.filter(v=>v.status==='Active').length;
@@ -1515,10 +1517,10 @@ async function loadDashboard(){
         <td><strong>${s.hours_credited}</strong> hrs</td>
       </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">No sign-ins yet</td></tr>';
 
-    // Load additional dashboard sections
-    loadAnniversaries();
-    loadVolOfMonth();
-    loadImpactNumbers();
+    // Load additional dashboard sections safely
+    try { loadAnniversaries(); } catch(e){ console.error('Anniversary error:',e); }
+    try { loadVolOfMonth(); } catch(e){ console.error('VOM error:',e); }
+    try { loadImpactNumbers(); } catch(e){ console.error('Impact error:',e); }
 
   } catch(e){ console.error(e); }
 }
@@ -2342,7 +2344,8 @@ function renderScheduleTable(bodyId, rows){
   tbody.innerHTML = rows.map(s=>{
     const v = s.volunteers;
     const t = s.volunteer_types;
-    const grad = _volunteers.find(x=>x.id===v?.id) ? typeGradient(_volunteers.find(x=>x.id===v?.id).types||[]) : '#888';
+    const volData = _volunteers.find(x=>x.id===v?.id);
+    const grad = volData?.types?.length ? typeGradient(volData.types) : avatarGradient(v?.name||'?');
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -2581,7 +2584,8 @@ async function loadVolOfMonth(){
       const v = vols[0];
       const hrs = await sbGet('volunteer_levels',`id=eq.${v.id}&select=lifetime_hours,level_name`);
       const lv = getLevel(hrs[0]?.lifetime_hours||v.past_hours||0);
-      const grad = typeGradient(_volunteers.find(x=>x.id===v.id)?.types||[]);
+      const volData = _volunteers.find(x=>x.id===v.id);
+      const grad = volData?.types?.length ? typeGradient(volData.types) : avatarGradient(v.name);
       el.innerHTML = `
         <div style="display:flex;align-items:center;gap:10px;">
           <div class="list-avatar" style="background:${grad};width:36px;height:36px;font-size:13px;">${avatarInitials(v.name)}</div>
