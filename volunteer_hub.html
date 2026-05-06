@@ -1448,7 +1448,7 @@ async function loadDashboard(){
             <div class="birthday-name">${v.name}</div>
             <div class="birthday-date">🎂 ${fmtDateShort(v.birthday)}</div>
           </div>
-          <button class="btn btn-sm" onclick="openBirthdayMessage('${v.id}','${v.name.replace(/'/g,"\\'")}')">Send 🎉</button>
+          <button class="btn btn-sm bday-btn" data-id="${v.id}" data-name="${v.name}">Send 🎉</button>
         </div>`).join('');
     } else {
       bdayEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px 0;">No birthdays this week 🎉</div>';
@@ -2565,7 +2565,7 @@ async function loadAnniversaries(){
             <div class="week-row-val">${v.name}</div>
             <div style="font-size:11px;color:var(--text-muted);">🌟 ${v.years} year${v.years>1?'s':''} · ${v.diffDays<=0?'Today!':v.diffDays+' days away'}</div>
           </div>
-          <button class="btn btn-sm" onclick="openBirthdayMessage('${v.id}','${v.name.replace(/'/g,"\\'")}',true,${v.years})">🎉</button>
+          <button class="btn btn-sm anniv-btn" data-id="${v.id}" data-name="${v.name}" data-years="${v.years}">🎉</button>
         </div>`).join('');
     } else {
       el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No anniversaries in the next 2 weeks</div>';
@@ -2903,7 +2903,7 @@ async function loadSponsorReport(){
           <div style="font-size:20px;font-weight:800;color:var(--text);">${s.bags.toLocaleString()}</div>
           <div style="font-size:11px;color:var(--text-muted);">backpacks</div>
         </div>
-        <button class="btn btn-sm btn-primary" onclick="generateSponsorLetter('${s.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${s.packs.length},${s.bags},${s.vols})">✨ Generate Letter</button>
+        <button class="btn btn-sm btn-primary sponsor-letter-btn" data-name="${s.name}" data-packs="${s.packs.length}" data-bags="${s.bags}" data-vols="${s.vols}">✨ Generate Letter</button>
       </div>`).join('');
   } catch(e){ el.innerHTML=`<div style="color:var(--red-text);">Error: ${e.message}</div>`; }
 }
@@ -3048,6 +3048,16 @@ async function loadAttendanceReport(){
 // INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', async ()=>{
+  // Event delegation for dynamically-generated buttons
+  document.addEventListener('click', e=>{
+    const bdayBtn = e.target.closest('.bday-btn');
+    if(bdayBtn){ openBirthdayMessage(bdayBtn.dataset.id, bdayBtn.dataset.name); return; }
+    const anniversaryBtn = e.target.closest('.anniv-btn');
+    if(anniversaryBtn){ openBirthdayMessage(anniversaryBtn.dataset.id, anniversaryBtn.dataset.name, true, parseInt(anniversaryBtn.dataset.years)||1); return; }
+    const sponsorBtn = e.target.closest('.sponsor-letter-btn');
+    if(sponsorBtn){ generateSponsorLetter(sponsorBtn.dataset.name, parseInt(sponsorBtn.dataset.packs), parseInt(sponsorBtn.dataset.bags), parseInt(sponsorBtn.dataset.vols)); return; }
+  });
+
   try {
     await loadVolunteers();
     loadDashboard();
