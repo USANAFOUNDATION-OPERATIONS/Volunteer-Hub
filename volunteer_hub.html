@@ -1040,7 +1040,7 @@ select.form-input{cursor:pointer;}
             </div>
             <div class="form-row">
               <label class="form-label">Your Name</label>
-              <select class="form-input" id="psuName" style="font-size:18px;height:52px;" onchange="loadPackSignupSlots()">
+              <select class="form-input" id="psuName" style="font-size:18px;height:52px;" onchange="loadPackSignupSlotsForVolunteer()">
                 <option value="">— choose your name —</option>
               </select>
             </div>
@@ -1237,6 +1237,14 @@ select.form-input{cursor:pointer;}
         </label>
       </div>
       <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="packNotes" rows="2" style="resize:vertical;"></textarea></div>
+
+      <!-- Manual signup assignment — only shows when editing existing pack -->
+      <div id="packSignupSection" style="display:none;">
+        <hr class="divider">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">👥 Assign Volunteers</div>
+        <div id="packSignupSlots"></div>
+      </div>
+
       <div style="display:flex;gap:10px;justify-content:space-between;margin-top:16px;">
         <button class="btn" id="packDeleteBtn" style="display:none;color:var(--red-text);border-color:var(--red);" onclick="deletePackEvent()">🗑 Delete Event</button>
         <div style="display:flex;gap:10px;margin-left:auto;">
@@ -2183,6 +2191,7 @@ function openAddPack(){
   document.getElementById('packVolunteers').value='';
   document.getElementById('packCancelled').checked=false;
   document.getElementById('packNotes').value='';
+  document.getElementById('packSignupSection').style.display='none';
   document.getElementById('packDeleteBtn').style.display='none';
   document.getElementById('packSaveBtn').onclick = savePackEvent;
   openModal('addPackModal');
@@ -2225,7 +2234,10 @@ async function openEditPack(id){
   document.getElementById('packVolunteers').value = pack.total_volunteers||'';
   document.getElementById('packCancelled').checked = pack.cancelled||false;
   document.getElementById('packNotes').value = pack.notes||'';
+  document.getElementById('packSignupSection').style.display='block';
   document.getElementById('packDeleteBtn').style.display='inline-flex';
+  // Load current signups for this pack
+  loadPackSignupSlots_Admin(id, pack.lines||1);
   document.getElementById('packSaveBtn').onclick = async ()=>{
     const bags = parseInt(document.getElementById('packBags').value)||null;
     const vols = parseInt(document.getElementById('packVolunteers').value)||null;
@@ -3254,7 +3266,6 @@ async function loadAttendanceReport(){
 let _psuSelections = {}; // packEventId -> {role, eventName, date}
 
 async function loadPackSignupPage(){
-  // Populate name dropdown
   const sel = document.getElementById('psuName');
   if(sel.options.length <= 1 && _volunteers.length){
     sel.innerHTML = '<option value="">— choose your name —</option>';
@@ -3264,7 +3275,209 @@ async function loadPackSignupPage(){
   }
 }
 
-async function loadPackSignupSlots(){
+async function loadPackSignupSlotsForVolunteer(){
+  const volId = document.getElementById('psuName').value;
+  if(!volId){ document.getElementById('psuPacks').style.display='none'; return; }
+  _psuSelections = {};
+  const v = _volunteers.find(x=>x.id===volId);
+  const isLead = (v?.types||[]).some(t=>t==='Pack Host Lead');
+
+  const today = new Date();
+  const todayStr = localDate(today);
+  const endOfNextMonth = new Date(today.getFullYear(), today.getMonth()+2, 0);
+  const endStr = localDate(endOfNextMonth);
+
+  try {
+    const [openMonths, events, signups] = await Promise.all([
+      sbGet('pack_signup_months','signups_open=eq.true&select=month_key'),
+      sbGet('pack_events',`event_date=gte.${todayStr}&event_date=lte.${endStr}&cancelled=eq.false&completed=eq.false&order=event_date.asc,event_time.asc`),
+      sbGet('pack_signups','select=pack_event_id,role,volunteer_id,volunteers(name)')
+    ]);
+    const openKeys = openMonths.map(m=>m.month_key);
+    const available = events.filter(e=>openKeys.includes(e.event_date.slice(0,7)));
+
+    const el = document.getElementById('psuPacks');
+    el.style.display='block';
+
+    if(!available.length){
+      el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div>No packs open for signup right now.</div>`;
+      return;
+    }
+
+    let html = `<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Tap slots to sign up · tap again to deselect</div><div id="psuPackListInner"></div>
+      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;margin-top:14px;" onclick="submitPackSignupsInApp()">Submit My Sign-Ups</button>
+      <div id="psuCount" style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:6px;">No slots selected yet</div>`;
+    el.innerHTML = html;
+
+    let packHtml = '';
+    available.forEach(e=>{
+      const d = new Date(e.event_date+'T12:00:00');
+      const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      const eSignups = signups.filter(s=>s.pack_event_id===e.id);
+      const leadFilled = eSignups.find(s=>s.role==='Pack Lead');
+      const hostsFilled = eSignups.filter(s=>s.role==='Pack Host');
+      const hostsNeeded = e.lines||1;
+      const alreadySigned = eSignups.find(s=>s.volunteer_id===volId);
+
+      if(alreadySigned){
+        packHtml += `<div class="signin-card" style="margin-bottom:8px;padding:12px;border:1.5px solid var(--green);background:var(--green-light);">
+          <div style="font-weight:700;">${e.name}</div>
+          <div style="font-size:12px;color:var(--text-muted);">${dateStr}</div>
+          <span class="badge badge-green" style="margin-top:6px;">✓ Signed up as ${alreadySigned.role}</span>
+        </div>`;
+        return;
+      }
+
+      let slots = '';
+      let hasOpen = false;
+      if(!leadFilled && isLead){ slots += `<button class="btn psu-slot-btn" data-event="${e.id}" data-role="Pack Lead" data-name="${e.name}" data-date="${dateStr}" style="background:var(--green-light);color:var(--green-dark);border-color:var(--green);margin:3px;">Pack Lead</button>`; hasOpen=true; }
+      else if(leadFilled) slots += `<span class="badge badge-green" style="margin:3px;">Lead: ${leadFilled.volunteers?.name}</span>`;
+      for(let i=0;i<hostsNeeded;i++){
+        const h=hostsFilled[i];
+        if(h) slots += `<span class="badge badge-blue" style="margin:3px;">Host${hostsNeeded>1?' '+(i+1):''}: ${h.volunteers?.name}</span>`;
+        else { slots += `<button class="btn psu-slot-btn" data-event="${e.id}" data-role="Pack Host" data-name="${e.name}" data-date="${dateStr}" style="background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary);margin:3px;">Host${hostsNeeded>1?' '+(i+1):''}</button>`; hasOpen=true; }
+      }
+      if(!hasOpen) return;
+      packHtml += `<div class="signin-card" style="margin-bottom:8px;padding:12px;" id="psi-${e.id}">
+        <div style="font-weight:700;">${e.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${dateStr}${e.event_time?' · '+e.event_time:''}</div>
+        <div style="display:flex;flex-wrap:wrap;">${slots}</div>
+      </div>`;
+    });
+
+    document.getElementById('psuPackListInner').innerHTML = packHtml || `<div class="empty-state" style="padding:16px;">All slots filled!</div>`;
+
+    document.getElementById('psuPackListInner').addEventListener('click', e=>{
+      const btn = e.target.closest('.psu-slot-btn');
+      if(!btn) return;
+      const eventId = btn.dataset.event;
+      const role = btn.dataset.role;
+      if(_psuSelections[eventId]){
+        delete _psuSelections[eventId];
+        btn.style.background = role==='Pack Lead'?'var(--green-light)':'var(--primary-light)';
+        btn.style.color = role==='Pack Lead'?'var(--green-dark)':'var(--primary-dark)';
+        btn.style.fontWeight='500';
+      } else {
+        const prev = document.querySelector(`#psi-${eventId} .psu-slot-btn[style*="background:var(--text"]`);
+        if(prev){ prev.style.background=prev.dataset.role==='Pack Lead'?'var(--green-light)':'var(--primary-light)'; prev.style.color=prev.dataset.role==='Pack Lead'?'var(--green-dark)':'var(--primary-dark)'; delete _psuSelections[eventId]; }
+        _psuSelections[eventId]={role,name:btn.dataset.name,date:btn.dataset.date};
+        btn.style.background='var(--text)';
+        btn.style.color='#fff';
+        btn.style.fontWeight='700';
+      }
+      const n=Object.keys(_psuSelections).length;
+      document.getElementById('psuCount').textContent = n===0?'No slots selected yet':`${n} slot${n>1?'s':''} selected`;
+    });
+  } catch(e){ document.getElementById('psuPacks').innerHTML=`<div style="color:var(--red-text);">Error: ${e.message}</div>`; }
+}
+
+async function submitPackSignupsInApp(){
+  const volId = document.getElementById('psuName').value;
+  const entries = Object.entries(_psuSelections);
+  if(!entries.length){ showToast('Select at least one slot'); return; }
+  try {
+    for(const [eventId,sel] of entries){
+      await sbDelete('pack_signups',`pack_event_id=eq.${eventId}&volunteer_id=eq.${volId}`);
+      await sbPost('pack_signups',{pack_event_id:eventId,volunteer_id:volId,role:sel.role},'return=minimal');
+    }
+    const v=_volunteers.find(x=>x.id===volId);
+    document.getElementById('psuStep1').style.display='none';
+    document.getElementById('psuPacks').style.display='none';
+    document.getElementById('psuConfirm').style.display='block';
+    document.getElementById('psuConfirmName').textContent=(v?.name||'')+' · '+new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    document.getElementById('psuConfirmList').innerHTML=entries.map(([,sel])=>`
+      <div style="background:var(--bg);border-radius:8px;padding:10px 12px;margin-bottom:6px;">
+        <div style="font-weight:700;font-size:13px;">${sel.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);">${sel.date}</div>
+        <span class="badge ${sel.role==='Pack Lead'?'badge-green':'badge-primary'}" style="margin-top:4px;">${sel.role}</span>
+      </div>`).join('');
+    loadPacks();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+function resetPackSignup(){
+  _psuSelections={};
+  document.getElementById('psuStep1').style.display='block';
+  document.getElementById('psuPacks').style.display='none';
+  document.getElementById('psuConfirm').style.display='none';
+  document.getElementById('psuName').value='';
+}
+
+async function loadPackSignupSlots_Admin(packId, lines){
+  const container = document.getElementById('packSignupSlots');
+  container.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Loading...</div>';
+
+  try {
+    const signups = await sbGet('pack_signups',`pack_event_id=eq.${packId}&select=id,role,volunteer_id,volunteers(id,name)&order=role.asc`);
+    const leadSignup = signups.find(s=>s.role==='Pack Lead');
+    const hostSignups = signups.filter(s=>s.role==='Pack Host');
+
+    // Build eligible volunteer lists
+    const leadEligible = _volunteers.filter(v=>v.status==='Active' && (v.types||[]).some(t=>t==='Pack Host Lead'));
+    const hostEligible = _volunteers.filter(v=>v.status==='Active' && (v.types||[]).some(t=>t.includes('Pack Host')));
+
+    let html = '';
+
+    // Pack Lead slot
+    html += `<div style="margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Pack Lead</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <select class="form-input" id="slot-lead" style="flex:1;font-size:13px;">
+          <option value="">— Open —</option>
+          ${leadEligible.map(v=>`<option value="${v.id}" ${leadSignup?.volunteer_id===v.id?'selected':''}>${v.name}</option>`).join('')}
+        </select>
+        <button class="btn btn-sm btn-primary" onclick="saveSlot('${packId}','Pack Lead','slot-lead')">Save</button>
+        ${leadSignup ? `<button class="btn btn-sm" style="color:var(--red-text);" onclick="removeSlot('${leadSignup.id}','${packId}',${lines})">✕</button>` : ''}
+      </div>
+    </div>`;
+
+    // Host slots
+    for(let i=0; i<lines; i++){
+      const existing = hostSignups[i];
+      html += `<div style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Pack Host${lines>1?' '+(i+1):''}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <select class="form-input" id="slot-host-${i}" style="flex:1;font-size:13px;">
+            <option value="">— Open —</option>
+            ${hostEligible.map(v=>`<option value="${v.id}" ${existing?.volunteer_id===v.id?'selected':''}>${v.name}</option>`).join('')}
+          </select>
+          <button class="btn btn-sm btn-primary" onclick="saveSlot('${packId}','Pack Host','slot-host-${i}')">Save</button>
+          ${existing ? `<button class="btn btn-sm" style="color:var(--red-text);" onclick="removeSlot('${existing.id}','${packId}',${lines})">✕</button>` : ''}
+        </div>
+      </div>`;
+    }
+
+    container.innerHTML = html;
+  } catch(e){ container.innerHTML = `<div style="color:var(--red-text);font-size:12px;">Error loading signups: ${e.message}</div>`; }
+}
+
+async function saveSlot(packId, role, selectId){
+  const volId = document.getElementById(selectId).value;
+  if(!volId){ showToast('Select a volunteer first'); return; }
+  try {
+    // Remove existing signup for this role on this event (allow only one lead, and one host per slot)
+    // For hosts, remove any existing signup by this volunteer on this event first
+    await sbDelete('pack_signups',`pack_event_id=eq.${packId}&volunteer_id=eq.${volId}`);
+    // For lead, remove any existing lead
+    if(role==='Pack Lead') await sbDelete('pack_signups',`pack_event_id=eq.${packId}&role=eq.Pack Lead`);
+    await sbPost('pack_signups',{pack_event_id:packId, volunteer_id:volId, role},'return=minimal');
+    showToast(`✓ ${role} assigned!`);
+    const pack = _packs.find(p=>p.id===packId);
+    loadPackSignupSlots_Admin(packId, pack?.lines||1);
+    loadPacks(); // refresh schedule view
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+async function removeSlot(signupId, packId, lines){
+  try {
+    await sbDelete('pack_signups','id=eq.'+signupId);
+    showToast('✓ Removed');
+    loadPackSignupSlots_Admin(packId, lines);
+    loadPacks();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+async function loadPackSignupSlotsForVolunteer(){
   const volId = document.getElementById('psuName').value;
   if(!volId){ document.getElementById('psuPacks').style.display='none'; return; }
   _psuSelections = {};
