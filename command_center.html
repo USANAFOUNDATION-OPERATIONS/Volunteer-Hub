@@ -78,9 +78,15 @@ body::before{
   font-size:8px;letter-spacing:10px;
   color:rgba(255,255,255,0.25);pointer-events:none;
 }
+.cc-logo{
+  background:rgba(255,255,255,0.95);
+  border-radius:12px;
+  padding:6px 14px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.18);
+  display:flex;align-items:center;
+}
 .cc-logo img{
-  height:48px;object-fit:contain;
-  filter:drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+  height:42px;object-fit:contain;
 }
 .cc-clock{text-align:center;}
 .cc-time{
@@ -246,8 +252,9 @@ body::before{
 .slot-pill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;}
 .slot-filled{background:rgba(60,201,122,0.15);color:#1E8449;}
 .slot-open{background:rgba(232,80,74,0.12);color:#C0392B;}
-.bags-row{display:flex;gap:6px;align-items:center;}
-.bags-wrap{display:flex;align-items:center;gap:4px;flex:1;}
+.bags-row{display:flex;gap:8px;align-items:center;}
+.bags-inputs{display:flex;flex-direction:column;gap:5px;flex:1;}
+.bags-wrap{display:flex;align-items:center;gap:6px;}
 .bags-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);}
 .bags-inp{
   font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
@@ -525,8 +532,10 @@ async function loadPacks(){
         <div class="pack-meta">${day}${e.event_time?' · '+e.event_time:''} · ${lines} line${lines>1?'s':''}</div>
         <div class="pack-slots">${lp}${hp}</div>
         <div class="bags-row">
-          <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0"></div>
-          <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0"></div>
+          <div class="bags-inputs">
+            <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0"></div>
+            <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0"></div>
+          </div>
           ${done?'<span class="done-pill">✓ Done!</span>':`<button class="save-btn" onclick="savePack('${e.id}')">Save</button>`}
         </div>
       </div>`;
