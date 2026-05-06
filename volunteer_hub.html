@@ -295,7 +295,59 @@ select.form-input{cursor:pointer;}
 .cell-missing{color:var(--red-text);font-style:italic;font-size:11px;}
 .cell-select{font-family:inherit;font-size:12px;border:1px solid var(--border);border-radius:4px;padding:2px 4px;background:#fff;color:var(--text);cursor:pointer;}
 .list-avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;margin-right:6px;flex-shrink:0;vertical-align:middle;}
-</style>
+
+/* IMPACT COUNTER */
+.impact-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:20px 24px;color:#fff;position:relative;overflow:hidden;margin-bottom:20px;}
+.impact-hero::before{content:'🎒';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:64px;opacity:0.15;}
+.impact-hero-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:0.8;margin-bottom:6px;}
+.impact-hero-number{font-size:48px;font-weight:800;letter-spacing:-0.04em;line-height:1;}
+.impact-hero-sub{font-size:13px;opacity:0.85;margin-top:6px;}
+
+/* SIGN IN CONFIRMATION - CELEBRATORY */
+.signin-confirm-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:16px;padding:28px 24px;text-align:center;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;}
+.signin-confirm-hero::before{content:'🎒';position:absolute;right:-10px;top:-10px;font-size:80px;opacity:0.12;transform:rotate(15deg);}
+.signin-confirm-name{font-family:'Caveat',cursive;font-size:32px;font-weight:600;margin-bottom:4px;}
+.signin-confirm-hrs{font-size:48px;font-weight:800;letter-spacing:-0.04em;margin:8px 0;}
+.signin-confirm-type{font-size:14px;opacity:0.9;margin-bottom:16px;}
+.signin-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.signin-stat{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 12px;text-align:center;}
+.signin-stat-val{font-size:22px;font-weight:800;letter-spacing:-0.02em;}
+.signin-stat-label{font-size:10px;opacity:0.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+
+/* VOLUNTEER OF YEAR BADGE */
+.voy-badge{background:linear-gradient(135deg,#fef08a,#fbbf24);color:#78350F;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;}
+
+/* CERTIFICATE MODAL */
+.cert-wrap{background:linear-gradient(135deg,#fffbf2,#fef3c7);border:3px solid var(--primary);border-radius:20px;padding:40px 32px;text-align:center;position:relative;}
+.cert-wrap::before{content:'';position:absolute;inset:6px;border:1px solid rgba(217,119,6,0.3);border-radius:16px;pointer-events:none;}
+.cert-title{font-family:'Caveat',cursive;font-size:28px;color:var(--primary-dark);margin-bottom:4px;}
+.cert-name{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.02em;margin:12px 0;}
+.cert-milestone{font-size:18px;font-weight:700;color:var(--primary-dark);margin:8px 0;}
+.cert-body{font-size:13px;color:var(--text-muted);line-height:1.7;margin:16px 0;}
+.cert-heart{font-size:32px;margin:12px 0;}
+
+/* STORY CARD */
+.story-card{background:linear-gradient(135deg,var(--primary-light),#fff);border:1px solid var(--border);border-radius:var(--radius);padding:20px;font-size:14px;line-height:1.8;color:var(--text);font-style:italic;position:relative;}
+.story-card::before{font-family:'Caveat',cursive;content:'"';position:absolute;top:-8px;left:12px;font-size:48px;color:var(--primary);opacity:0.4;line-height:1;}
+
+/* SELF SERVICE PORTAL */
+.portal-wrap{max-width:480px;margin:0 auto;padding:20px 0;}
+.portal-stat-card{background:var(--surface);border-radius:14px;padding:16px 20px;margin-bottom:12px;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
+.portal-stat-big{font-size:36px;font-weight:800;letter-spacing:-0.03em;color:var(--text);}
+.portal-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:5px;}
+.portal-stat-label::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary);}
+
+/* SPONSOR REPORT */
+.sponsor-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow-sm);}
+.sponsor-name{font-size:14px;font-weight:700;color:var(--text);}
+.sponsor-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+
+@media print {
+  .app-shell > *:not(#printArea){display:none!important;}
+  #printArea{display:block!important;}
+  body{background:#fff;}
+}
+
 </head>
 <body>
 <div class="app-shell">
@@ -341,6 +393,10 @@ select.form-input{cursor:pointer;}
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
           Sign-In
         </div>
+        <div class="nav-item" onclick="showPage('portal',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Volunteer Portal
+        </div>
         <div class="nav-item" onclick="showPage('reports',this)">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           Reports
@@ -362,6 +418,13 @@ select.form-input{cursor:pointer;}
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
             Sign In Volunteer
           </button>
+        </div>
+
+        <!-- Impact Hero Banner -->
+        <div class="impact-hero" id="impactHero">
+          <div class="impact-hero-label">🎒 2025–2026 School Year Impact</div>
+          <div class="impact-hero-number" id="impactBags">—</div>
+          <div class="impact-hero-sub" id="impactSub">backpacks packed · <span id="impactMeals">—</span> meals delivered to children</div>
         </div>
 
         <!-- Metrics -->
@@ -408,6 +471,23 @@ select.form-input{cursor:pointer;}
               <div class="week-card-title">🏆 Recent Milestones</div>
             </div>
             <div class="week-card-body" id="milestoneList"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
+          </div>
+
+          <!-- Anniversaries -->
+          <div class="week-card">
+            <div class="week-card-head">
+              <div class="week-card-title">🌟 Volunteer Anniversaries</div>
+            </div>
+            <div class="week-card-body" id="anniversaryList"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
+          </div>
+
+          <!-- Volunteer of the Month -->
+          <div class="week-card">
+            <div class="week-card-head">
+              <div class="week-card-title">⭐ Volunteer of the Month</div>
+              <button class="btn btn-sm" onclick="openVolOfMonthPicker()">Select</button>
+            </div>
+            <div class="week-card-body" id="volOfMonthDisplay"><div style="color:var(--text-muted);font-size:12px;">No one selected yet this month</div></div>
           </div>
         </div>
 
@@ -509,6 +589,7 @@ select.form-input{cursor:pointer;}
             <button class="btn" onclick="changePackMonth(0)">Today</button>
             <button class="btn" onclick="changePackMonth(1)">Next →</button>
             <button class="btn btn-primary" onclick="openAddPack()">+ Add Pack Event</button>
+            <button class="btn" style="background:var(--green-light);color:var(--green-dark);border-color:var(--green-light);" onclick="generatePackSignupMessage()">📲 WhatsApp Signup Link</button>
           </div>
         </div>
         <div id="packList" class="pack-month-grid"></div>
@@ -707,20 +788,33 @@ select.form-input{cursor:pointer;}
 
           <!-- Confirmation -->
           <div id="siConfirm" style="display:none;" class="signin-card">
-            <div class="confirm-wrap">
-              <div class="confirm-icon">
-                <svg width="28" height="28" fill="none" stroke="var(--green-dark)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="signin-confirm-hero">
+              <div class="signin-confirm-name" id="siConfirmName">—</div>
+              <div style="font-size:13px;opacity:0.85;margin-bottom:8px;" id="siConfirmType">—</div>
+              <div class="signin-confirm-hrs" id="siConfirmHrs">—</div>
+              <div style="font-size:13px;opacity:0.85;">hours credited today ✓</div>
+              <div class="signin-stat-grid">
+                <div class="signin-stat">
+                  <div class="signin-stat-val" id="siLifetimeHours">—</div>
+                  <div class="signin-stat-label">Lifetime Hours</div>
+                </div>
+                <div class="signin-stat">
+                  <div class="signin-stat-val" id="siBackpacks">—</div>
+                  <div class="signin-stat-label">Backpacks Packed</div>
+                </div>
               </div>
-              <div class="confirm-name" id="siConfirmName">—</div>
-              <div class="confirm-hours" id="siConfirmHours">—</div>
-              <div class="confirm-detail" id="siConfirmDetail">—</div>
-              <div style="margin-top:20px;padding:14px;background:var(--bg);border-radius:10px;">
-                <div style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Lifetime Hours</div>
-                <div style="font-size:28px;font-weight:700;color:var(--text);" id="siLifetimeHours">—</div>
-                <div style="font-size:12px;font-weight:600;margin-top:4px;" id="siLevel">—</div>
-              </div>
-              <button class="btn" style="margin-top:20px;width:100%;" onclick="resetSignIn()">Sign In Another Volunteer</button>
             </div>
+            <div style="text-align:center;padding:8px 0 16px;">
+              <div id="siLevel" style="margin-bottom:8px;"></div>
+              <div id="siNextMilestone" style="font-size:12px;color:var(--text-muted);"></div>
+              <div id="siMilestoneBar" style="margin:8px 0;"></div>
+              <div id="siAnniversary" style="font-size:13px;color:var(--primary-dark);font-weight:600;margin:8px 0;"></div>
+            </div>
+            <div style="background:var(--primary-light);border-radius:10px;padding:12px;text-align:center;margin-bottom:16px;">
+              <div style="font-family:'Caveat',cursive;font-size:16px;color:var(--primary-dark);">"No child should ever go hungry —</div>
+              <div style="font-family:'Caveat',cursive;font-size:16px;color:var(--primary-dark);">and our volunteers make sure of it."</div>
+            </div>
+            <button class="btn" style="width:100%;" onclick="resetSignIn()">Sign In Another Volunteer</button>
           </div>
         </div>
       </div>
@@ -783,6 +877,143 @@ select.form-input{cursor:pointer;}
             </div>
           </div>
         </div>
+
+        <!-- Sponsor Summary Report -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div class="card-title">🤝 Sponsor Summary Report</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input type="date" class="form-input" id="sponsorStart" style="width:140px;" value="2025-08-01">
+              <span style="font-size:12px;color:var(--text-muted);">to</span>
+              <input type="date" class="form-input" id="sponsorEnd" style="width:140px;" value="2026-05-31">
+              <button class="btn btn-primary btn-sm" onclick="loadSponsorReport()">Generate</button>
+            </div>
+          </div>
+          <div class="card-body" id="sponsorReportBody">
+            <div style="color:var(--text-muted);font-size:12px;">Set a date range and click Generate to see sponsor summaries</div>
+          </div>
+        </div>
+
+        <!-- Annual Impact Report -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div class="card-title">📊 Annual Impact Report</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <select class="form-input" id="annualYear" style="width:160px;">
+                <option value="2025-2026">2025–2026 School Year</option>
+                <option value="2024-2025">2024–2025 School Year</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="loadAnnualReport()">Generate</button>
+              <button class="btn btn-sm" onclick="printAnnualReport()">🖨 Print</button>
+            </div>
+          </div>
+          <div id="annualReportBody" style="padding:16px;">
+            <div style="color:var(--text-muted);font-size:12px;">Click Generate to build the annual impact report</div>
+          </div>
+        </div>
+
+        <!-- Attendance Reliability -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div class="card-title">📈 Pack Host Attendance Reliability</div>
+            <div style="font-size:11px;color:var(--text-muted);">Who shows up vs who signs up</div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap" style="border:none;border-radius:0;">
+              <table><thead><tr><th>Volunteer</th><th>Packs Hosted</th><th>Reliability</th></tr></thead>
+              <tbody id="rptAttendance"></tbody></table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VOLUNTEER PORTAL PAGE -->
+      <div id="page-portal" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Volunteer Portal</div>
+            <div class="page-subtitle">Volunteers select their name to see their personal stats</div>
+          </div>
+          <button class="btn" onclick="printQR()">🖨 Print QR Code</button>
+        </div>
+
+        <div class="portal-wrap">
+          <!-- Name selection -->
+          <div id="portalStep1" class="signin-card">
+            <div class="signin-header">
+              <div class="signin-icon">
+                <svg width="26" height="26" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <div class="signin-title">Your Volunteer Stats</div>
+              <div class="signin-sub">Select your name to see your impact</div>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Your Name</label>
+              <select class="form-input" id="portalName" style="font-size:18px;height:52px;" onchange="loadPortalStats()">
+                <option value="">— choose your name —</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Stats display -->
+          <div id="portalStats" style="display:none;">
+            <!-- Hero -->
+            <div class="signin-confirm-hero" style="margin-bottom:14px;">
+              <div class="signin-confirm-name" id="portalVolName">—</div>
+              <div id="portalVolTypes" style="font-size:12px;opacity:0.85;margin-bottom:12px;"></div>
+              <div class="signin-stat-grid">
+                <div class="signin-stat">
+                  <div class="signin-stat-val" id="portalLifetimeHrs">—</div>
+                  <div class="signin-stat-label">Lifetime Hours</div>
+                </div>
+                <div class="signin-stat">
+                  <div class="signin-stat-val" id="portalBackpacks">—</div>
+                  <div class="signin-stat-label">Backpacks Packed</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Level & progress -->
+            <div class="portal-stat-card">
+              <div class="portal-stat-label">Your Level</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                <div id="portalLevel"></div>
+                <div id="portalNextMs" style="font-size:12px;color:var(--text-muted);"></div>
+              </div>
+              <div class="milestone-bar-wrap" style="margin-top:8px;"><div class="milestone-bar" id="portalMsBar" style="width:0%"></div></div>
+            </div>
+
+            <!-- This school year -->
+            <div class="portal-stat-card">
+              <div class="portal-stat-label green">This School Year</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+                <div><div class="portal-stat-big" id="portalYearHrs">—</div><div style="font-size:11px;color:var(--text-muted);">hours</div></div>
+                <div><div class="portal-stat-big" id="portalYearSignIns">—</div><div style="font-size:11px;color:var(--text-muted);">sign-ins</div></div>
+              </div>
+            </div>
+
+            <!-- Recent sign-ins -->
+            <div class="portal-stat-card">
+              <div class="portal-stat-label blue">Recent Sign-Ins</div>
+              <div id="portalRecentSI" style="margin-top:8px;"></div>
+            </div>
+
+            <!-- Upcoming packs -->
+            <div class="portal-stat-card">
+              <div class="portal-stat-label">Upcoming Pack Signups</div>
+              <div id="portalUpcomingPacks" style="margin-top:8px;font-size:13px;color:var(--text-muted);">No upcoming packs signed up</div>
+            </div>
+
+            <div style="background:var(--primary-light);border-radius:10px;padding:14px;text-align:center;margin-top:4px;">
+              <div style="font-family:'Caveat',cursive;font-size:17px;color:var(--primary-dark);">"No child should ever go hungry —</div>
+              <div style="font-family:'Caveat',cursive;font-size:17px;color:var(--primary-dark);">and our volunteers make sure of it."</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Thank you for being part of this mission 🎒</div>
+            </div>
+
+            <button class="btn" style="width:100%;margin-top:12px;" onclick="resetPortal()">View Another Volunteer</button>
+          </div>
+        </div>
       </div>
 
     </main>
@@ -814,6 +1045,104 @@ select.form-input{cursor:pointer;}
     </div>
   </nav>
 </div>
+
+<!-- CERTIFICATE MODAL -->
+<div class="modal-overlay" id="certModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">Milestone Certificate</div>
+      <button class="modal-close" onclick="closeModal('certModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cert-wrap" id="certContent">
+        <div style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:8px;">USANA Foundation · Kids Eat Program</div>
+        <div class="cert-heart">💙</div>
+        <div class="cert-title">Certificate of Appreciation</div>
+        <div style="font-size:13px;color:var(--text-muted);margin:4px 0;">This certifies that</div>
+        <div class="cert-name" id="certVolName">—</div>
+        <div class="cert-milestone" id="certMilestoneText">—</div>
+        <div class="cert-body" id="certBodyText">—</div>
+        <div style="font-size:12px;color:var(--text-faint);" id="certDate">—</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px;color:var(--text-faint);">
+          <div>Stephen Cook<br>USANA Foundation Operations</div>
+          <div style="text-align:right;">Kids Eat Program<br>USANA Foundation</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">
+        <button class="btn" onclick="closeModal('certModal')">Close</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨 Print Certificate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STORY MODAL -->
+<div class="modal-overlay" id="storyModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title" id="storyModalTitle">Volunteer Story</div>
+      <button class="modal-close" onclick="closeModal('storyModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="storyContent">
+        <div style="text-align:center;padding:20px;color:var(--text-muted);">
+          <div style="font-size:24px;margin-bottom:8px;">✨</div>
+          <div style="font-size:14px;">Generating a personalized story...</div>
+          <div style="font-size:12px;margin-top:4px;color:var(--text-faint);">This takes about 10 seconds</div>
+        </div>
+      </div>
+      <div id="storyActions" style="display:none;margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn" onclick="closeModal('storyModal')">Close</button>
+        <button class="btn btn-primary" id="storyCopyBtn" onclick="copyStory()">📋 Copy for WhatsApp</button>
+        <button class="btn" onclick="regenerateStory()">↻ Regenerate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VOL OF MONTH PICKER -->
+<div class="modal-overlay" id="volOfMonthModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <div class="modal-title">Select Volunteer of the Month</div>
+      <button class="modal-close" onclick="closeModal('volOfMonthModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">Volunteer</label>
+        <select class="form-input" id="vomSelect" style="font-size:16px;"></select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Month</label>
+        <input type="month" class="form-input" id="vomMonth">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+        <button class="btn" onclick="closeModal('volOfMonthModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveVolOfMonth()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BIRTHDAY MESSAGE MODAL -->
+<div class="modal-overlay" id="birthdayMsgModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">🎂 Birthday Message</div>
+      <button class="modal-close" onclick="closeModal('birthdayMsgModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--bg);border-radius:10px;padding:16px;font-size:14px;color:var(--text);line-height:1.7;border:1px solid var(--border);white-space:pre-wrap;" id="birthdayMsgText"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end;">
+        <button class="btn" onclick="closeModal('birthdayMsgModal')">Close</button>
+        <button class="btn btn-primary" onclick="copyBirthdayMsg()">📋 Copy for WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT AREA (hidden except when printing) -->
+<div id="printArea" style="display:none;"></div>
 
 <!-- VOLUNTEER PROFILE MODAL -->
 <div class="modal-overlay" id="volModal">
@@ -919,6 +1248,12 @@ select.form-input{cursor:pointer;}
           Received Gift Card / Thank You
         </label>
       </div>
+      <hr class="divider">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;">Emergency Contact</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label class="form-label">Contact Name</label><input type="text" class="form-input" id="editEmergencyName" placeholder="Full name"></div>
+        <div class="form-row"><label class="form-label">Contact Phone</label><input type="tel" class="form-input" id="editEmergencyPhone" placeholder="(801) 000-0000"></div>
+      </div>
       <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="editNotes" rows="3" style="resize:vertical;"></textarea></div>
       <div class="form-row">
         <label class="form-label">Volunteer Type(s)</label>
@@ -1000,10 +1335,11 @@ function showPage(id, el){
   if(id==='dashboard') loadDashboard();
   if(id==='volunteers') loadVolunteers();
   if(id==='packs') loadPacks();
-  if(id==='reports') loadReports();
+  if(id==='reports'){ loadReports(); loadAttendanceReport(); }
   if(id==='signin') loadSignInPage();
   if(id==='delivery') loadDeliveryPage();
   if(id==='warehouse') loadWarehousePage();
+  if(id==='portal'){ loadPortalPage(); }
 }
 
 // ============================================================
@@ -1102,7 +1438,11 @@ async function loadDashboard(){
       bdayEl.innerHTML = bdays.map(v=>`
         <div class="birthday-item">
           <div class="birthday-avatar">${avatarInitials(v.name)}</div>
-          <div><div class="birthday-name">${v.name}</div><div class="birthday-date">🎂 ${fmtDateShort(v.birthday)}</div></div>
+          <div style="flex:1;">
+            <div class="birthday-name">${v.name}</div>
+            <div class="birthday-date">🎂 ${fmtDateShort(v.birthday)}</div>
+          </div>
+          <button class="btn btn-sm" onclick="openBirthdayMessage('${v.id}','${v.name.replace(/'/g,"\\'")}')">Send 🎉</button>
         </div>`).join('');
     } else {
       bdayEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px 0;">No birthdays this week 🎉</div>';
@@ -1174,6 +1514,11 @@ async function loadDashboard(){
         <td>${fmtDate(s.signed_in_at?.slice(0,10))}</td>
         <td><strong>${s.hours_credited}</strong> hrs</td>
       </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">No sign-ins yet</td></tr>';
+
+    // Load additional dashboard sections
+    loadAnniversaries();
+    loadVolOfMonth();
+    loadImpactNumbers();
 
   } catch(e){ console.error(e); }
 }
@@ -1309,12 +1654,18 @@ function renderCardView(vols){
       ? `<img src="${v.photo_url}" alt="${v.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.background='${heroGrad}';this.parentElement.innerHTML='${initials}'">`
       : `${initials}`;
     const ringBg = v.photo_url ? '' : `background:${heroGrad};`;
+    const now = new Date();
+    const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const isVOM = v.volunteer_of_month === thisMonth;
+    const isVOY = v.volunteer_of_year === now.getFullYear();
     return `
     <div class="vol-card" onclick="openVolProfile('${v.id}')">
       <div class="vol-card-hero" style="background:${heroGrad};">
         <div class="vol-card-photo-ring" style="${ringBg}">${ringInner}</div>
         <div class="vol-card-status-dot ${statusDotClass}"></div>
         <div class="vol-card-level-badge" style="${levelOverlayStyle(lv.cls)}">${lv.name}</div>
+        ${isVOM?'<div style="position:absolute;top:8px;left:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(254,240,138,0.9);color:#78350F;">⭐ Vol of Month</div>':''}
+        ${isVOY?'<div style="position:absolute;top:8px;left:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(254,240,138,0.9);color:#78350F;">🏆 Vol of Year</div>':''}
       </div>
       <div class="vol-card-body">
         <div class="vol-card-name">${v.name}</div>
@@ -1435,9 +1786,11 @@ async function openVolProfile(id){
         </div>
       </div>
     </div>
-    <div style="margin-bottom:14px;display:flex;gap:8px;align-items:center;justify-content:space-between;">
+    <div style="margin-bottom:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <button class="btn btn-sm btn-primary" onclick="openEditVolunteer('${id}')">✏️ Edit Profile</button>
-      <button class="btn btn-sm" style="color:var(--red-text);border-color:var(--red-light);background:var(--red-light);" onclick="deleteVolunteer('${id}','${v.name}')">🗑 Delete Volunteer</button>
+      <button class="btn btn-sm" style="background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary-light);" onclick="generateCertificate('${id}')">🏅 Certificate</button>
+      <button class="btn btn-sm" style="background:var(--purple-light);color:var(--purple-text);border-color:var(--purple-light);" onclick="generateStory('${id}')">✨ Generate Story</button>
+      <button class="btn btn-sm" style="color:var(--red-text);border-color:var(--red-light);background:var(--red-light);margin-left:auto;" onclick="deleteVolunteer('${id}','${v.name}')">🗑 Delete</button>
     </div>
     <div class="info-grid">
       <div class="info-item"><label>Email</label><span>${v.email||'—'}</span></div>
@@ -1446,6 +1799,7 @@ async function openVolProfile(id){
       <div class="info-item"><label>Birthday</label><span>${v.birthday?fmtDateShort(v.birthday):'—'}</span></div>
       <div class="info-item"><label>Started</label><span>${v.date_started?fmtDateShort(v.date_started):'—'}</span></div>
       <div class="info-item"><label>Gift Card</label><span>${v.received_gift_card?'✓ Yes':'No'}</span></div>
+      ${v.emergency_contact_name?`<div class="info-item" style="grid-column:1/-1;"><label>Emergency Contact</label><span>${v.emergency_contact_name}${v.emergency_contact_phone?' · '+v.emergency_contact_phone:''}</span></div>`:''}
     </div>
     ${v.notes?`<div style="background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13px;color:var(--text-muted);margin-bottom:14px;font-style:italic;">"${v.notes}"</div>`:''}
     <div class="hours-section">
@@ -1518,6 +1872,8 @@ function openEditVolunteer(id){
   document.getElementById('editPastHours').value = v.past_hours||0;
   document.getElementById('editGiftCard').checked = !!v.received_gift_card;
   document.getElementById('editNotes').value = v.notes||'';
+  document.getElementById('editEmergencyName').value = v.emergency_contact_name||'';
+  document.getElementById('editEmergencyPhone').value = v.emergency_contact_phone||'';
 
   // Populate type checkboxes
   const currentTypes = v.types||[];
@@ -1559,7 +1915,9 @@ async function saveEditVolunteer(){
       status:document.getElementById('editStatus').value,
       past_hours:parseFloat(document.getElementById('editPastHours').value)||0,
       received_gift_card:document.getElementById('editGiftCard').checked,
-      notes:document.getElementById('editNotes').value||null
+      notes:document.getElementById('editNotes').value||null,
+      emergency_contact_name:document.getElementById('editEmergencyName').value||null,
+      emergency_contact_phone:document.getElementById('editEmergencyPhone').value||null
     });
 
     // Update type assignments — delete all then re-insert
@@ -1803,12 +2161,36 @@ async function submitSignIn(){
     const [updated] = await sbGet('volunteer_levels',`id=eq.${id}&select=lifetime_hours,level_name`);
     const newLifetime = updated?.lifetime_hours||0;
     const lv = getLevel(newLifetime);
+    const next = nextMilestone(newLifetime);
+    const pct = next ? Math.min(100,(newLifetime/next)*100) : 100;
 
+    // Calculate backpacks estimate
+    const totalBagsEl = document.getElementById('impactBags');
+    const totalBags = totalBagsEl ? parseInt(totalBagsEl.textContent.replace(/,/g,''))||35000 : 35000;
+    const allSI = await sbGet('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
+    const totalHrs = allSI.reduce((a,s)=>a+(s.hours_credited||0),0)||1;
+    const volBags = calcBackpacksFromHours(newLifetime, totalBags, totalHrs);
+
+    // Check for anniversary
+    let anniversaryMsg = '';
+    if(v.date_started){
+      const started = new Date(v.date_started+'T12:00:00');
+      const years = new Date().getFullYear() - started.getFullYear();
+      const annivDate = new Date(new Date().getFullYear(), started.getMonth(), started.getDate());
+      const diffDays = Math.round((annivDate - new Date())/(1000*60*60*24));
+      if(Math.abs(diffDays)<=1 && years>0) anniversaryMsg = `🌟 Happy ${years}-year anniversary with Kids Eat!`;
+    }
+
+    // Populate celebratory screen
     document.getElementById('siConfirmName').textContent = v.name;
-    document.getElementById('siConfirmHours').textContent = `+${hrs} hours credited ✓`;
-    document.getElementById('siConfirmDetail').textContent = typeName + ' · ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-    document.getElementById('siLifetimeHours').textContent = newLifetime.toFixed(1)+' hrs';
-    document.getElementById('siLevel').innerHTML = `<span class="vol-level ${lv.cls}" style="display:inline-block;font-size:13px;padding:4px 12px;">${lv.name}</span>`;
+    document.getElementById('siConfirmType').textContent = typeName;
+    document.getElementById('siConfirmHrs').textContent = '+'+hrs;
+    document.getElementById('siLifetimeHours').textContent = newLifetime.toFixed(1);
+    document.getElementById('siBackpacks').textContent = volBags.toLocaleString();
+    document.getElementById('siLevel').innerHTML = `<span class="vol-level ${lv.cls}" style="font-size:13px;padding:4px 12px;">${lv.name}</span>`;
+    document.getElementById('siNextMilestone').textContent = next ? `${(next-newLifetime).toFixed(1)} hrs to ${getLevel(next).name}` : '🏆 Maximum Level Achieved!';
+    document.getElementById('siMilestoneBar').innerHTML = next ? `<div class="milestone-bar-wrap"><div class="milestone-bar" style="width:${pct}%"></div></div>` : '';
+    document.getElementById('siAnniversary').textContent = anniversaryMsg;
 
     document.getElementById('siStep1').style.display='none';
     document.getElementById('siConfirm').style.display='block';
@@ -2124,6 +2506,530 @@ async function confirmAssistant(day){
 // QR placeholder
 function printQR(){
   alert('QR code for this sign-in page:\n\n'+window.location.href+'\n\nBookmark this page or print this URL to generate a QR code at qr-code-generator.com');
+}
+
+// ============================================================
+// IMPACT CALCULATIONS
+// ============================================================
+const SCHOOL_YEAR_START = '2025-08-01';
+const SCHOOL_YEAR_END   = '2026-05-31';
+
+async function loadImpactNumbers(){
+  try {
+    const result = await sbGet('pack_events',
+      `event_date=gte.${SCHOOL_YEAR_START}&event_date=lte.${SCHOOL_YEAR_END}&cancelled=eq.false&select=bags_packed`
+    );
+    const totalBags = result.reduce((a,r)=>a+(r.bags_packed||0),0);
+    const meals = totalBags * 7;
+    document.getElementById('impactBags').textContent = totalBags.toLocaleString();
+    document.getElementById('impactMeals').textContent = meals.toLocaleString();
+    return totalBags;
+  } catch(e){ return 0; }
+}
+
+function calcBackpacksFromHours(hours, totalBags, totalHours){
+  if(!totalHours || !totalBags) return Math.round(hours * 15); // fallback estimate
+  return Math.round((hours / totalHours) * totalBags);
+}
+
+// ============================================================
+// ANNIVERSARY TRACKING
+// ============================================================
+async function loadAnniversaries(){
+  const el = document.getElementById('anniversaryList');
+  try {
+    const vols = await sbGet('volunteers','select=id,name,date_started&not.date_started.is.null&status=eq.Active');
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const upcoming = [];
+    vols.forEach(v=>{
+      const started = new Date(v.date_started+'T12:00:00');
+      const years = currentYear - started.getFullYear();
+      if(years <= 0) return;
+      // Check if anniversary is within the next 14 days
+      const annivThisYear = new Date(currentYear, started.getMonth(), started.getDate());
+      const diffDays = Math.round((annivThisYear - now) / (1000*60*60*24));
+      if(diffDays >= -1 && diffDays <= 14){
+        upcoming.push({...v, years, date: annivThisYear, diffDays});
+      }
+    });
+    if(upcoming.length){
+      el.innerHTML = upcoming.map(v=>`
+        <div class="week-row">
+          <div>
+            <div class="week-row-val">${v.name}</div>
+            <div style="font-size:11px;color:var(--text-muted);">🌟 ${v.years} year${v.years>1?'s':''} · ${v.diffDays<=0?'Today!':v.diffDays+' days away'}</div>
+          </div>
+          <button class="btn btn-sm" onclick="openBirthdayMessage('${v.id}','${v.name.replace(/'/g,"\\'")}',true,${v.years})">🎉</button>
+        </div>`).join('');
+    } else {
+      el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No anniversaries in the next 2 weeks</div>';
+    }
+  } catch(e){ el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">—</div>'; }
+}
+
+// ============================================================
+// VOLUNTEER OF THE MONTH
+// ============================================================
+async function loadVolOfMonth(){
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  try {
+    const vols = await sbGet('volunteers',`volunteer_of_month=eq.${monthKey}&select=id,name,past_hours`);
+    const el = document.getElementById('volOfMonthDisplay');
+    if(vols.length){
+      const v = vols[0];
+      const hrs = await sbGet('volunteer_levels',`id=eq.${v.id}&select=lifetime_hours,level_name`);
+      const lv = getLevel(hrs[0]?.lifetime_hours||v.past_hours||0);
+      const grad = typeGradient(_volunteers.find(x=>x.id===v.id)?.types||[]);
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="list-avatar" style="background:${grad};width:36px;height:36px;font-size:13px;">${avatarInitials(v.name)}</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">${v.name}</div>
+            <span class="vol-level ${lv.cls}">${lv.name}</span>
+          </div>
+          <span class="voy-badge" style="margin-left:auto;">⭐ Vol of Month</span>
+        </div>`;
+    } else {
+      el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No one selected yet this month</div>';
+    }
+  } catch(e){}
+}
+
+function openVolOfMonthPicker(){
+  const sel = document.getElementById('vomSelect');
+  sel.innerHTML = _volunteers.filter(v=>v.status==='Active').map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+  const now = new Date();
+  document.getElementById('vomMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  openModal('volOfMonthModal');
+}
+
+async function saveVolOfMonth(){
+  const id = document.getElementById('vomSelect').value;
+  const month = document.getElementById('vomMonth').value;
+  if(!id||!month){ showToast('Please select a volunteer and month'); return; }
+  try {
+    // Clear previous for this month then set new
+    const prev = await sbGet('volunteers',`volunteer_of_month=eq.${month}&select=id`);
+    for(const p of prev) await sbPatch('volunteers','id=eq.'+p.id,{volunteer_of_month:null});
+    await sbPatch('volunteers','id=eq.'+id,{volunteer_of_month:month});
+    closeModal('volOfMonthModal');
+    showToast('✓ Volunteer of the Month saved!');
+    loadVolOfMonth();
+    loadVolunteers();
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+// ============================================================
+// BIRTHDAY MESSAGE GENERATOR
+// ============================================================
+function openBirthdayMessage(id, name, isAnniversary=false, years=0){
+  const v = _volunteers.find(x=>x.id===id);
+  const lv = getLevel(v?.lifetime_hours||0);
+  let msg;
+  if(isAnniversary){
+    msg = `Hey ${name}! 🌟\n\nOn behalf of everyone at USANA Kids Eat, we just wanted to take a moment to celebrate YOU.\n\nToday marks ${years} year${years>1?'s':''} since you first joined our volunteer family — and what a ${years} year${years>1?'s':''} it has been!\n\nYour dedication means that children in our community don't go hungry. Every time you show up, you're making a real difference.\n\nThank you for ${years} incredible year${years>1?'s':''} of service. Here's to many more! 🎒❤️\n\n— The Kids Eat Team`;
+  } else {
+    msg = `Hey ${name}! 🎂\n\nWishing you the happiest of birthdays from all of us at USANA Kids Eat!\n\nYou give so much of your time to help make sure no child goes hungry — and today is YOUR day to be celebrated.\n\nHope your birthday is as wonderful as the impact you make in our community. 🎉\n\nWith gratitude,\nThe Kids Eat Team 🎒`;
+  }
+  document.getElementById('birthdayMsgText').textContent = msg;
+  openModal('birthdayMsgModal');
+}
+
+function copyBirthdayMsg(){
+  const txt = document.getElementById('birthdayMsgText').textContent;
+  navigator.clipboard.writeText(txt).then(()=>showToast('✓ Message copied!')).catch(()=>showToast('Select and copy manually'));
+}
+
+// ============================================================
+// WHATSAPP PACK SIGNUP MESSAGE GENERATOR
+// ============================================================
+async function generatePackSignupMessage(){
+  const y = packMonth.getFullYear(), m = packMonth.getMonth();
+  const monthName = packMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const start = `${y}-${String(m+1).padStart(2,'0')}-01`;
+  const end   = `${y}-${String(m+1).padStart(2,'0')}-31`;
+  try {
+    const events = await sbGet('pack_events',
+      `event_date=gte.${start}&event_date=lte.${end}&cancelled=eq.false&order=event_date.asc`
+    );
+    const signups = await sbGet('pack_signups','select=pack_event_id,role');
+    if(!events.length){ showToast('No pack events this month'); return; }
+
+    let lines = [`🎒 *Kids Eat — ${monthName} Pack Sign-Ups*\n`];
+    lines.push(`Pack hosts and leads — please sign up for the packs you can help with this month!\n`);
+
+    events.forEach(e=>{
+      const d = new Date(e.event_date+'T12:00:00');
+      const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      const eSignups = signups.filter(s=>s.pack_event_id===e.id);
+      const leadFilled = eSignups.some(s=>s.role==='Pack Lead');
+      const hostsFilled = eSignups.filter(s=>s.role==='Pack Host').length;
+      const hostsNeeded = e.lines||1;
+      const openSlots = [];
+      if(!leadFilled) openSlots.push('Pack Lead');
+      for(let i=hostsFilled;i<hostsNeeded;i++) openSlots.push(`Pack Host${hostsNeeded>1?' '+(i+1):''}`);
+      if(openSlots.length===0){
+        lines.push(`✅ *${dateStr}* ${e.event_time||''} — ${e.name} _(Full)_`);
+      } else {
+        lines.push(`📦 *${dateStr}* ${e.event_time||''} — ${e.name}`);
+        lines.push(`   Open: ${openSlots.join(', ')}`);
+      }
+    });
+
+    lines.push(`\nTo sign up, tap the link below 👇`);
+    lines.push(`https://usanafoundation-operations.github.io/Volunteer-Hub/volunteer_hub.html`);
+    lines.push(`\nQuestions? Reply to this message. Thank you! 🙏`);
+
+    const msg = lines.join('\n');
+    document.getElementById('birthdayMsgText').textContent = msg;
+    document.querySelector('#birthdayMsgModal .modal-title').textContent = '📲 Pack Signup Message';
+    openModal('birthdayMsgModal');
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+// ============================================================
+// MILESTONE CERTIFICATE
+// ============================================================
+async function generateCertificate(id){
+  const v = _volunteers.find(x=>x.id===id);
+  if(!v) return;
+  const lv = getLevel(v.lifetime_hours||0);
+  const milestones = [1500,1000,750,500,250,100];
+  const achieved = milestones.find(m=>(v.lifetime_hours||0)>=m)||0;
+  if(!achieved){ showToast('No milestone achieved yet'); return; }
+  const msgs = {
+    100:'has achieved 100 hours of volunteer service',
+    250:'has achieved 250 hours of volunteer service — a true Rising star',
+    500:'has achieved 500 hours of volunteer service — a steadfast Pillar of this community',
+    750:'has achieved 750 hours of volunteer service — a Champion for children everywhere',
+    1000:'has achieved 1,000 hours of volunteer service — a Legend in the Kids Eat family',
+    1500:'has achieved 1,500 hours of volunteer service — an Icon whose impact will never be forgotten'
+  };
+  document.getElementById('certVolName').textContent = v.name;
+  document.getElementById('certMilestoneText').textContent = `${achieved} Hours of Service · ${lv.name}`;
+  document.getElementById('certBodyText').textContent = `${v.name} ${msgs[achieved]}. Through their dedication, countless backpacks have been packed and children in our community have been fed. We are grateful for every hour of service given so generously.`;
+  document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  closeModal('volModal');
+  openModal('certModal');
+}
+
+// ============================================================
+// VOLUNTEER STORY (Claude API)
+// ============================================================
+let _storyVolId = null;
+let _currentStoryText = '';
+
+async function generateStory(id){
+  const v = _volunteers.find(x=>x.id===id);
+  if(!v) return;
+  _storyVolId = id;
+  document.getElementById('storyModalTitle').textContent = `✨ ${v.name}'s Story`;
+  document.getElementById('storyContent').innerHTML = `
+    <div style="text-align:center;padding:20px;color:var(--text-muted);">
+      <div style="font-size:24px;margin-bottom:8px;">✨</div>
+      <div style="font-size:14px;">Writing ${v.name}'s personal story...</div>
+      <div style="font-size:12px;margin-top:4px;color:var(--text-faint);">This takes about 10 seconds</div>
+    </div>`;
+  document.getElementById('storyActions').style.display='none';
+  closeModal('volModal');
+  openModal('storyModal');
+
+  try {
+    // Get sign-in data for this volunteer
+    const signIns = await sbGet('sign_ins',
+      `volunteer_id=eq.${id}&signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited,volunteer_types(name)&order=signed_in_at.desc`
+    );
+    const totalYearHrs = signIns.reduce((a,s)=>a+(s.hours_credited||0),0);
+    const signInCount = signIns.length;
+    const typeBreakdown = {};
+    signIns.forEach(s=>{ const t=s.volunteer_types?.name||'Volunteer'; typeBreakdown[t]=(typeBreakdown[t]||0)+s.hours_credited; });
+
+    // Get pack signups
+    const packSignups = await sbGet('pack_signups',`volunteer_id=eq.${id}&select=role,pack_events(name,event_date)`);
+
+    // Calculate bags estimate
+    const totalBags = parseInt(document.getElementById('impactBags').textContent.replace(/,/g,''))||35000;
+    const allSignIns = await sbGet('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
+    const totalHrs = allSignIns.reduce((a,s)=>a+(s.hours_credited||0),0);
+    const volBags = calcBackpacksFromHours(totalYearHrs, totalBags, totalHrs);
+
+    const yearsServing = v.date_started ? Math.round((new Date()-new Date(v.date_started+'T12:00:00'))/(1000*60*60*24*365)) : null;
+
+    const prompt = `You are writing a warm, personal, heartfelt end-of-year message for a volunteer at the USANA Kids Eat program — a nonprofit that packs backpacks of food for children who might otherwise go hungry over the weekend.
+
+Write a short, personal message (3-4 sentences) FROM the organization TO this specific volunteer. Make it feel genuinely human and specific to them — not generic. Reference their actual numbers naturally, not in a list. Use their first name. End with something that makes them feel genuinely seen and valued.
+
+Volunteer: ${v.name.split(' ')[0]}
+Role(s): ${(v.types||[]).join(', ')||'Volunteer'}
+This school year: ${signInCount} sign-ins, ${totalYearHrs.toFixed(1)} hours volunteered
+Estimated backpacks they helped pack: approximately ${volBags}
+${yearsServing?`Years serving: ${yearsServing}`:''}
+${v.notes?`Notes about this volunteer: ${v.notes}`:''}
+Current level: ${getLevel(v.lifetime_hours||0).name} (${(v.lifetime_hours||0).toFixed(0)} lifetime hours)
+
+Write the message directly — no subject line, no "Dear [name]:", just the message itself. Warm, genuine, specific. Sign it "— The Kids Eat Team 🎒"`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await response.json();
+    const storyText = data.content?.[0]?.text || 'Unable to generate story. Please try again.';
+    _currentStoryText = storyText;
+
+    document.getElementById('storyContent').innerHTML = `
+      <div class="story-card">${storyText.replace(/\n/g,'<br>')}</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:8px;text-align:right;">Generated for ${v.name} · ${new Date().toLocaleDateString()}</div>`;
+    document.getElementById('storyActions').style.display='flex';
+  } catch(e){
+    document.getElementById('storyContent').innerHTML = `<div style="color:var(--red-text);padding:16px;">Error generating story: ${e.message}</div>`;
+  }
+}
+
+function copyStory(){
+  navigator.clipboard.writeText(_currentStoryText).then(()=>showToast('✓ Story copied!')).catch(()=>showToast('Select and copy manually'));
+}
+
+function regenerateStory(){
+  if(_storyVolId) generateStory(_storyVolId);
+}
+
+// ============================================================
+// VOLUNTEER PORTAL
+// ============================================================
+async function loadPortalPage(){
+  const sel = document.getElementById('portalName');
+  if(sel.options.length <= 1 && _volunteers.length){
+    sel.innerHTML = '<option value="">— choose your name —</option>';
+    _volunteers.filter(v=>v.status==='Active').sort((a,b)=>a.name.localeCompare(b.name)).forEach(v=>{
+      sel.innerHTML += `<option value="${v.id}">${v.name}</option>`;
+    });
+  }
+}
+
+async function loadPortalStats(){
+  const id = document.getElementById('portalName').value;
+  if(!id){ document.getElementById('portalStats').style.display='none'; return; }
+  const v = _volunteers.find(x=>x.id===id);
+  if(!v) return;
+
+  document.getElementById('portalStats').style.display='block';
+  document.getElementById('portalStep1').style.display='none';
+
+  const lv = getLevel(v.lifetime_hours||0);
+  const next = nextMilestone(v.lifetime_hours||0);
+  const pct = next ? Math.min(100,((v.lifetime_hours||0)/next)*100) : 100;
+
+  document.getElementById('portalVolName').textContent = v.name;
+  document.getElementById('portalVolTypes').textContent = (v.types||[]).join(' · ');
+  document.getElementById('portalLifetimeHrs').textContent = (v.lifetime_hours||0).toFixed(1);
+
+  // Backpacks estimate
+  const totalBags = parseInt(document.getElementById('impactBags')?.textContent?.replace(/,/g,'')||'35000');
+  const allSI = await sbGet('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
+  const totalHrs = allSI.reduce((a,s)=>a+(s.hours_credited||0),0);
+  const schoolSI = await sbGet('sign_ins',`volunteer_id=eq.${id}&signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited,signed_in_at,volunteer_types(name)&order=signed_in_at.desc`);
+  const yearHrs = schoolSI.reduce((a,s)=>a+(s.hours_credited||0),0);
+  const allTimeSI = await sbGet('sign_ins',`volunteer_id=eq.${id}&select=hours_credited`);
+  const allTimeHrs = allTimeSI.reduce((a,s)=>a+(s.hours_credited||0),0) + (v.past_hours||0);
+  const volBags = calcBackpacksFromHours(allTimeHrs, totalBags, totalHrs);
+
+  document.getElementById('portalBackpacks').textContent = volBags.toLocaleString();
+  document.getElementById('portalLevel').innerHTML = `<span class="vol-level ${lv.cls}" style="font-size:13px;padding:4px 12px;">${lv.name}</span>`;
+  document.getElementById('portalNextMs').textContent = next ? `${(next-(v.lifetime_hours||0)).toFixed(1)} hrs to ${getLevel(next).name}` : '🏆 Maximum Level!';
+  document.getElementById('portalMsBar').style.width = pct+'%';
+  document.getElementById('portalYearHrs').textContent = yearHrs.toFixed(1);
+  document.getElementById('portalYearSignIns').textContent = schoolSI.length;
+
+  // Recent sign-ins
+  document.getElementById('portalRecentSI').innerHTML = schoolSI.slice(0,5).map(s=>`
+    <div class="sign-in-row">
+      <span>${fmtDate(s.signed_in_at?.slice(0,10))}</span>
+      <span>${s.volunteer_types?.name||'—'}</span>
+      <strong>+${s.hours_credited} hrs</strong>
+    </div>`).join('') || '<div style="color:var(--text-muted);font-size:12px;">No sign-ins this school year yet</div>';
+}
+
+function resetPortal(){
+  document.getElementById('portalStats').style.display='none';
+  document.getElementById('portalStep1').style.display='block';
+  document.getElementById('portalName').value='';
+}
+
+// ============================================================
+// SPONSOR REPORT
+// ============================================================
+async function loadSponsorReport(){
+  const start = document.getElementById('sponsorStart').value;
+  const end = document.getElementById('sponsorEnd').value;
+  if(!start||!end){ showToast('Please select a date range'); return; }
+  const el = document.getElementById('sponsorReportBody');
+  el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Loading...</div>';
+  try {
+    const events = await sbGet('pack_events',
+      `event_date=gte.${start}&event_date=lte.${end}&cancelled=eq.false&bags_packed=gt.0&order=name.asc`
+    );
+    // Group by sponsor name
+    const sponsors = {};
+    events.forEach(e=>{
+      const key = e.name.trim();
+      if(!sponsors[key]) sponsors[key] = {name:key, packs:[], bags:0, vols:0};
+      sponsors[key].packs.push(e);
+      sponsors[key].bags += e.bags_packed||0;
+      sponsors[key].vols += e.total_volunteers||0;
+    });
+    const sorted = Object.values(sponsors).filter(s=>s.packs.length>0).sort((a,b)=>b.bags-a.bags);
+    if(!sorted.length){ el.innerHTML='<div style="color:var(--text-muted);font-size:12px;">No completed packs in this date range</div>'; return; }
+    el.innerHTML = sorted.map(s=>`
+      <div class="sponsor-card">
+        <div>
+          <div class="sponsor-name">${s.name}</div>
+          <div class="sponsor-meta">${s.packs.length} pack${s.packs.length>1?'s':''} · ${s.vols} volunteers · ${(s.bags*7).toLocaleString()} meals</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:20px;font-weight:800;color:var(--text);">${s.bags.toLocaleString()}</div>
+          <div style="font-size:11px;color:var(--text-muted);">backpacks</div>
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="generateSponsorLetter('${s.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${s.packs.length},${s.bags},${s.vols})">✨ Generate Letter</button>
+      </div>`).join('');
+  } catch(e){ el.innerHTML=`<div style="color:var(--red-text);">Error: ${e.message}</div>`; }
+}
+
+async function generateSponsorLetter(name, packs, bags, vols){
+  document.getElementById('storyModalTitle').textContent = `📧 Sponsor Letter — ${name}`;
+  document.getElementById('storyContent').innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:24px;">✨</div><div>Writing sponsor letter...</div></div>`;
+  document.getElementById('storyActions').style.display='none';
+  _storyVolId = null;
+  openModal('storyModal');
+  try {
+    const prompt = `Write a warm, professional end-of-year thank you letter from the USANA Kids Eat program to a sponsor/group. 
+
+Kids Eat is a nonprofit that packs backpacks of food for children who might otherwise go hungry over the weekend. Volunteers pack these bags at packing events that sponsors often bring their teams to.
+
+Sponsor/Group: ${name}
+Number of packing events they participated in this school year: ${packs}
+Total backpacks packed with their help: ${bags.toLocaleString()}
+Total meals delivered because of their involvement: ${(bags*7).toLocaleString()}
+Volunteers they brought: approximately ${vols}
+
+Write a 3-4 paragraph letter. Make it specific to their numbers. Warm, genuine, impactful. Include the mission ("no child should ever go hungry"). Don't be corporate or salesy — be human. End by expressing hope to partner again next school year.
+
+Format as a proper letter but skip the address/date header — just start with the greeting.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text||'Unable to generate. Please try again.';
+    _currentStoryText = text;
+    document.getElementById('storyContent').innerHTML = `<div class="story-card" style="font-style:normal;line-height:1.8;">${text.replace(/\n/g,'<br>')}</div>`;
+    document.getElementById('storyActions').style.display='flex';
+  } catch(e){ document.getElementById('storyContent').innerHTML=`<div style="color:var(--red-text);">Error: ${e.message}</div>`; }
+}
+
+// ============================================================
+// ANNUAL IMPACT REPORT
+// ============================================================
+async function loadAnnualReport(){
+  const el = document.getElementById('annualReportBody');
+  el.innerHTML = '<div style="padding:16px;color:var(--text-muted);">Loading...</div>';
+  try {
+    const [packs, signIns, vols] = await Promise.all([
+      sbGet('pack_events',`event_date=gte.${SCHOOL_YEAR_START}&event_date=lte.${SCHOOL_YEAR_END}&cancelled=eq.false&select=bags_packed,total_volunteers,name,event_date`),
+      sbGet('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}T00:00:00&select=hours_credited,volunteer_types(name)`),
+      sbGet('volunteer_levels','select=id,name,lifetime_hours,level_name&order=lifetime_hours.desc')
+    ]);
+    const totalBags = packs.reduce((a,p)=>a+(p.bags_packed||0),0);
+    const totalMeals = totalBags * 7;
+    const totalPacks = packs.filter(p=>p.bags_packed>0).length;
+    const totalVolSlots = packs.reduce((a,p)=>a+(p.total_volunteers||0),0);
+    const totalHrs = signIns.reduce((a,s)=>a+(s.hours_credited||0),0);
+    const topVols = vols.slice(0,5);
+    const milestoneVols = vols.filter(v=>[100,250,500,750,1000,1500].some(m=>v.lifetime_hours>=m && v.lifetime_hours<m+50));
+
+    el.innerHTML = `
+      <div id="annualReportPrint" style="padding:8px;">
+        <div style="text-align:center;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid var(--border);">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:8px;">USANA Foundation · Kids Eat Program</div>
+          <div style="font-family:'Caveat',cursive;font-size:28px;color:var(--primary-dark);margin-bottom:4px;">2025–2026 Annual Impact Report</div>
+          <div style="font-size:13px;color:var(--text-muted);">August 2025 – May 2026</div>
+        </div>
+        <div class="metrics-grid" style="margin-bottom:20px;">
+          <div class="metric"><div class="metric-label">Backpacks Packed</div><div class="metric-value">${totalBags.toLocaleString()}</div></div>
+          <div class="metric"><div class="metric-label green">Meals Delivered</div><div class="metric-value">${totalMeals.toLocaleString()}</div></div>
+          <div class="metric"><div class="metric-label blue">Pack Events</div><div class="metric-value">${totalPacks}</div></div>
+          <div class="metric"><div class="metric-label purple">Volunteer Hours</div><div class="metric-value">${totalHrs.toFixed(0)}</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text);">🏅 Top Volunteers This Year</div>
+            ${topVols.map((v,i)=>`<div class="week-row"><div><strong>#${i+1} ${v.name}</strong></div><span class="vol-level ${getLevel(v.lifetime_hours).cls}">${getLevel(v.lifetime_hours).name}</span></div>`).join('')}
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text);">🎯 Milestone Achievements</div>
+            ${milestoneVols.length ? milestoneVols.slice(0,5).map(v=>`<div class="week-row"><div><strong>${v.name}</strong></div><span style="font-size:11px;color:var(--text-muted);">${v.lifetime_hours.toFixed(0)} hrs</span></div>`).join('') : '<div style="font-size:12px;color:var(--text-muted);">No recent milestones</div>'}
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:16px;background:var(--primary-light);border-radius:10px;text-align:center;">
+          <div style="font-family:'Caveat',cursive;font-size:20px;color:var(--primary-dark);">"No child should ever go hungry — and our volunteers make sure of it."</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Thank you to every volunteer who showed up this year. You are the mission.</div>
+        </div>
+      </div>`;
+  } catch(e){ el.innerHTML=`<div style="color:var(--red-text);">Error: ${e.message}</div>`; }
+}
+
+function printAnnualReport(){
+  const content = document.getElementById('annualReportPrint')?.innerHTML;
+  if(!content){ showToast('Generate the report first'); return; }
+  const win = window.open('','_blank');
+  win.document.write(`<html><head><title>Annual Impact Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+    <style>body{font-family:Inter,sans-serif;padding:40px;max-width:800px;margin:0 auto;}
+    .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+    .metric{border:1px solid #ddd;border-radius:10px;padding:14px;}
+    .metric-label{font-size:10px;font-weight:700;text-transform:uppercase;color:#999;margin-bottom:6px;}
+    .metric-value{font-size:28px;font-weight:800;}
+    .week-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;}
+    .vol-level{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#fef3c7;color:#78350f;}
+    </style></head><body>${content}</body></html>`);
+  win.document.close();
+  win.print();
+}
+
+// ============================================================
+// ATTENDANCE RELIABILITY
+// ============================================================
+async function loadAttendanceReport(){
+  try {
+    const signups = await sbGet('pack_signups','select=volunteer_id,volunteers(name)&order=volunteer_id.asc');
+    const counts = {};
+    signups.forEach(s=>{
+      const id = s.volunteer_id;
+      if(!counts[id]) counts[id]={name:s.volunteers?.name||'Unknown',signups:0};
+      counts[id].signups++;
+    });
+    const sorted = Object.values(counts).sort((a,b)=>b.signups-a.signups);
+    document.getElementById('rptAttendance').innerHTML = sorted.map((c,i)=>`
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.signups}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="background:var(--green-light);border-radius:20px;height:8px;width:${Math.min(100,c.signups*8)}px;"></div>
+            <span style="font-size:11px;color:var(--text-muted);">${c.signups} pack${c.signups>1?'s':''}</span>
+          </div>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted);">No signup data yet</td></tr>';
+  } catch(e){ console.error(e); }
 }
 
 // ============================================================
