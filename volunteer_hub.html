@@ -2837,7 +2837,8 @@ async function generatePackSignupMessage(){
     });
 
     lines.push(`\nTo sign up, tap the link below 👇`);
-    lines.push(`https://usanafoundation-operations.github.io/Volunteer-Hub/volunteer_hub.html`);
+    const base = window.location.href.split('/').slice(0,-1).join('/');
+    lines.push(base + '/pack_signup.html');
     lines.push(`\nQuestions? Reply to this message. Thank you! 🙏`);
 
     const msg = lines.join('\n');
@@ -3221,13 +3222,13 @@ async function loadPackSignupSlots(){
   if(!v) return;
   const isLead = (v.types||[]).some(t=>t==='Pack Host Lead');
 
-  // Load open packs: current month remaining + next month if open
+  // Load open packs: today onwards for current + next month
   const today = new Date();
   const todayStr = localDate(today);
-  const nextMonth = new Date(today.getFullYear(), today.getMonth()+1, 1);
+  const nextMonth = new Date(today.getFullYear(), today.getMonth()+2, 0); // last day of next month
+  const nextMonthEnd = localDate(nextMonth);
   const currMonthKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
-  const nextMonthKey = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth()+1).padStart(2,'0')}`;
-  const nextMonthEnd = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth()+1).padStart(2,'0')}-31`;
+  const nextMonthKey = `${new Date(today.getFullYear(), today.getMonth()+1, 1).getFullYear()}-${String(new Date(today.getFullYear(), today.getMonth()+1, 1).getMonth()+1).padStart(2,'0')}`;
 
   try {
     const [openMonths, events, signups] = await Promise.all([
@@ -3369,8 +3370,9 @@ function resetPackSignup(){
 }
 
 function copySignupLink(){
-  const url = window.location.href.split('?')[0] + '?page=packsignup';
-  navigator.clipboard.writeText(url).then(()=>showToast('✓ Signup link copied!')).catch(()=>showToast('Copy failed'));
+  const base = window.location.href.split('/').slice(0,-1).join('/');
+  const url = base + '/pack_signup.html';
+  navigator.clipboard.writeText(url).then(()=>showToast('✓ Signup link copied!')).catch(()=>showToast('Copy failed — link: '+url));
 }
 
 // ============================================================

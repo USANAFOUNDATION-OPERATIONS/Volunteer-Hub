@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pack Sign-Ups — Kids Eat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#D97706;--primary-dark:#B45309;--primary-light:#FEF3C7;--primary-text:#78350F;
+  --green:#2a9d9a;--green-light:#e8fafa;--green-dark:#1a6b69;
+  --blue:#378ADD;--blue-light:#E6F1FB;--blue-text:#0C447C;
+  --border:rgba(180,83,9,0.13);--bg:#fffbf2;--surface:#fff;
+  --text:#1a1208;--text-muted:#6b5b3e;--text-faint:#a89070;
+  --radius:14px;--shadow:0 2px 12px rgba(120,53,15,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+.goal-banner{background:linear-gradient(90deg,var(--primary-light),rgba(254,243,199,0.3));border-bottom:1px solid var(--border);padding:6px 20px;font-family:'Caveat',cursive;font-size:17px;color:var(--primary-dark);text-align:center;}
+
+.wrap{max-width:520px;margin:0 auto;padding:20px 16px 60px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+
+.header{text-align:center;padding:28px 20px 20px;}
+.header-icon{width:56px;height:56px;background:var(--primary-light);border-radius:14px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:26px;}
+.header-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+.header-sub{font-size:13px;color:var(--text-muted);margin-top:5px;}
+
+.form-section{padding:0 20px 20px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;display:block;}
+.form-select{width:100%;font-family:inherit;font-size:18px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:#fff;color:var(--text);outline:none;cursor:pointer;height:52px;}
+.form-select:focus{border-color:var(--primary);}
+
+.divider{border:none;border-top:1px solid var(--border);margin:0 20px;}
+
+.packs-section{padding:16px 20px;}
+.packs-hint{font-size:12px;color:var(--text-muted);margin-bottom:12px;}
+
+.pack-card{border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff;transition:all .15s;}
+.pack-card.signed-up{border-color:var(--green);background:var(--green-light);}
+.pack-name{font-size:14px;font-weight:700;color:var(--text);}
+.pack-meta{font-size:12px;color:var(--text-muted);margin-top:2px;margin-bottom:10px;}
+.pack-slots{display:flex;flex-wrap:wrap;gap:7px;}
+
+.slot-btn{font-family:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;border:1.5px solid;transition:all .15s;}
+.slot-btn.lead-open{background:var(--green-light);color:var(--green-dark);border-color:var(--green);}
+.slot-btn.host-open{background:var(--primary-light);color:var(--primary-text);border-color:var(--primary);}
+.slot-btn.selected{background:var(--text);color:#fff;border-color:var(--text);}
+.slot-filled{font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;display:inline-flex;align-items:center;}
+.slot-filled.lead{background:var(--green-light);color:var(--green-dark);}
+.slot-filled.host{background:var(--blue-light);color:var(--blue-text);}
+
+.submit-area{padding:0 20px 20px;}
+.submit-btn{width:100%;padding:15px;background:var(--primary);color:#fff;font-family:inherit;font-size:17px;font-weight:700;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 12px rgba(180,83,9,0.3);transition:all .15s;}
+.submit-btn:hover{background:var(--primary-dark);transform:translateY(-1px);}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.count-hint{text-align:center;font-size:12px;color:var(--text-muted);margin-top:8px;}
+
+.confirm-section{padding:28px 20px;text-align:center;}
+.confirm-emoji{font-size:52px;margin-bottom:12px;}
+.confirm-title{font-family:'Caveat',cursive;font-size:28px;color:var(--primary-dark);margin-bottom:6px;}
+.confirm-name{font-size:14px;color:var(--text-muted);margin-bottom:20px;}
+.confirm-item{background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:8px;text-align:left;}
+.confirm-item-name{font-size:14px;font-weight:700;}
+.confirm-item-date{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.confirm-item-role{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;}
+.reset-btn{margin-top:20px;font-family:inherit;font-size:14px;padding:10px 24px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);cursor:pointer;}
+
+.empty-box{text-align:center;padding:32px 20px;color:var(--text-muted);}
+.empty-box .emoji{font-size:36px;margin-bottom:12px;}
+.empty-box p{font-size:14px;line-height:1.6;}
+
+.loading{text-align:center;padding:24px;color:var(--text-muted);font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="goal-banner">No child should ever go hungry — and our volunteers make sure of it.</div>
+
+<div class="wrap">
+  <div class="card" id="mainCard">
+
+    <!-- Step 1: Name selection -->
+    <div id="step1">
+      <div class="header">
+        <div class="header-icon">🎒</div>
+        <div class="header-title">Pack Sign-Ups</div>
+        <div class="header-sub">Select your name to see available spots</div>
+      </div>
+      <div class="divider"></div>
+      <div class="form-section" style="padding-top:16px;">
+        <label class="form-label">Your Name</label>
+        <select class="form-select" id="volSelect" onchange="onVolSelected()">
+          <option value="">— choose your name —</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Step 2: Available packs -->
+    <div id="step2" style="display:none;">
+      <div class="header" style="padding-bottom:8px;">
+        <div class="header-icon">📦</div>
+        <div class="header-title" id="step2Title">Available Packs</div>
+        <div class="header-sub">Tap a slot to sign up · tap again to deselect</div>
+      </div>
+      <div class="divider"></div>
+      <div class="packs-section" id="packsList"></div>
+      <div class="submit-area">
+        <button class="submit-btn" id="submitBtn" onclick="submitSignups()" disabled>Submit My Sign-Ups</button>
+        <div class="count-hint" id="countHint">Select a slot above to continue</div>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div id="step3" style="display:none;">
+      <div class="confirm-section">
+        <div class="confirm-emoji">🎉</div>
+        <div class="confirm-title">You're all signed up!</div>
+        <div class="confirm-name" id="confirmName"></div>
+        <div id="confirmList"></div>
+        <div style="background:var(--primary-light);border-radius:10px;padding:14px;margin-top:16px;">
+          <div style="font-family:'Caveat',cursive;font-size:16px;color:var(--primary-dark);line-height:1.5;">Thank you for showing up.<br>Every hand that helps feeds a child. 🎒</div>
+        </div>
+        <button class="reset-btn" onclick="resetForm()">Sign Up Another Volunteer</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://uvddmeefxbqdqiltugiz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2ZGRtZWVmeGJxZHFpbHR1Z2l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzY5MTgsImV4cCI6MjA5MzUxMjkxOH0.zAzOlv_vH7BQpN8DobXbOKA_SS0fwTWtZVlx0mkBINo';
+const HDR = {'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+
+async function get(table, params=''){
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{headers:HDR});
+  return r.json();
+}
+async function post(table, body){
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{method:'POST',headers:{...HDR,'Prefer':'return=minimal'},body:JSON.stringify(body)});
+}
+async function del(table, filter){
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`,{method:'DELETE',headers:HDR});
+}
+function localDate(d=new Date()){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtDate(str){
+  const d = new Date(str+'T12:00:00');
+  return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+}
+
+let _volId = '';
+let _isLead = false;
+let _selections = {}; // eventId -> {role, name, date}
+let _volunteers = [];
+let _types = [];
+
+async function init(){
+  try {
+    const [vols, assignments, types] = await Promise.all([
+      get('volunteers','select=id,name,status&order=name.asc&status=eq.Active'),
+      get('volunteer_type_assignments','select=volunteer_id,volunteer_types(name)'),
+      get('volunteer_types','select=id,name')
+    ]);
+    _types = types;
+    _volunteers = vols.map(v=>({
+      ...v,
+      types: assignments.filter(a=>a.volunteer_id===v.id).map(a=>a.volunteer_types?.name).filter(Boolean)
+    }));
+
+    const sel = document.getElementById('volSelect');
+    _volunteers.forEach(v=>{
+      sel.innerHTML += `<option value="${v.id}">${v.name}</option>`;
+    });
+  } catch(e){
+    console.error(e);
+  }
+}
+
+async function onVolSelected(){
+  _volId = document.getElementById('volSelect').value;
+  if(!_volId) return;
+  _selections = {};
+
+  const v = _volunteers.find(x=>x.id===_volId);
+  _isLead = (v?.types||[]).some(t=>t==='Pack Host Lead');
+
+  document.getElementById('step2Title').textContent = v?.name || 'Available Packs';
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  document.getElementById('packsList').innerHTML = '<div class="loading">Loading available packs...</div>';
+  updateCount();
+
+  // Get today and end of next month
+  const today = new Date();
+  const todayStr = localDate(today);
+  const endOfNextMonth = new Date(today.getFullYear(), today.getMonth()+2, 0);
+  const endStr = localDate(endOfNextMonth);
+
+  try {
+    const [openMonths, events, signups] = await Promise.all([
+      get('pack_signup_months','signups_open=eq.true&select=month_key'),
+      get('pack_events',`event_date=gte.${todayStr}&event_date=lte.${endStr}&cancelled=eq.false&completed=eq.false&order=event_date.asc,event_time.asc`),
+      get('pack_signups','select=pack_event_id,role,volunteer_id,volunteers(name)')
+    ]);
+
+    const openKeys = openMonths.map(m=>m.month_key);
+    const available = events.filter(e=>openKeys.includes(e.event_date.slice(0,7)));
+
+    if(!available.length){
+      document.getElementById('packsList').innerHTML = `
+        <div class="empty-box">
+          <div class="emoji">📅</div>
+          <p>No packs open for sign-up right now.<br>Check back soon — new packs open mid-month!</p>
+        </div>`;
+      document.getElementById('submitBtn').style.display='none';
+      document.getElementById('countHint').style.display='none';
+      return;
+    }
+
+    let html = '';
+    let anyAvailable = false;
+
+    available.forEach(e=>{
+      const eSignups = signups.filter(s=>s.pack_event_id===e.id);
+      const leadFilled = eSignups.find(s=>s.role==='Pack Lead');
+      const hostsFilled = eSignups.filter(s=>s.role==='Pack Host');
+      const hostsNeeded = e.lines||1;
+      const alreadySignedUp = eSignups.find(s=>s.volunteer_id===_volId);
+
+      if(alreadySignedUp){
+        html += `<div class="pack-card signed-up">
+          <div class="pack-name">${e.name}</div>
+          <div class="pack-meta">${fmtDate(e.event_date)}${e.event_time?' · '+e.event_time:''}</div>
+          <span class="slot-filled ${alreadySignedUp.role==='Pack Lead'?'lead':'host'}">✓ You're signed up as ${alreadySignedUp.role}</span>
+        </div>`;
+        return;
+      }
+
+      // Calculate open slots for this volunteer
+      let slots = '';
+      let hasOpenSlot = false;
+
+      if(!leadFilled && _isLead){
+        slots += `<button class="slot-btn lead-open" data-event="${e.id}" data-role="Pack Lead" data-name="${e.name}" data-date="${fmtDate(e.event_date)}">Pack Lead — Sign Up</button>`;
+        hasOpenSlot = true;
+      } else if(leadFilled){
+        slots += `<span class="slot-filled lead">Lead: ${leadFilled.volunteers?.name}</span>`;
+      }
+
+      for(let i=0;i<hostsNeeded;i++){
+        const h = hostsFilled[i];
+        if(h){
+          slots += `<span class="slot-filled host">Host${hostsNeeded>1?' '+(i+1):''}: ${h.volunteers?.name}</span>`;
+        } else {
+          slots += `<button class="slot-btn host-open" data-event="${e.id}" data-role="Pack Host" data-name="${e.name}" data-date="${fmtDate(e.event_date)}">Host${hostsNeeded>1?' '+(i+1):''} — Sign Up</button>`;
+          hasOpenSlot = true;
+        }
+      }
+
+      // Only show if there's something this volunteer can sign up for
+      if(!hasOpenSlot && !slots.includes('lead-open')) return;
+      anyAvailable = true;
+
+      html += `<div class="pack-card" id="pc-${e.id}">
+        <div class="pack-name">${e.name}</div>
+        <div class="pack-meta">${fmtDate(e.event_date)}${e.event_time?' · '+e.event_time:''} · ${e.lines} line${e.lines>1?'s':''}</div>
+        <div class="pack-slots">${slots}</div>
+      </div>`;
+    });
+
+    if(!anyAvailable){
+      html = `<div class="empty-box"><div class="emoji">🎉</div><p>All available slots are filled!<br>Check back if anything opens up.</p></div>`;
+    }
+
+    document.getElementById('packsList').innerHTML = html;
+
+    // Add slot button click handlers
+    document.getElementById('packsList').addEventListener('click', e=>{
+      const btn = e.target.closest('.slot-btn');
+      if(!btn) return;
+      const eventId = btn.dataset.event;
+      const role = btn.dataset.role;
+
+      if(_selections[eventId]){
+        // Deselect
+        delete _selections[eventId];
+        btn.className = `slot-btn ${role==='Pack Lead'?'lead-open':'host-open'}`;
+        btn.textContent = btn.textContent.replace('✓ ','');
+      } else {
+        // Deselect any other selection for this event
+        const prevBtn = document.querySelector(`#pc-${eventId} .slot-btn.selected`);
+        if(prevBtn){
+          prevBtn.className = `slot-btn ${prevBtn.dataset.role==='Pack Lead'?'lead-open':'host-open'}`;
+          prevBtn.textContent = prevBtn.textContent.replace('✓ ','');
+        }
+        _selections[eventId] = {role, name:btn.dataset.name, date:btn.dataset.date};
+        btn.className = 'slot-btn selected';
+        if(!btn.textContent.startsWith('✓ ')) btn.textContent = '✓ ' + btn.textContent;
+      }
+      updateCount();
+    });
+
+  } catch(err){
+    document.getElementById('packsList').innerHTML = '<div class="empty-box"><div class="emoji">⚠️</div><p>Something went wrong loading packs. Please try again.</p></div>';
+    console.error(err);
+  }
+}
+
+function updateCount(){
+  const n = Object.keys(_selections).length;
+  const btn = document.getElementById('submitBtn');
+  const hint = document.getElementById('countHint');
+  if(btn) btn.disabled = n===0;
+  if(hint) hint.textContent = n===0 ? 'Select a slot above to continue' : `${n} slot${n>1?'s':''} selected — tap Submit to confirm`;
+}
+
+async function submitSignups(){
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  const entries = Object.entries(_selections);
+  try {
+    for(const [eventId, sel] of entries){
+      await del('pack_signups',`pack_event_id=eq.${eventId}&volunteer_id=eq.${_volId}`);
+      await post('pack_signups',{pack_event_id:eventId, volunteer_id:_volId, role:sel.role});
+    }
+    const v = _volunteers.find(x=>x.id===_volId);
+    document.getElementById('confirmName').textContent = v?.name || '';
+    document.getElementById('confirmList').innerHTML = entries.map(([,sel])=>`
+      <div class="confirm-item">
+        <div class="confirm-item-name">${sel.name}</div>
+        <div class="confirm-item-date">${sel.date}</div>
+        <span class="confirm-item-role" style="${sel.role==='Pack Lead'?'background:var(--green-light);color:var(--green-dark);':'background:var(--primary-light);color:var(--primary-text);'}">${sel.role}</span>
+      </div>`).join('');
+    document.getElementById('step2').style.display='none';
+    document.getElementById('step3').style.display='block';
+  } catch(err){
+    btn.disabled = false;
+    btn.textContent = 'Submit My Sign-Ups';
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+function resetForm(){
+  _volId=''; _isLead=false; _selections={};
+  document.getElementById('volSelect').value='';
+  document.getElementById('step1').style.display='block';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='none';
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
