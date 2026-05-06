@@ -398,6 +398,10 @@ select.form-input{cursor:pointer;}
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           Volunteer Portal
         </div>
+        <div class="nav-item" onclick="showPage('packsignup',this)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Pack Signup
+        </div>
         <div class="nav-item" onclick="showPage('reports',this)">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           Reports
@@ -576,6 +580,11 @@ select.form-input{cursor:pointer;}
           <div>
             <div class="page-title">Pack Schedule</div>
             <div class="page-subtitle" id="packMonthLabel">Loading...</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;" id="signupToggleRow">
+              <span style="font-size:12px;color:var(--text-muted);">Signups:</span>
+              <span id="signupStatusBadge" class="badge badge-gray">Closed</span>
+              <button class="btn btn-sm" id="signupToggleBtn" onclick="toggleSignupMonth()">Open Signups</button>
+            </div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn" onclick="changePackMonth(-1)">← Prev</button>
@@ -1009,6 +1018,50 @@ select.form-input{cursor:pointer;}
         </div>
       </div>
 
+      <!-- PACK SIGNUP PAGE -->
+      <div id="page-packsignup" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Pack Sign-Ups</div>
+            <div class="page-subtitle">Volunteers use this page to sign up for packs</div>
+          </div>
+          <button class="btn" onclick="copySignupLink()">📋 Copy Signup Link</button>
+        </div>
+
+        <!-- Volunteer selector -->
+        <div class="signin-wrap" style="max-width:600px;">
+          <div id="psuStep1" class="signin-card">
+            <div class="signin-header">
+              <div class="signin-icon">
+                <svg width="26" height="26" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="signin-title">Pack Sign-Ups</div>
+              <div class="signin-sub">Select your name to see available spots</div>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Your Name</label>
+              <select class="form-input" id="psuName" style="font-size:18px;height:52px;" onchange="loadPackSignupSlots()">
+                <option value="">— choose your name —</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Available packs -->
+          <div id="psuPacks" style="display:none;margin-top:14px;"></div>
+
+          <!-- Confirmation -->
+          <div id="psuConfirm" style="display:none;" class="signin-card">
+            <div style="text-align:center;padding:20px 0;">
+              <div style="font-size:48px;margin-bottom:12px;">🎒</div>
+              <div style="font-family:'Caveat',cursive;font-size:26px;color:var(--primary-dark);margin-bottom:8px;">You're all signed up!</div>
+              <div id="psuConfirmName" style="font-size:15px;color:var(--text-muted);margin-bottom:20px;"></div>
+              <div id="psuConfirmList" style="text-align:left;"></div>
+              <button class="btn" style="margin-top:20px;width:100%;" onclick="resetPackSignup()">Sign Up Another Volunteer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -1173,6 +1226,16 @@ select.form-input{cursor:pointer;}
       <div class="form-row"><label class="form-label">Lines (1 or 2)</label>
         <select class="form-input" id="packLines"><option value="1">1 Line</option><option value="2">2 Lines</option></select>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="packCompletionFields">
+        <div class="form-row"><label class="form-label">Bags Packed</label><input type="number" class="form-input" id="packBags" min="0" placeholder="0"></div>
+        <div class="form-row"><label class="form-label">Total Volunteers</label><input type="number" class="form-input" id="packVolunteers" min="0" placeholder="0"></div>
+      </div>
+      <div class="form-row">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <label class="toggle-switch"><input type="checkbox" id="packCancelled"><span class="toggle-slider" style="background:#ccc;"></span></label>
+          <span style="font-size:13px;color:var(--text-muted);">Mark as Cancelled</span>
+        </label>
+      </div>
       <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" id="packNotes" rows="2" style="resize:vertical;"></textarea></div>
       <div style="display:flex;gap:10px;justify-content:space-between;margin-top:16px;">
         <button class="btn" id="packDeleteBtn" style="display:none;color:var(--red-text);border-color:var(--red);" onclick="deletePackEvent()">🗑 Delete Event</button>
@@ -1332,6 +1395,7 @@ function showPage(id, el){
   if(id==='delivery') loadDeliveryPage();
   if(id==='warehouse') loadWarehousePage();
   if(id==='portal'){ loadPortalPage(); }
+  if(id==='packsignup'){ loadPackSignupPage(); }
 }
 
 // ============================================================
@@ -1988,16 +2052,27 @@ async function saveNewVolunteer(){
 // ============================================================
 // PACK SCHEDULE
 // ============================================================
+let _signupMonthOpen = false;
+let _currentMonthKey = '';
+
 async function loadPacks(){
   const y = packMonth.getFullYear(), m = packMonth.getMonth();
   const start = `${y}-${String(m+1).padStart(2,'0')}-01`;
   const end   = `${y}-${String(m+1).padStart(2,'0')}-31`;
+  _currentMonthKey = `${y}-${String(m+1).padStart(2,'0')}`;
   document.getElementById('packMonthLabel').textContent = packMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+
+  // Load signup month status
+  try {
+    const monthData = await sbGet('pack_signup_months',`month_key=eq.${_currentMonthKey}&select=signups_open`);
+    _signupMonthOpen = monthData[0]?.signups_open || false;
+  } catch(e){ _signupMonthOpen = false; }
+  updateSignupToggleUI();
 
   try {
     const [events, signups] = await Promise.all([
-      sbGet('pack_events',`event_date=gte.${start}&event_date=lte.${end}&order=event_date.asc`),
-      sbGet('pack_signups','select=*,volunteers(name),pack_events(event_date)&order=signed_up_at.asc')
+      sbGet('pack_events',`event_date=gte.${start}&event_date=lte.${end}&order=event_date.asc,event_time.asc`),
+      sbGet('pack_signups',`select=*,volunteers(name)&order=signed_up_at.asc`)
     ]);
     _packs = events;
     const el = document.getElementById('packList');
@@ -2007,39 +2082,89 @@ async function loadPacks(){
     }
     el.innerHTML = events.map(e=>{
       const d = new Date(e.event_date+'T12:00');
+      const isPast = d < new Date() && !e.completed;
       const eSignups = signups.filter(s=>s.pack_event_id===e.id);
       const leadSlot = eSignups.find(s=>s.role==='Pack Lead');
       const hostSlots = eSignups.filter(s=>s.role==='Pack Host');
       const linesNeeded = e.lines||1;
 
       const leadBadge = leadSlot
-        ? `<span class="pack-slot filled">Pack Lead: ${leadSlot.volunteers?.name||'?'}</span>`
+        ? `<span class="pack-slot filled">👤 ${leadSlot.volunteers?.name||'?'} <small style="opacity:.7">(Lead)</small></span>`
         : `<span class="pack-slot open">Pack Lead: Open</span>`;
       const hostBadges = Array.from({length:linesNeeded}).map((_,i)=>{
         const h = hostSlots[i];
-        return h ? `<span class="pack-slot filled">Host ${linesNeeded>1?i+1+': ':''}${h.volunteers?.name||'?'}</span>`
-                 : `<span class="pack-slot open">Host${linesNeeded>1?' '+(i+1):''}: Open</span>`;
+        return h
+          ? `<span class="pack-slot filled">👤 ${h.volunteers?.name||'?'} <small style="opacity:.7">(Host${linesNeeded>1?' '+(i+1):''})</small></span>`
+          : `<span class="pack-slot open">Host${linesNeeded>1?' '+(i+1):''}: Open</span>`;
       }).join('');
 
+      // Card styling based on status
+      const cardStyle = e.cancelled
+        ? 'opacity:0.5;filter:grayscale(0.6);'
+        : e.completed ? 'border-left:3px solid var(--green);' : '';
+
+      const statusBadge = e.completed
+        ? `<span class="badge badge-green">✓ Done</span>`
+        : e.cancelled
+        ? `<span class="badge badge-red">Cancelled</span>`
+        : isPast
+        ? `<span class="badge badge-amber">Needs Update</span>`
+        : `<span class="badge" style="background:var(--blue-light);color:var(--blue-text);">Scheduled</span>`;
+
       return `
-      <div class="pack-event-card">
+      <div class="pack-event-card" style="${cardStyle}">
         <div class="pack-date-block">
           <div class="pack-date-day">${d.getDate()}</div>
           <div class="pack-date-mon">${d.toLocaleDateString('en-US',{month:'short'})}</div>
         </div>
         <div class="pack-event-info">
           <div class="pack-event-name">${e.name}</div>
-          <div class="pack-event-meta">${d.toLocaleDateString('en-US',{weekday:'long'})}${e.event_time?' · '+e.event_time:''} · ${e.lines} line${e.lines>1?'s':''} ${e.presenter?'· '+e.presenter:''}</div>
-          <div class="pack-slots">${leadBadge}${hostBadges}</div>
-          ${e.bags_packed?`<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">🎒 ${e.bags_packed} bags packed${e.total_volunteers?' · '+e.total_volunteers+' volunteers':''}</div>`:''}
+          <div class="pack-event-meta">${d.toLocaleDateString('en-US',{weekday:'long'})}${e.event_time?' · '+e.event_time:''} · ${e.lines} line${e.lines>1?'s':''}</div>
+          ${!e.cancelled ? `<div class="pack-slots" style="margin-top:6px;">${leadBadge}${hostBadges}</div>` : ''}
+          ${e.bags_packed ? `<div style="font-size:11px;color:var(--green-dark);margin-top:6px;font-weight:600;">🎒 ${e.bags_packed.toLocaleString()} bags · ${e.total_volunteers||'?'} volunteers</div>` : ''}
         </div>
         <div class="pack-event-actions">
-          <span class="badge ${e.completed?'badge-green':e.cancelled?'badge-red':'badge-amber'}">${e.completed?'Done':e.cancelled?'Cancelled':'Scheduled'}</span>
+          ${statusBadge}
           <button class="btn btn-sm" onclick="openEditPack('${e.id}')">Edit</button>
         </div>
       </div>`;
     }).join('');
   } catch(err){ console.error(err); }
+}
+
+function updateSignupToggleUI(){
+  const badge = document.getElementById('signupStatusBadge');
+  const btn = document.getElementById('signupToggleBtn');
+  if(!badge || !btn) return;
+  if(_signupMonthOpen){
+    badge.className = 'badge badge-green';
+    badge.textContent = 'Open';
+    btn.textContent = 'Close Signups';
+    btn.style.cssText = 'background:var(--red-light);color:var(--red-text);border-color:var(--red-light);';
+  } else {
+    badge.className = 'badge badge-gray';
+    badge.textContent = 'Closed';
+    btn.textContent = 'Open Signups';
+    btn.style.cssText = 'background:var(--green-light);color:var(--green-dark);border-color:var(--green-light);';
+  }
+}
+
+async function toggleSignupMonth(){
+  const newState = !_signupMonthOpen;
+  const label = newState ? 'open' : 'close';
+  if(!confirm(`${newState?'Open':'Close'} pack signups for ${packMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'})}?\n\nVolunteers ${newState?'will':'will no longer'} be able to sign up for these packs.`)) return;
+  try {
+    // Upsert the month record
+    const existing = await sbGet('pack_signup_months',`month_key=eq.${_currentMonthKey}&select=id`);
+    if(existing.length){
+      await sbPatch('pack_signup_months',`month_key=eq.${_currentMonthKey}`,{signups_open:newState, opened_at: newState ? new Date().toISOString() : null});
+    } else {
+      await sbPost('pack_signup_months',{month_key:_currentMonthKey, signups_open:newState, opened_at: newState ? new Date().toISOString() : null},'return=minimal');
+    }
+    _signupMonthOpen = newState;
+    updateSignupToggleUI();
+    showToast(`✓ Signups ${newState?'opened':'closed'} for ${packMonth.toLocaleDateString('en-US',{month:'long'})}`);
+  } catch(e){ showToast('Error: '+e.message); }
 }
 
 function changePackMonth(dir){
@@ -2054,6 +2179,9 @@ function openAddPack(){
   document.getElementById('packDate').value='';
   document.getElementById('packTime').value='';
   document.getElementById('packLines').value='1';
+  document.getElementById('packBags').value='';
+  document.getElementById('packVolunteers').value='';
+  document.getElementById('packCancelled').checked=false;
   document.getElementById('packNotes').value='';
   document.getElementById('packDeleteBtn').style.display='none';
   document.getElementById('packSaveBtn').onclick = savePackEvent;
@@ -2064,11 +2192,17 @@ async function savePackEvent(){
   const name = document.getElementById('packName').value.trim();
   const date = document.getElementById('packDate').value;
   if(!name||!date){ showToast('Name and date are required'); return; }
+  const bags = parseInt(document.getElementById('packBags').value)||null;
+  const vols = parseInt(document.getElementById('packVolunteers').value)||null;
+  const cancelled = document.getElementById('packCancelled').checked;
+  const completed = !cancelled && bags > 0;
   try {
     await sbPost('pack_events',{
       name, event_date:date,
       event_time:document.getElementById('packTime').value||null,
       lines:parseInt(document.getElementById('packLines').value)||1,
+      bags_packed:bags, total_volunteers:vols,
+      completed, cancelled,
       notes:document.getElementById('packNotes').value||null
     },'return=minimal');
     closeModal('addPackModal');
@@ -2087,19 +2221,32 @@ async function openEditPack(id){
   document.getElementById('packDate').value = pack.event_date;
   document.getElementById('packTime').value = pack.event_time||'';
   document.getElementById('packLines').value = pack.lines||1;
+  document.getElementById('packBags').value = pack.bags_packed||'';
+  document.getElementById('packVolunteers').value = pack.total_volunteers||'';
+  document.getElementById('packCancelled').checked = pack.cancelled||false;
   document.getElementById('packNotes').value = pack.notes||'';
   document.getElementById('packDeleteBtn').style.display='inline-flex';
   document.getElementById('packSaveBtn').onclick = async ()=>{
+    const bags = parseInt(document.getElementById('packBags').value)||null;
+    const vols = parseInt(document.getElementById('packVolunteers').value)||null;
+    const cancelled = document.getElementById('packCancelled').checked;
+    const completed = !cancelled && bags > 0;
     try {
       await sbPatch('pack_events','id=eq.'+id,{
         name:document.getElementById('packName').value,
         event_date:document.getElementById('packDate').value,
         event_time:document.getElementById('packTime').value||null,
         lines:parseInt(document.getElementById('packLines').value)||1,
+        bags_packed:bags, total_volunteers:vols,
+        completed, cancelled,
         notes:document.getElementById('packNotes').value||null
       });
+      // If cancelled, remove all signups for this event
+      if(cancelled){
+        await sbDelete('pack_signups','pack_event_id=eq.'+id);
+      }
       closeModal('addPackModal');
-      showToast('✓ Event updated!');
+      showToast(cancelled ? '✓ Pack cancelled — signups cleared' : bags ? '✓ Pack completed!' : '✓ Event updated!');
       loadPacks();
       document.getElementById('packSaveBtn').onclick = savePackEvent;
     } catch(e){ showToast('Error: '+e.message); }
@@ -3050,6 +3197,183 @@ async function loadAttendanceReport(){
 }
 
 // ============================================================
+// PACK SIGNUP PAGE
+// ============================================================
+let _psuSelections = {}; // packEventId -> {role, eventName, date}
+
+async function loadPackSignupPage(){
+  // Populate name dropdown
+  const sel = document.getElementById('psuName');
+  if(sel.options.length <= 1 && _volunteers.length){
+    sel.innerHTML = '<option value="">— choose your name —</option>';
+    _volunteers.filter(v=>v.status==='Active').sort((a,b)=>a.name.localeCompare(b.name)).forEach(v=>{
+      sel.innerHTML += `<option value="${v.id}">${v.name}</option>`;
+    });
+  }
+}
+
+async function loadPackSignupSlots(){
+  const volId = document.getElementById('psuName').value;
+  if(!volId){ document.getElementById('psuPacks').style.display='none'; return; }
+  _psuSelections = {};
+
+  const v = _volunteers.find(x=>x.id===volId);
+  if(!v) return;
+  const isLead = (v.types||[]).some(t=>t==='Pack Host Lead');
+
+  // Load open packs: current month remaining + next month if open
+  const today = new Date();
+  const todayStr = localDate(today);
+  const nextMonth = new Date(today.getFullYear(), today.getMonth()+1, 1);
+  const currMonthKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+  const nextMonthKey = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth()+1).padStart(2,'0')}`;
+  const nextMonthEnd = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth()+1).padStart(2,'0')}-31`;
+
+  try {
+    const [openMonths, events, signups] = await Promise.all([
+      sbGet('pack_signup_months',`signups_open=eq.true&select=month_key`),
+      sbGet('pack_events',`event_date=gte.${todayStr}&event_date=lte.${nextMonthEnd}&cancelled=eq.false&completed=eq.false&order=event_date.asc,event_time.asc`),
+      sbGet('pack_signups','select=pack_event_id,role,volunteer_id,volunteers(name)')
+    ]);
+
+    const openMonthKeys = openMonths.map(m=>m.month_key);
+    // Filter events to only open months
+    const availableEvents = events.filter(e=>{
+      const mk = e.event_date.slice(0,7);
+      return openMonthKeys.includes(mk);
+    });
+
+    const el = document.getElementById('psuPacks');
+    el.style.display = 'block';
+
+    if(!availableEvents.length){
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div>No packs open for signup right now.<br>Check back soon!</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Tap slots to sign up · tap again to deselect</div>
+      <div id="psuPackList"></div>
+      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;margin-top:16px;" onclick="submitPackSignups()">Submit My Sign-Ups</button>
+      <div id="psuCount" style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:8px;">No slots selected yet</div>
+    `;
+
+    // Build pack cards
+    document.getElementById('psuPackList').innerHTML = availableEvents.map(e=>{
+      const d = new Date(e.event_date+'T12:00');
+      const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      const eSignups = signups.filter(s=>s.pack_event_id===e.id);
+      const leadFilled = eSignups.find(s=>s.role==='Pack Lead');
+      const hostsFilled = eSignups.filter(s=>s.role==='Pack Host');
+      const hostsNeeded = e.lines||1;
+      const volAlreadySignedUp = eSignups.some(s=>s.volunteer_id===volId);
+
+      if(volAlreadySignedUp){
+        const mySlot = eSignups.find(s=>s.volunteer_id===volId);
+        return `<div class="signin-card" style="margin-bottom:10px;padding:14px;border:1.5px solid var(--green);background:var(--green-light);">
+          <div style="font-weight:700;font-size:14px;">${e.name}</div>
+          <div style="font-size:12px;color:var(--text-muted);">${dateStr}${e.event_time?' · '+e.event_time:''}</div>
+          <div style="margin-top:8px;"><span class="badge badge-green">✓ You're signed up as ${mySlot?.role||'volunteer'}</span></div>
+        </div>`;
+      }
+
+      // Build available slots
+      let slots = '';
+      if(!leadFilled && isLead){
+        slots += `<button class="btn psu-slot-btn" data-event="${e.id}" data-role="Pack Lead" data-name="${e.name}" data-date="${dateStr}" style="background:var(--green-light);color:var(--green-dark);border-color:var(--green);margin-right:6px;margin-top:6px;">Pack Lead — Sign Up</button>`;
+      } else if(leadFilled){
+        slots += `<span class="badge badge-green" style="margin-right:4px;margin-top:6px;">Lead: ${leadFilled.volunteers?.name}</span>`;
+      }
+      for(let i=0;i<hostsNeeded;i++){
+        const h = hostsFilled[i];
+        if(h){
+          slots += `<span class="badge badge-blue" style="margin-right:4px;margin-top:6px;">Host${hostsNeeded>1?' '+(i+1):''}: ${h.volunteers?.name}</span>`;
+        } else {
+          slots += `<button class="btn psu-slot-btn" data-event="${e.id}" data-role="Pack Host" data-name="${e.name}" data-date="${dateStr}" style="background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary);margin-right:6px;margin-top:6px;">Host${hostsNeeded>1?' '+(i+1):''} — Sign Up</button>`;
+        }
+      }
+
+      const allFilled = (!isLead || leadFilled) && hostsFilled.length >= hostsNeeded;
+      if(allFilled) return ''; // Hide fully filled packs
+
+      return `<div class="signin-card" style="margin-bottom:10px;padding:14px;">
+        <div style="font-weight:700;font-size:14px;">${e.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);">${dateStr}${e.event_time?' · '+e.event_time:''} · ${e.lines} line${e.lines>1?'s':''}</div>
+        <div style="flex-wrap:wrap;display:flex;">${slots}</div>
+      </div>`;
+    }).join('');
+
+    // Add click handlers for slot buttons
+    document.getElementById('psuPackList').addEventListener('click', e=>{
+      const btn = e.target.closest('.psu-slot-btn');
+      if(!btn) return;
+      const eventId = btn.dataset.event;
+      const role = btn.dataset.role;
+
+      if(_psuSelections[eventId]){
+        // Deselect
+        delete _psuSelections[eventId];
+        btn.style.background = role==='Pack Lead' ? 'var(--green-light)' : 'var(--primary-light)';
+        btn.style.fontWeight = '500';
+        btn.textContent = btn.textContent.replace('✓ ', '');
+      } else {
+        // Select — but only one slot per event
+        const existing = document.querySelector(`[data-event="${eventId}"].selected-slot`);
+        if(existing){ existing.classList.remove('selected-slot'); existing.style.background = existing.dataset.role==='Pack Lead' ? 'var(--green-light)' : 'var(--primary-light)'; }
+        _psuSelections[eventId] = {role, name:btn.dataset.name, date:btn.dataset.date};
+        btn.style.background = '#1a1208';
+        btn.style.color = '#fff';
+        btn.style.fontWeight = '700';
+        if(!btn.textContent.startsWith('✓')) btn.textContent = '✓ ' + btn.textContent;
+        btn.classList.add('selected-slot');
+      }
+      const count = Object.keys(_psuSelections).length;
+      document.getElementById('psuCount').textContent = count===0 ? 'No slots selected yet' : `${count} slot${count>1?'s':''} selected`;
+    });
+
+  } catch(e){ console.error(e); }
+}
+
+async function submitPackSignups(){
+  const volId = document.getElementById('psuName').value;
+  const selections = Object.entries(_psuSelections);
+  if(!selections.length){ showToast('Please select at least one slot'); return; }
+
+  try {
+    for(const [eventId, sel] of selections){
+      // Remove any existing signup for this volunteer+event first
+      await sbDelete('pack_signups',`pack_event_id=eq.${eventId}&volunteer_id=eq.${volId}`);
+      await sbPost('pack_signups',{pack_event_id:eventId, volunteer_id:volId, role:sel.role},'return=minimal');
+    }
+    // Show confirmation
+    const v = _volunteers.find(x=>x.id===volId);
+    document.getElementById('psuConfirmName').textContent = (v?.name||'') + ' · ' + new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    document.getElementById('psuConfirmList').innerHTML = selections.map(([,sel])=>`
+      <div style="background:var(--bg);border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+        <div style="font-weight:700;font-size:13px;">${sel.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);">${sel.date}</div>
+        <span class="badge ${sel.role==='Pack Lead'?'badge-green':'badge-primary'}" style="margin-top:4px;">${sel.role}</span>
+      </div>`).join('');
+    document.getElementById('psuStep1').style.display='none';
+    document.getElementById('psuPacks').style.display='none';
+    document.getElementById('psuConfirm').style.display='block';
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+function resetPackSignup(){
+  _psuSelections = {};
+  document.getElementById('psuStep1').style.display='block';
+  document.getElementById('psuPacks').style.display='none';
+  document.getElementById('psuConfirm').style.display='none';
+  document.getElementById('psuName').value='';
+}
+
+function copySignupLink(){
+  const url = window.location.href.split('?')[0] + '?page=packsignup';
+  navigator.clipboard.writeText(url).then(()=>showToast('✓ Signup link copied!')).catch(()=>showToast('Copy failed'));
+}
+
+// ============================================================
 // INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', async ()=>{
@@ -3065,7 +3389,16 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
   try {
     await loadVolunteers();
-    loadDashboard();
+
+    // Check URL params — if ?page=packsignup go straight there
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page');
+    if(page === 'packsignup'){
+      // Show as full-screen signup (hide sidebar/admin chrome on mobile)
+      showPage('packsignup', document.querySelector('[onclick*="packsignup"]'));
+    } else {
+      loadDashboard();
+    }
   } catch(e){
     console.error('Init error:', e);
     document.body.innerHTML = `<div style="padding:40px;font-family:sans-serif;color:#c00;">
