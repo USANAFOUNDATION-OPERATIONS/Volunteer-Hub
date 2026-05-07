@@ -414,6 +414,95 @@ body::before{
 }
 .task-del:hover{background:rgba(0,0,0,0.18);color:#1A0600;}
 
+/* ── SIGN-IN MODAL ── */
+.si-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2000;
+}
+.si-overlay.hidden{display:none;}
+.si-modal{
+  background:#1A1208;
+  border:2.5px solid var(--orange);
+  border-radius:28px;
+  padding:32px 28px;
+  min-width:320px;max-width:400px;width:90%;
+  box-shadow:0 20px 70px rgba(0,0,0,0.8);
+  text-align:center;
+  position:relative;
+}
+.si-vol-name{
+  font-family:'Fredoka One',sans-serif;
+  font-size:30px;color:var(--text);
+  margin-bottom:4px;line-height:1.1;
+}
+.si-vol-type{
+  font-size:13px;color:var(--text-muted);
+  font-weight:700;margin-bottom:24px;
+}
+.si-confirm-btn{
+  font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;
+  width:100%;padding:16px;border-radius:16px;border:none;
+  background:var(--orange);color:#fff;cursor:pointer;
+  box-shadow:0 4px 20px rgba(255,122,47,0.40);
+  transition:all .15s;margin-bottom:10px;
+  -webkit-tap-highlight-color:transparent;
+}
+.si-confirm-btn:active{background:var(--orange-dark);transform:scale(0.97);}
+.si-cancel-btn{
+  font-size:13px;color:var(--text-faint);background:none;
+  border:none;cursor:pointer;padding:6px 16px;
+  font-family:'Nunito',sans-serif;font-weight:700;
+}
+/* stat screen */
+.si-stat-hero{
+  background:linear-gradient(135deg,#2A1206,#0A2220);
+  border-radius:18px;padding:20px;margin-bottom:16px;
+  border:2px solid rgba(255,122,47,0.25);
+}
+.si-stat-name{
+  font-family:'Caveat',cursive;font-size:28px;font-weight:700;
+  color:var(--text);margin-bottom:4px;
+}
+.si-stat-hrs{
+  font-family:'Fredoka One',sans-serif;font-size:58px;
+  line-height:1;letter-spacing:-0.02em;
+  background:linear-gradient(135deg,var(--orange-dark),var(--orange),var(--yellow));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.si-stat-hrs-label{font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:12px;}
+.si-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.si-stat-box{
+  background:rgba(255,255,255,0.06);
+  border-radius:12px;padding:10px 8px;
+}
+.si-stat-val{font-family:'Fredoka One',sans-serif;font-size:22px;color:var(--text);}
+.si-stat-lbl{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;font-weight:700;}
+.si-level-badge{
+  display:inline-block;font-size:12px;font-weight:800;
+  padding:4px 14px;border-radius:20px;margin-bottom:8px;
+  background:rgba(255,122,47,0.20);color:var(--orange);
+}
+.si-close-btn{
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+  width:100%;padding:12px;border-radius:14px;border:none;
+  background:#2A1A0A;color:var(--text-muted);cursor:pointer;
+  transition:all .15s;margin-top:4px;
+  -webkit-tap-highlight-color:transparent;
+}
+.si-close-btn:active{background:#3A2510;}
+.sched-si-btn{
+  font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
+  padding:2px 7px;border-radius:8px;border:none;
+  background:rgba(0,0,0,0.22);color:#001A1A;
+  cursor:pointer;flex-shrink:0;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+  transition:all .15s;
+}
+.sched-si-btn:active{background:rgba(0,0,0,0.40);}
+
 /* ── MOBILE ── */
 @media(max-width:768px){
   html,body{overflow:auto;}
@@ -758,10 +847,14 @@ async function loadSchedule(){
       ${rows.map(r=>{
         const off=isOff(r.volunteer_id,day);
         const t=typeMap[r.volunteer_types?.name]||{cls:'proc',label:r.volunteer_types?.name||''};
+        const vid=r.volunteer_id||'';
+        const vname=(r.volunteers?.name||'').replace(/'/g,"\\'");
+        const vtype=(r.volunteer_types?.name||'').replace(/'/g,"\\'");
         return `<div class="sched-row ${off?'out':''}">
           <div class="sched-time">${r.shift_time||''}</div>
           <div class="sched-name">${r.volunteers?.name||''}${off?'<span class="out-badge">OUT</span>':''}</div>
           <span class="sched-type ${t.cls}">${t.label}</span>
+          ${vid?`<button class="sched-si-btn" onclick="openSignIn('${vid}','${vname}','${vtype}')">Sign In</button>`:''}
         </div>`;
       }).join('')}
     </div>`).join('');
@@ -863,6 +956,83 @@ async function refreshAll(){
 }
 window.addEventListener('DOMContentLoaded',()=>{refreshAll();startTimer();});
 
+// ── SIGN-IN MODAL ────────────────────────────────────────────
+const SCHOOL_YEAR_START='2025-08-01';
+let _siVid=null,_siVName='',_siTypeName='';
+
+function siLevel(hrs){
+  if(hrs>=1500)return'Icon';if(hrs>=1000)return'Legend';
+  if(hrs>=750)return'Champion';if(hrs>=500)return'Pillar';
+  if(hrs>=250)return'Anchor';if(hrs>=100)return'Rising';
+  return'Seedling';
+}
+function siNextMs(hrs){return[100,250,500,750,1000,1500].find(m=>m>hrs)||null;}
+
+function openSignIn(vid,name,typeName){
+  _siVid=vid;_siVName=name;_siTypeName=typeName;
+  document.getElementById('siModalName').textContent=name;
+  document.getElementById('siModalType').textContent='Signing in as '+typeName;
+  document.getElementById('si-step1').style.display='block';
+  document.getElementById('si-step2').style.display='none';
+  document.getElementById('siOverlay').classList.remove('hidden');
+}
+
+async function doSignIn(){
+  const btn=document.querySelector('.si-confirm-btn');
+  btn.disabled=true;btn.textContent='Signing in…';
+  try{
+    const types=await get('volunteer_types',`name=eq.${encodeURIComponent(_siTypeName)}&select=id,hours_per_signin`);
+    const typeRec=types[0];
+    if(!typeRec){btn.disabled=false;btn.textContent='✓ Sign In';return;}
+    const hrs=typeRec.hours_per_signin||0;
+
+    await fetch(`${SB}/rest/v1/sign_ins`,{
+      method:'POST',
+      headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({volunteer_id:_siVid,type_id:typeRec.id,
+        signed_in_at:new Date().toISOString(),hours_credited:hrs})
+    });
+
+    const [updated]=await get('volunteer_levels',`id=eq.${_siVid}&select=lifetime_hours`);
+    const lifetime=updated?.lifetime_hours||0;
+    const lv=siLevel(lifetime);
+    const next=siNextMs(lifetime);
+
+    // Estimate backpacks from proportion of hours
+    const allSI=await get('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
+    const totalHrs=allSI.reduce((a,s)=>a+(s.hours_credited||0),0)||1;
+    const bags=document.getElementById('impactBags');
+    const totalBags=bags?parseInt(bags.textContent.replace(/,/g,''))||0:0;
+    const volBags=totalHrs>0?Math.round((lifetime/totalHrs)*totalBags):0;
+
+    document.getElementById('siStatName').textContent=_siVName;
+    document.getElementById('siStatHrs').textContent='+'+hrs;
+    document.getElementById('siStatLevel').textContent=lv;
+    document.getElementById('siStatLifetime').textContent=lifetime.toFixed(1);
+    document.getElementById('siStatBackpacks').textContent=volBags.toLocaleString();
+    if(next){
+      const pct=Math.min(100,(lifetime/next)*100);
+      document.getElementById('siStatBar').innerHTML=
+        `<div style="background:rgba(255,255,255,0.12);border-radius:8px;height:7px;overflow:hidden;">
+          <div style="background:var(--orange);width:${pct}%;height:100%;border-radius:8px;transition:width .6s;"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text-faint);margin-top:4px;">${(next-lifetime).toFixed(1)} hrs to ${siLevel(next)}</div>`;
+    } else {
+      document.getElementById('siStatBar').innerHTML='<div style="font-size:12px;color:var(--yellow);">🏆 Maximum Level Achieved!</div>';
+    }
+
+    document.getElementById('si-step1').style.display='none';
+    document.getElementById('si-step2').style.display='block';
+  }catch(e){console.error(e);}
+  btn.disabled=false;btn.textContent='✓ Sign In';
+}
+
+function closeSignIn(){
+  document.getElementById('siOverlay').classList.add('hidden');
+  _siVid=null;
+}
+function siOverlayClick(e){if(e.target===document.getElementById('siOverlay'))closeSignIn();}
+
 // ── 10-KEY KEYPAD ────────────────────────────────────────────
 let _kpTarget=null, _kpVal='';
 function openKeypad(inputEl, label){
@@ -891,6 +1061,41 @@ function kpCancel(){
 }
 function keypadCancel(e){if(e.target===document.getElementById('keypadOverlay'))kpCancel();}
 </script>
+<!-- SIGN-IN MODAL -->
+<div class="si-overlay hidden" id="siOverlay" onclick="siOverlayClick(event)">
+  <div class="si-modal" onclick="event.stopPropagation()">
+    <!-- Step 1: Confirm -->
+    <div id="si-step1">
+      <div style="font-size:32px;margin-bottom:8px;">👋</div>
+      <div class="si-vol-name" id="siModalName">—</div>
+      <div class="si-vol-type" id="siModalType">—</div>
+      <button class="si-confirm-btn" onclick="doSignIn()">✓ Sign In</button>
+      <button class="si-cancel-btn" onclick="closeSignIn()">Cancel</button>
+    </div>
+    <!-- Step 2: Stats -->
+    <div id="si-step2" style="display:none;">
+      <div class="si-stat-hero">
+        <div class="si-stat-name" id="siStatName">—</div>
+        <div class="si-stat-hrs" id="siStatHrs">+0</div>
+        <div class="si-stat-hrs-label">HOURS CREDITED TODAY</div>
+        <div class="si-level-badge" id="siStatLevel">—</div>
+        <div class="si-stat-grid">
+          <div class="si-stat-box">
+            <div class="si-stat-val" id="siStatLifetime">—</div>
+            <div class="si-stat-lbl">Lifetime Hours</div>
+          </div>
+          <div class="si-stat-box">
+            <div class="si-stat-val" id="siStatBackpacks">—</div>
+            <div class="si-stat-lbl">Backpacks Packed</div>
+          </div>
+        </div>
+        <div id="siStatBar" style="margin-top:10px;"></div>
+      </div>
+      <button class="si-close-btn" onclick="closeSignIn()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- 10-KEY KEYPAD OVERLAY -->
 <div class="keypad-overlay hidden" id="keypadOverlay" onclick="keypadCancel(event)">
   <div class="keypad-box" onclick="event.stopPropagation()">
