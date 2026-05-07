@@ -423,6 +423,52 @@ body::before{
   .impact-body{padding:12px 14px;}
   .impact-big-num{font-size:44px;}
 }
+/* ── 10-KEY KEYPAD ── */
+.keypad-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;backdrop-filter:blur(4px);
+}
+.keypad-overlay.hidden{display:none;}
+.keypad-box{
+  background:#1A1208;border:2.5px solid var(--orange);
+  border-radius:24px;padding:20px;
+  box-shadow:0 16px 60px rgba(0,0,0,0.7);
+  min-width:280px;
+}
+.keypad-label{
+  font-family:'Fredoka One',sans-serif;font-size:13px;
+  color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;
+  text-align:center;margin-bottom:8px;
+}
+.keypad-display{
+  font-family:'Fredoka One',sans-serif;font-size:52px;
+  color:var(--text);text-align:center;
+  background:#0D0A06;border:2px solid rgba(255,122,47,0.30);
+  border-radius:14px;padding:8px 20px;margin-bottom:14px;
+  min-height:80px;display:flex;align-items:center;justify-content:center;
+  letter-spacing:-0.02em;
+}
+.keypad-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+}
+.kbtn{
+  font-family:'Fredoka One',sans-serif;font-size:26px;
+  background:#FF7A2F;color:#1A0600;
+  border:none;border-radius:14px;padding:16px 0;
+  cursor:pointer;transition:all .1s;
+  box-shadow:0 4px 12px rgba(255,122,47,0.30);
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.kbtn:active{transform:scale(0.93);background:#FF5500;}
+.kbtn.kbtn-zero{grid-column:1/3;}
+.kbtn.kbtn-back{background:#2A1A0A;color:var(--orange);font-size:20px;}
+.kbtn.kbtn-back:active{background:#3A2510;}
+.kbtn.kbtn-done{background:#00C8C2;color:#001818;font-size:18px;letter-spacing:.02em;}
+.kbtn.kbtn-done:active{background:#00A8A4;}
+.kbtn.kbtn-cancel{background:#2A1A0A;color:var(--text-muted);font-size:14px;}
+.kbtn.kbtn-cancel:active{background:#3A2510;}
 </style>
 </head>
 <body>
@@ -604,8 +650,8 @@ async function loadPacks(){
           <div class="pack-slots">${lp}${hp}</div>
           <div class="bags-row">
             <div class="bags-inputs">
-              <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0"></div>
-              <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0"></div>
+              <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Bags Packed')"></div>
+              <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Volunteers')"></div>
             </div>
             ${done?'<span class="done-pill">✓ Done!</span>':`<button class="save-btn" onclick="savePack('${e.id}')">Save</button>`}
           </div>
@@ -790,6 +836,56 @@ async function refreshAll(){
   await Promise.all([loadImpact(),loadPacks(),loadDeliveries(),loadSchedule(),loadTasks()]);
 }
 window.addEventListener('DOMContentLoaded',()=>{refreshAll();startTimer();});
+
+// ── 10-KEY KEYPAD ────────────────────────────────────────────
+let _kpTarget=null, _kpVal='';
+function openKeypad(inputEl, label){
+  _kpTarget=inputEl;
+  _kpVal=inputEl.value||'';
+  document.getElementById('keypadLabel').textContent=label;
+  document.getElementById('keypadDisplay').textContent=_kpVal||'—';
+  document.getElementById('keypadOverlay').classList.remove('hidden');
+}
+function kp(n){
+  if(_kpVal.length>=4)return;
+  _kpVal+=String(n);
+  document.getElementById('keypadDisplay').textContent=_kpVal;
+}
+function kpBack(){
+  _kpVal=_kpVal.slice(0,-1);
+  document.getElementById('keypadDisplay').textContent=_kpVal||'—';
+}
+function kpDone(){
+  if(_kpTarget){_kpTarget.value=_kpVal;_kpTarget=null;}
+  document.getElementById('keypadOverlay').classList.add('hidden');
+}
+function kpCancel(){
+  _kpTarget=null;
+  document.getElementById('keypadOverlay').classList.add('hidden');
+}
+function keypadCancel(e){if(e.target===document.getElementById('keypadOverlay'))kpCancel();}
 </script>
+<!-- 10-KEY KEYPAD OVERLAY -->
+<div class="keypad-overlay hidden" id="keypadOverlay" onclick="keypadCancel(event)">
+  <div class="keypad-box" onclick="event.stopPropagation()">
+    <div class="keypad-label" id="keypadLabel">Bags Packed</div>
+    <div class="keypad-display" id="keypadDisplay">—</div>
+    <div class="keypad-grid">
+      <button class="kbtn" onclick="kp(7)">7</button>
+      <button class="kbtn" onclick="kp(8)">8</button>
+      <button class="kbtn" onclick="kp(9)">9</button>
+      <button class="kbtn" onclick="kp(4)">4</button>
+      <button class="kbtn" onclick="kp(5)">5</button>
+      <button class="kbtn" onclick="kp(6)">6</button>
+      <button class="kbtn" onclick="kp(1)">1</button>
+      <button class="kbtn" onclick="kp(2)">2</button>
+      <button class="kbtn" onclick="kp(3)">3</button>
+      <button class="kbtn kbtn-zero" onclick="kp(0)">0</button>
+      <button class="kbtn kbtn-back" onclick="kpBack()">⌫</button>
+      <button class="kbtn kbtn-done" style="grid-column:1/3;margin-top:4px;" onclick="kpDone()">✓ Done</button>
+      <button class="kbtn kbtn-cancel" style="margin-top:4px;" onclick="kpCancel()">Cancel</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
