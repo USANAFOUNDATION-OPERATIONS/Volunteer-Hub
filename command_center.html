@@ -504,12 +504,13 @@ body::before{
 }
 .sched-si-btn:active{background:rgba(0,0,0,0.40);}
 .sched-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
-.pack-si-row{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0 2px;}
+.slot-si-pair{display:inline-flex;flex-direction:column;gap:2px;align-items:stretch;}
+.slot-si-pair .slot-pill{text-align:center;}
 .pack-si-btn{
   font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;
-  padding:3px 9px;border-radius:8px;border:none;
+  padding:2px 9px;border-radius:20px;border:none;
   background:rgba(0,0,0,0.22);color:#1A0600;
-  cursor:pointer;white-space:nowrap;
+  cursor:pointer;white-space:nowrap;width:100%;
   -webkit-tap-highlight-color:transparent;
   transition:all .15s;
 }
@@ -759,26 +760,24 @@ async function loadPacks(){
       const hosts=es.filter(x=>x.role==='Pack Host');
       const lines=e.lines||1;
       const nm=x=>x.staff?.display_name||x.volunteers?.name||'?';
-      const lp=lead?`<span class="slot-pill slot-filled">✓ ${nm(lead)}</span>`:'<span class="slot-pill slot-open">Lead: Open</span>';
-      const hp=Array.from({length:lines}).map((_,i)=>{
-        const h=hosts[i];
-        return h?`<span class="slot-pill slot-filled">✓ ${nm(h)}</span>`:`<span class="slot-pill slot-open">Host${lines>1?' '+(i+1):''}: Open</span>`;
-      }).join('');
-      // Sign-in buttons for each signed-up volunteer
-      const siVols=[lead,...hosts].filter(Boolean);
-      const siRow=siVols.length?`<div class="pack-si-row">${siVols.map(x=>{
+      function slotPair(x,openLabel){
+        if(!x) return `<span class="slot-pill slot-open">${openLabel}</span>`;
         const vid=x.volunteer_id||'';
-        const vn=(nm(x)).replace(/'/g,"\\'");
+        const vn=nm(x).replace(/'/g,"\\'");
         const vt=x.role==='Pack Lead'?'Pack Lead':'Pack Host';
         const already=vid&&_todaySignIns.has(vid);
-        return `<button class="pack-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid}','${vn}','${vt}',this)">${already?'✓':'Sign In'}</button>`;
-      }).join('')}</div>`:'';
+        return `<div class="slot-si-pair">
+          <span class="slot-pill slot-filled">✓ ${nm(x)}</span>
+          <button class="pack-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid}','${vn}','${vt}',this)">${already?'✓':'Sign In'}</button>
+        </div>`;
+      }
+      const lp=slotPair(lead,'Lead: Open');
+      const hp=Array.from({length:lines}).map((_,i)=>slotPair(hosts[i],`Host${lines>1?' '+(i+1):''}: Open`)).join('');
       const done=e.completed||(e.bags_packed>0);
       const cls=done?'completed':(!e.bags_packed&&new Date(e.event_date+'T23:59')<new Date()?'needs-update':'');
       return `<div class="pack-item ${cls}">
         <div class="pack-name">${e.name}</div>
         <div class="pack-meta">${day}${e.event_time?' · '+e.event_time:''} · ${lines} line${lines>1?'s':''}</div>
-        ${siRow}
         <div class="pack-bottom">
           <div class="pack-slots">${lp}${hp}</div>
           <div class="bags-row">
