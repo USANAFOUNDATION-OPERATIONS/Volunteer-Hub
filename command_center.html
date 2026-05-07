@@ -682,8 +682,18 @@ async function loadSchedule(){
     return timeOff.some(t=>t.volunteer_id===vid&&t.start_date<=ds&&t.end_date>=ds);
   }
 
+  function startHour(t){
+    if(!t)return 99;
+    const m=t.match(/(\d+):(\d+)\s*(am|pm)/i);
+    if(!m)return 99;
+    let h=parseInt(m[1]);
+    if(m[3].toLowerCase()==='pm'&&h<12)h+=12;
+    if(m[3].toLowerCase()==='am'&&h===12)h=0;
+    return h;
+  }
   const byDay={Tuesday:[],Wednesday:[],Thursday:[]};
   schedRows.forEach(r=>{ if(byDay[r.day_of_week]) byDay[r.day_of_week].push(r); });
+  Object.keys(byDay).forEach(day=>byDay[day].sort((a,b)=>startHour(a.shift_time)-startHour(b.shift_time)));
 
   document.getElementById('schedList').innerHTML=Object.entries(byDay).map(([day,rows])=>`
     <div class="sched-day-block">
