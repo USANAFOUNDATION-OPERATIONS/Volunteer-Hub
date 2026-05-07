@@ -394,8 +394,19 @@ body::before{
   background:#FF7A2F;border-radius:8px;
   padding:5px 8px;margin-bottom:3px;
   border:1px solid #FF9557;
+  transition:opacity .2s;
 }
-.task-text{flex:1;font-size:12px;font-weight:700;color:#1A0600;line-height:1.3;}
+.task-item.done{opacity:0.5;}
+.task-cb{
+  width:22px;height:22px;border-radius:6px;flex-shrink:0;
+  border:2.5px solid rgba(26,6,0,0.45);background:rgba(255,255,255,0.25);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.task-cb.checked{background:#1A0600;border-color:#1A0600;}
+.task-cb.checked::after{content:'✓';font-size:13px;font-weight:900;color:#FF7A2F;}
+.task-text{flex:1;font-size:12px;font-weight:700;color:#1A0600;line-height:1.3;transition:all .2s;}
+.task-text.done{text-decoration:line-through;opacity:0.6;}
 .task-del{
   font-size:14px;background:none;border:none;cursor:pointer;
   color:rgba(26,6,0,0.50);padding:2px 4px;border-radius:6px;
@@ -801,13 +812,28 @@ async function loadCelebrations(){
 async function loadTasks(){
   const el=document.getElementById('taskList');
   try{
-    const tasks=await get('volunteer_tasks','select=id,title&order=created_at.asc');
+    const tasks=await get('volunteer_tasks','select=id,title,completed&order=completed.asc,created_at.asc');
     if(!tasks.length){el.innerHTML='<div style="font-size:11px;color:var(--text-faint);text-align:center;padding:8px 0;">No tasks yet — add one above!</div>';return;}
     el.innerHTML=tasks.map(t=>`
-      <div class="task-item" id="task-${t.id}">
-        <span class="task-text">${t.title.replace(/</g,'&lt;')}</span>
+      <div class="task-item${t.completed?' done':''}" id="task-${t.id}">
+        <div class="task-cb${t.completed?' checked':''}" onclick="toggleTask('${t.id}',${!t.completed})"></div>
+        <span class="task-text${t.completed?' done':''}">${t.title.replace(/</g,'&lt;')}</span>
         <button class="task-del" onclick="deleteTask('${t.id}')" title="Remove">✕</button>
       </div>`).join('');
+  }catch(e){console.error(e);}
+}
+async function toggleTask(id, completed){
+  const item=document.getElementById('task-'+id);
+  const cb=item?.querySelector('.task-cb');
+  const txt=item?.querySelector('.task-text');
+  if(item) item.classList.toggle('done', completed);
+  if(cb)   cb.classList.toggle('checked', completed);
+  if(txt)  txt.classList.toggle('done', completed);
+  try{
+    await fetch(`${SB}/rest/v1/volunteer_tasks?id=eq.${id}`,{
+      method:'PATCH',headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({completed})
+    });
   }catch(e){console.error(e);}
 }
 async function addTask(){
@@ -819,7 +845,7 @@ async function addTask(){
     await fetch(`${SB}/rest/v1/volunteer_tasks`,{
       method:'POST',
       headers:{...H,'Prefer':'return=minimal'},
-      body:JSON.stringify({title})
+      body:JSON.stringify({title,completed:false})
     });
     loadTasks();
   }catch(e){console.error(e);}
