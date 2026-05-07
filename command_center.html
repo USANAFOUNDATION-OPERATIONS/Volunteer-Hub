@@ -502,6 +502,28 @@ body::before{
   transition:all .15s;
 }
 .sched-si-btn:active{background:rgba(0,0,0,0.40);}
+.sched-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
+.pack-si-row{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0 2px;}
+.pack-si-btn{
+  font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;
+  padding:3px 9px;border-radius:8px;border:none;
+  background:rgba(0,0,0,0.22);color:#1A0600;
+  cursor:pointer;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+  transition:all .15s;
+}
+.pack-si-btn:active{background:rgba(0,0,0,0.36);}
+.pack-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
+.deliv-si-btn{
+  font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
+  padding:2px 7px;border-radius:8px;border:none;
+  background:rgba(0,0,0,0.22);color:#1A0600;
+  cursor:pointer;flex-shrink:0;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+  transition:all .15s;
+}
+.deliv-si-btn:active{background:rgba(0,0,0,0.36);}
+.deliv-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
 
 /* ── MOBILE ── */
 @media(max-width:768px){
@@ -741,11 +763,21 @@ async function loadPacks(){
         const h=hosts[i];
         return h?`<span class="slot-pill slot-filled">✓ ${nm(h)}</span>`:`<span class="slot-pill slot-open">Host${lines>1?' '+(i+1):''}: Open</span>`;
       }).join('');
+      // Sign-in buttons for each signed-up volunteer
+      const siVols=[lead,...hosts].filter(Boolean);
+      const siRow=siVols.length?`<div class="pack-si-row">${siVols.map(x=>{
+        const vid=x.volunteer_id||'';
+        const vn=(nm(x)).replace(/'/g,"\\'");
+        const vt=x.role==='Pack Lead'?'Pack Lead':'Pack Host';
+        const already=vid&&_todaySignIns.has(vid);
+        return `<button class="pack-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid}','${vn}','${vt}',this)">${already?'✓':nm(x)}</button>`;
+      }).join('')}</div>`:'';
       const done=e.completed||(e.bags_packed>0);
       const cls=done?'completed':(!e.bags_packed&&new Date(e.event_date+'T23:59')<new Date()?'needs-update':'');
       return `<div class="pack-item ${cls}">
         <div class="pack-name">${e.name}</div>
         <div class="pack-meta">${day}${e.event_time?' · '+e.event_time:''} · ${lines} line${lines>1?'s':''}</div>
+        ${siRow}
         <div class="pack-bottom">
           <div class="pack-slots">${lp}${hp}</div>
           <div class="bags-row">
@@ -779,26 +811,34 @@ async function loadDeliveries(){
   const weekStart=ld(mon(now));
 
   let slots=[],confs=[];
-  try{ slots=await get('delivery_slots','role=eq.Driver&select=day_of_week,week_of_month,volunteers(name)'); }catch(e){}
-  try{ confs=await get('delivery_confirmations',`week_start_date=eq.${weekStart}&select=confirmed_name,notes`); }catch(e){}
+  try{ slots=await get('delivery_slots','role=eq.Driver&select=day_of_week,week_of_month,volunteer_id,volunteers(name)'); }catch(e){}
+  try{ confs=await get('delivery_confirmations',`week_start_date=eq.${weekStart}&select=confirmed_name,confirmed_volunteer_id,notes`); }catch(e){}
 
   function getDriver(day,wk){
-    const s=slots.find(s=>s.day_of_week===day&&s.week_of_month===wk);
-    return s?.volunteers?.name||'—';
+    return slots.find(s=>s.day_of_week===day&&s.week_of_month===wk)||null;
   }
   function getAsst(day){
-    const c=confs.find(c=>c.notes===day);
-    return c?.confirmed_name||null;
+    return confs.find(c=>c.notes===day)||null;
+  }
+
+  function siBtn(vid,name,type){
+    const already=vid&&_todaySignIns.has(vid);
+    const esc=(name||'').replace(/'/g,"\\'");
+    return `<button class="deliv-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid||''}','${esc}','${type}',this)">${already?'✓':'Sign In'}</button>`;
   }
 
   document.getElementById('delivList').innerHTML=
     [{d:'Monday',n:mo},{d:'Tuesday',n:tu},{d:'Wednesday',n:we}].map(({d,n})=>{
       const drv=getDriver(d,n);
       const ast=getAsst(d);
+      const drvName=drv?.volunteers?.name||'—';
+      const drvId=drv?.volunteer_id||'';
+      const astName=ast?.confirmed_name||null;
+      const astId=ast?.confirmed_volunteer_id||'';
       return `<div class="day-block">
         <div class="day-label">${d}</div>
-        <div class="person-row"><div class="person-dot" style="background:var(--orange);"></div><div class="person-name">${drv}</div><span class="role-pill driver-pill">🚐 Driver</span></div>
-        ${ast?`<div class="person-row"><div class="person-dot" style="background:var(--blue);"></div><div class="person-name">${ast}</div><span class="role-pill asst-pill">👐 Assistant</span></div>`:''}
+        <div class="person-row"><div class="person-dot" style="background:var(--orange);"></div><div class="person-name">${drvName}</div><span class="role-pill driver-pill">🚐 Driver</span>${drvName!=='—'?siBtn(drvId,drvName,'Delivery Driver'):''}</div>
+        ${astName?`<div class="person-row"><div class="person-dot" style="background:var(--blue);"></div><div class="person-name">${astName}</div><span class="role-pill asst-pill">👐 Assistant</span>${siBtn(astId,astName,'Delivery Assistant')}</div>`:''}
       </div>`;
     }).join('');
 }
@@ -854,7 +894,7 @@ async function loadSchedule(){
           <div class="sched-time">${r.shift_time||''}</div>
           <div class="sched-name">${r.volunteers?.name||''}${off?'<span class="out-badge">OUT</span>':''}</div>
           <span class="sched-type ${t.cls}">${t.label}</span>
-          ${vid?`<button class="sched-si-btn" onclick="openSignIn('${vid}','${vname}','${vtype}')">Sign In</button>`:''}
+          ${vid?`<button class="sched-si-btn${_todaySignIns.has(vid)?' signed-in':''}" ${_todaySignIns.has(vid)?'disabled':''} onclick="openSignIn('${vid}','${vname}','${vtype}',this)">${_todaySignIns.has(vid)?'✓':'Sign In'}</button>`:''}
         </div>`;
       }).join('')}
     </div>`).join('');
@@ -950,15 +990,23 @@ async function deleteTask(id){
   }catch(e){console.error(e);}
 }
 
+let _todaySignIns=new Set();
+async function loadTodaySignIns(){
+  const today=new Date().toISOString().slice(0,10);
+  try{
+    const rows=await get('sign_ins',`signed_in_at=gte.${today}T00:00:00&select=volunteer_id`);
+    _todaySignIns=new Set(rows.map(r=>r.volunteer_id).filter(Boolean));
+  }catch(e){}
+}
 async function refreshAll(){
   startTimer();
-  await Promise.all([loadImpact(),loadPacks(),loadDeliveries(),loadSchedule(),loadTasks()]);
+  await Promise.all([loadTodaySignIns(),loadImpact(),loadPacks(),loadDeliveries(),loadSchedule(),loadTasks()]);
 }
 window.addEventListener('DOMContentLoaded',()=>{refreshAll();startTimer();});
 
 // ── SIGN-IN MODAL ────────────────────────────────────────────
 const SCHOOL_YEAR_START='2025-08-01';
-let _siVid=null,_siVName='',_siTypeName='';
+let _siVid=null,_siVName='',_siTypeName='',_siBtn=null;
 
 function siLevel(hrs){
   if(hrs>=1500)return'Icon';if(hrs>=1000)return'Legend';
@@ -968,8 +1016,9 @@ function siLevel(hrs){
 }
 function siNextMs(hrs){return[100,250,500,750,1000,1500].find(m=>m>hrs)||null;}
 
-function openSignIn(vid,name,typeName){
-  _siVid=vid;_siVName=name;_siTypeName=typeName;
+function openSignIn(vid,name,typeName,btnEl){
+  if(btnEl?.classList.contains('signed-in'))return;
+  _siVid=vid;_siVName=name;_siTypeName=typeName;_siBtn=btnEl||null;
   document.getElementById('siModalName').textContent=name;
   document.getElementById('siModalType').textContent='Signing in as '+typeName;
   document.getElementById('si-step1').style.display='block';
@@ -981,6 +1030,15 @@ async function doSignIn(){
   const btn=document.querySelector('.si-confirm-btn');
   btn.disabled=true;btn.textContent='Signing in…';
   try{
+    // Look up volunteer by name if no ID (e.g. delivery assistants)
+    let vid=_siVid;
+    if(!vid){
+      const vols=await get('volunteers',`name=eq.${encodeURIComponent(_siVName)}&select=id`);
+      vid=vols[0]?.id;
+    }
+    if(!vid){btn.disabled=false;btn.textContent='✓ Sign In';return;}
+    _siVid=vid;
+
     const types=await get('volunteer_types',`name=eq.${encodeURIComponent(_siTypeName)}&select=id,hours_per_signin`);
     const typeRec=types[0];
     if(!typeRec){btn.disabled=false;btn.textContent='✓ Sign In';return;}
@@ -1021,6 +1079,9 @@ async function doSignIn(){
       document.getElementById('siStatBar').innerHTML='<div style="font-size:12px;color:var(--yellow);">🏆 Maximum Level Achieved!</div>';
     }
 
+    // Mark button as signed in
+    if(_siBtn){_siBtn.textContent='✓';_siBtn.classList.add('signed-in');_siBtn.disabled=true;}
+    if(_siVid) _todaySignIns.add(_siVid);
     document.getElementById('si-step1').style.display='none';
     document.getElementById('si-step2').style.display='block';
   }catch(e){console.error(e);}
