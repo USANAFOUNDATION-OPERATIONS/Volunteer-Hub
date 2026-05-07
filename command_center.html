@@ -762,10 +762,12 @@ async function loadPacks(){
       const nm=x=>x.staff?.display_name||x.volunteers?.name||'?';
       function slotPair(x,openLabel){
         if(!x) return `<span class="slot-pill slot-open">${openLabel}</span>`;
+        const isStaff=!!x.staff?.display_name;
         const vid=x.volunteer_id||'';
         const vn=nm(x).replace(/'/g,"\\'");
         const vt=x.role==='Pack Lead'?'Pack Lead':'Pack Host';
         const already=vid&&_todaySignIns.has(vid);
+        if(isStaff) return `<span class="slot-pill slot-filled">✓ ${nm(x)}</span>`;
         return `<div class="slot-si-pair">
           <span class="slot-pill slot-filled">✓ ${nm(x)}</span>
           <button class="pack-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid}','${vn}','${vt}',this)">${already?'✓':'Sign In'}</button>
