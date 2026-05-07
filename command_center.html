@@ -495,9 +495,10 @@ body::before{
 .si-close-btn:active{background:#3A2510;}
 .sched-si-btn{
   font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
-  padding:2px 7px;border-radius:8px;border:none;
+  padding:1px 6px;border-radius:6px;border:none;
   background:rgba(0,0,0,0.22);color:#001A1A;
   cursor:pointer;flex-shrink:0;white-space:nowrap;
+  line-height:1.4;display:inline-block;
   -webkit-tap-highlight-color:transparent;
   transition:all .15s;
 }
@@ -770,7 +771,7 @@ async function loadPacks(){
         const vn=(nm(x)).replace(/'/g,"\\'");
         const vt=x.role==='Pack Lead'?'Pack Lead':'Pack Host';
         const already=vid&&_todaySignIns.has(vid);
-        return `<button class="pack-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid}','${vn}','${vt}',this)">${already?'✓':nm(x)}</button>`;
+        return `<button class="pack-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid}','${vn}','${vt}',this)">${already?'✓':'Sign In'}</button>`;
       }).join('')}</div>`:'';
       const done=e.completed||(e.bags_packed>0);
       const cls=done?'completed':(!e.bags_packed&&new Date(e.event_date+'T23:59')<new Date()?'needs-update':'');
