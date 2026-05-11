@@ -1643,9 +1643,8 @@ async function loadDashboard(){
       wpEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No packs this week</div>';
     }
 
-    // Delivery this week — show actual driver + assistant per day
-    const weekOfMonth = Math.ceil((mon.getDate() + new Date(mon.getFullYear(), mon.getMonth(), 1).getDay()) / 7);
-    const clampedWeek = Math.min(weekOfMonth, 4);
+    // Delivery this week — use per-day nth-weekday-of-month
+    const delivWeekNums = deliveryWeekNums();
 
     const deliverySchedule = {
       Monday:    { driver: 'Randy Crebs',   assistants: { 1:'Dennis Aardema', 2:'Dennis Aardema', 3:'Dennis Aardema', 4:'Dennis Aardema' } },
@@ -1656,7 +1655,8 @@ async function loadDashboard(){
     let delivHTML = '';
     for(const day of ['Monday','Tuesday','Wednesday']){
       const sched = deliverySchedule[day];
-      const asst = sched.assistants[clampedWeek];
+      const wk = delivWeekNums[day];
+      const asst = sched.assistants[Math.min(wk,4)];
       delivHTML += `
         <div class="week-row">
           <div>
@@ -1665,7 +1665,7 @@ async function loadDashboard(){
               🚗 ${sched.driver} &nbsp;·&nbsp; 👤 ${asst}
             </div>
           </div>
-          <span class="badge badge-green" style="font-size:10px;">Week ${clampedWeek}</span>
+          <span class="badge badge-green" style="font-size:10px;">Wk ${wk}</span>
         </div>`;
     }
     document.getElementById('deliveryThisWeek').innerHTML = delivHTML;
@@ -2817,51 +2817,89 @@ async function saveScheduleRows(volId){
     },'return=minimal');
   }
 }
+// Returns the nth occurrence of a given weekday (0=Sun…6=Sat) for a date
+function nthWeekdayOfMonth(date){
+  return Math.ceil(date.getDate() / 7);
+}
+
+// Returns the actual date for Mon/Tue/Wed of the current week
+function deliveryDayDate(dayName){
+  const now = new Date();
+  const mon = new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7));
+  const offsets = { Monday:0, Tuesday:1, Wednesday:2 };
+  const d = new Date(mon);
+  d.setDate(mon.getDate() + offsets[dayName]);
+  return d;
+}
+
+// Returns per-day week numbers: { Monday: N, Tuesday: N, Wednesday: N }
+function deliveryWeekNums(){
+  const result = {};
+  for(const day of ['Monday','Tuesday','Wednesday']){
+    result[day] = nthWeekdayOfMonth(deliveryDayDate(day));
+  }
+  return result;
+}
+
 async function loadDeliveryPage(){
   const now = new Date();
   const mon = new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7));
-  const weekNum = Math.ceil((mon.getDate()+new Date(mon.getFullYear(),mon.getMonth(),1).getDay())/7);
-  document.getElementById('delivWeekLabel').textContent =
-    'Week of '+mon.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' · Week '+weekNum+' of month';
+  const weekNums = deliveryWeekNums();
 
-  // Load drivers from delivery_slots
+  // Build label showing per-day week numbers (only show if they differ)
+  const uniqueWeeks = [...new Set(Object.values(weekNums))];
+  const weekLabel = uniqueWeeks.length === 1
+    ? 'Week '+uniqueWeeks[0]+' of month'
+    : 'Tue: Wk '+weekNums.Tuesday+' · Wed: Wk '+weekNums.Wednesday+' of month';
+  document.getElementById('delivWeekLabel').textContent =
+    'Week of '+mon.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' · '+weekLabel;
+
+  // Load drivers — each day uses its own week number
   try{
-    const drivers = await sbGet('delivery_slots',
-      `role=eq.Driver&week_of_month=eq.${weekNum}&select=day_of_week,volunteers(name)`);
-    ['Monday','Tuesday','Wednesday'].forEach(day=>{
-      const d=drivers.find(s=>s.day_of_week===day);
+    const driverResults = await Promise.all(['Monday','Tuesday','Wednesday'].map(day=>
+      sbGet('delivery_slots',`role=eq.Driver&week_of_month=eq.${weekNums[day]}&day_of_week=eq.${day}&select=day_of_week,volunteers(name)`)
+    ));
+    ['Monday','Tuesday','Wednesday'].forEach((day, i)=>{
+      const d = driverResults[i][0];
       const el=document.getElementById(day.toLowerCase()+'Drv');
       if(el) el.innerHTML=`<span class="badge badge-primary">${d?.volunteers?.name||'—'}</span>`;
     });
   }catch(e){}
 
-  // Populate assistant dropdowns from DB
-  await populateAssistantDropdowns(weekNum);
+  // Populate assistant dropdowns from DB (per-day week numbers)
+  await populateAssistantDropdowns(weekNums);
 
   // Load confirmed assistants for this week
   loadConfirmedAssistants(localDate(mon));
 }
 
-async function populateAssistantDropdowns(weekNum){
+async function populateAssistantDropdowns(weekNums){
+  if(typeof weekNums === 'number'){
+    const n = weekNums;
+    weekNums = { Monday:n, Tuesday:n, Wednesday:n };
+  }
+
   const WH_AM_TYPE = '93eb15ea-5f99-4f3e-a67f-056f46cec928';
-  let slots=[], whVols=[];
-  try{
-    slots = await sbGet('delivery_slots',
-      `role=eq.Assistant&week_of_month=eq.${weekNum}&select=day_of_week,volunteers(name),is_staff,notes&order=day_of_week`);
-  }catch(e){}
+  let whVols=[];
   try{
     whVols = await sbGet('volunteer_type_assignments',
       `type_id=eq.${WH_AM_TYPE}&select=volunteers(name)&order=volunteers(name).asc`);
   }catch(e){}
 
-  ['Monday','Tuesday','Wednesday'].forEach(day=>{
-    const sel = document.getElementById(day.toLowerCase()+'Confirm');
-    sel.innerHTML = '<option value="">— select who confirmed —</option>';
+  const slotResults = await Promise.allSettled(['Monday','Tuesday','Wednesday'].map(day=>
+    sbGet('delivery_slots',
+      `role=eq.Assistant&week_of_month=eq.${weekNums[day]}&day_of_week=eq.${day}&select=day_of_week,volunteers(name),is_staff,notes`)
+  ));
 
-    const daySlots = slots.filter(s=>s.day_of_week===day);
+  ['Monday','Tuesday','Wednesday'].forEach((day, i)=>{
+    const sel = document.getElementById(day.toLowerCase()+'Confirm');
+    const wk = weekNums[day];
+    sel.innerHTML = `<option value="">— select who confirmed (Wk ${wk}) —</option>`;
+
+    const daySlots = slotResults[i].status==='fulfilled' ? slotResults[i].value : [];
     if(daySlots.length){
       const grp = document.createElement('optgroup');
-      grp.label = 'Scheduled Options';
+      grp.label = 'Scheduled Options (Week '+wk+')';
       daySlots.forEach(s=>{
         const name = s.is_staff ? (s.notes||'Staff') : (s.volunteers?.name||'');
         if(name){ const o=document.createElement('option'); o.textContent=name; grp.appendChild(o); }
