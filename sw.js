@@ -1,4 +1,4 @@
-const CACHE='kids-eat-cc-v2';
+const CACHE='kids-eat-cc-v3';
 const SHELL=[
   '/Volunteer-Hub/command_center.html',
   '/Volunteer-Hub/manifest.json'
