@@ -27,6 +27,7 @@
     <div class="cc-header-right">
       <div class="cc-next-refresh" id="nextRefresh">↻ 60:00</div>
       <button class="cc-refresh-btn" onclick="refreshAll()">↻ Refresh</button>
+      <button id="fsBtn" onclick="toggleFullscreen()" title="Fullscreen" style="font-size:18px;line-height:1;width:36px;height:36px;border-radius:10px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.18);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);flex-shrink:0;-webkit-tap-highlight-color:transparent;">⛶</button>
       <a href="volunteer_hub.html" class="cc-admin-link">← Admin</a>
     </div>
   </div>
@@ -114,7 +115,7 @@
       <div style="font-size:32px;margin-bottom:8px;">👋</div>
       <div class="si-vol-name" id="siModalName">—</div>
       <div class="si-vol-type" id="siModalType">—</div>
-      <button class="si-confirm-btn" onclick="doSignIn()">✓ Sign In</button>
+      <button class="si-confirm-btn" onclick="doSignIn()">&#10003; Sign In</button>
       <button class="si-cancel-btn" onclick="closeSignIn()">Cancel</button>
     </div>
     <!-- Step 2: Stats -->
@@ -158,7 +159,7 @@
       <button class="kbtn" onclick="kp(3)">3</button>
       <button class="kbtn kbtn-zero" onclick="kp(0)">0</button>
       <button class="kbtn kbtn-back" onclick="kpBack()">⌫</button>
-      <button class="kbtn kbtn-done" style="grid-column:1/3;margin-top:4px;" onclick="kpDone()">✓ Done</button>
+      <button class="kbtn kbtn-done" style="grid-column:1/3;margin-top:4px;" onclick="kpDone()">&#10003; Done</button>
       <button class="kbtn kbtn-cancel" style="margin-top:4px;" onclick="kpCancel()">Cancel</button>
     </div>
   </div>
@@ -167,6 +168,18 @@
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/Volunteer-Hub/sw.js');
 }
+function toggleFullscreen(){
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen();
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const btn=document.getElementById('fsBtn');
+  btn.textContent=document.fullscreenElement?'✕':'⛶';
+  btn.title=document.fullscreenElement?'Exit Fullscreen':'Fullscreen';
+});
 </script>
 </body>
 </html>
