@@ -96,8 +96,8 @@ async function loadPacks(){
           <div class="pack-slots">${lp}${hp}</div>
           <div class="bags-row">
             <div class="bags-inputs">
-              <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||\'\'}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Bags Packed')"></div>
-              <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||\'\'}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Volunteers')"></div>
+              <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Bags Packed')"></div>
+              <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Volunteers')"></div>
             </div>
             ${done?'<span class="done-pill">✓ Done!</span>':`<button class="save-btn" onclick="savePack('${e.id}')">Save</button>`}
           </div>
