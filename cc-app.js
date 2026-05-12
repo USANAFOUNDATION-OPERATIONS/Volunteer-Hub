@@ -222,16 +222,17 @@ async function loadTasks(){
     if(!tasks.length){el.innerHTML='<div style="font-size:11px;color:var(--text-faint);text-align:center;padding:8px 0;">No tasks yet — add one above!</div>';return;}
     el.innerHTML=tasks.map(t=>`
       <div class="task-item${t.completed?' done':''}" id="task-${t.id}">
-        <div class="task-cb${t.completed?' checked':''}" onclick="toggleTask('${t.id}',${!t.completed})"></div>
+        <div class="task-cb${t.completed?' checked':''}" onclick="toggleTask('${t.id}')"></div>
         <span class="task-text${t.completed?' done':''}">${t.title.replace(/</g,'&lt;')}</span>
         <button class="task-del" onclick="deleteTask('${t.id}')" title="Remove">✕</button>
       </div>`).join('');
   }catch(e){console.error(e);}
 }
-async function toggleTask(id, completed){
+async function toggleTask(id){
   const item=document.getElementById('task-'+id);
   const cb=item?.querySelector('.task-cb');
   const txt=item?.querySelector('.task-text');
+  const completed=!cb?.classList.contains('checked');
   if(item) item.classList.toggle('done', completed);
   if(cb)   cb.classList.toggle('checked', completed);
   if(txt)  txt.classList.toggle('done', completed);
