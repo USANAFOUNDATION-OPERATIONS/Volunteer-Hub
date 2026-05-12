@@ -27,6 +27,7 @@
     <div class="cc-header-right">
       <div class="cc-next-refresh" id="nextRefresh">↻ 60:00</div>
       <button class="cc-refresh-btn" onclick="refreshAll()">↻ Refresh</button>
+      <button id="fsBtn" onclick="toggleFullscreen()" title="Fullscreen" style="font-size:18px;line-height:1;width:36px;height:36px;border-radius:10px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.18);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);flex-shrink:0;-webkit-tap-highlight-color:transparent;">⛶</button>
       <a href="volunteer_hub.html" class="cc-admin-link">← Admin</a>
     </div>
   </div>
@@ -167,6 +168,19 @@
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/Volunteer-Hub/sw.js');
 }
+function toggleFullscreen(){
+  const btn=document.getElementById('fsBtn');
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen();
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const btn=document.getElementById('fsBtn');
+  btn.textContent=document.fullscreenElement?'✕':'⛶';
+  btn.title=document.fullscreenElement?'Exit Fullscreen':'Fullscreen';
+});
 </script>
 </body>
 </html>
