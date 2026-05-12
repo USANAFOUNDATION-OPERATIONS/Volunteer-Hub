@@ -11,709 +11,114 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --orange: #FF7A2F;
-  --orange-light: #2D1506;
-  --orange-mid: #FF9557;
-  --orange-dark: #FF5500;
-  --teal: #00E5DF;
-  --teal-light: #081F1E;
-  --teal-dark: #00C8C2;
-  --yellow: #FFD035;
-  --yellow-light: #221800;
-  --green: #00F07A;
-  --green-light: #051A0F;
-  --blue: #44B8FF;
-  --blue-light: #071525;
-  --purple: #C084FF;
-  --purple-light: #150926;
-  --red: #FF5A54;
-  --bg: #E86000;
-  --surface: #1A1208;
-  --card-border: rgba(255,122,47,0.30);
-  --text: #F0E6DA;
-  --text-muted: #C8A882;
-  --text-faint: #9A7A5E;
-  --radius: 20px;
-  --shadow: 0 4px 20px rgba(0,0,0,0.55);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.70);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;}
-body{
-  font-family:'Nunito',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  font-size:13px;
-  -webkit-font-smoothing:antialiased;
-}
+<link rel="stylesheet" href="cc-styles.css">
 
-/* subtle vignette on orange background */
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.25) 100%);
-  pointer-events:none;
-  z-index:0;
-}
-.cc-shell{
-  display:grid;
-  grid-template-rows:56px 1fr;
-  height:100vh;
-  position:relative;z-index:1;
-}
-
-/* ── HEADER ── */
-.cc-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;
-  background:linear-gradient(90deg, #FF7A2F 0%, #FF9557 50%, #FFB347 100%);
-  box-shadow:0 4px 20px rgba(255,122,47,0.35);
-  flex-shrink:0;
-  position:relative;overflow:hidden;
-}
-/* confetti dots on header */
-.cc-header::after{
-  content:'● ◆ ★ ● ◆';
-  position:absolute;right:280px;top:50%;transform:translateY(-50%);
-  font-size:8px;letter-spacing:10px;
-  color:rgba(255,255,255,0.25);pointer-events:none;
-}
-.cc-logo{
-  background:rgba(255,255,255,0.95);
-  border-radius:12px;
-  padding:6px 14px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.18);
-  display:flex;align-items:center;
-}
-.cc-logo img{
-  height:34px;object-fit:contain;
-}
-.cc-clock{text-align:center;}
-.cc-time{
-  font-family:'Fredoka One',sans-serif;
-  font-size:30px;letter-spacing:0.02em;
-  color:#ffffff;line-height:1;
-  text-shadow:0 2px 8px rgba(0,0,0,0.2);
-}
-.cc-date{
-  font-size:11px;color:rgba(255,255,255,0.85);
-  margin-top:2px;font-weight:700;letter-spacing:0.03em;
-}
-.cc-header-right{display:flex;align-items:center;gap:10px;}
-.cc-refresh-btn{
-  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
-  padding:8px 18px;border-radius:30px;
-  border:2.5px solid rgba(255,255,255,0.6);
-  background:rgba(255,255,255,0.22);color:#fff;
-  cursor:pointer;transition:all .2s;letter-spacing:0.02em;
-  backdrop-filter:blur(4px);
-}
-.cc-refresh-btn:hover{background:rgba(255,255,255,0.38);transform:scale(1.05);}
-.cc-next-refresh{font-size:11px;color:rgba(255,255,255,0.7);font-weight:700;}
-.cc-admin-link{
-  font-size:11px;color:rgba(255,255,255,0.8);text-decoration:none;
-  padding:6px 14px;border:1.5px solid rgba(255,255,255,0.4);border-radius:24px;
-  transition:all .15s;font-weight:800;backdrop-filter:blur(4px);
-}
-.cc-admin-link:hover{color:#fff;border-color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.15);}
-
-/* ── MAIN GRID ── */
-.cc-main{
-  display:grid;
-  grid-template-columns:1.3fr 1fr 1.5fr;
-  grid-template-rows:1fr 1fr;
-  gap:6px;padding:6px;overflow:hidden;
-}
-.cc-packs{grid-column:3;grid-row:1/3;}
-.cc-sched{grid-column:2;grid-row:1;}
-.cc-deliv{grid-column:2;grid-row:2;}
-.cc-tasks{grid-column:1;grid-row:2;}
-.cc-card{
-  background:var(--surface);
-  border:2px solid var(--card-border);
-  border-radius:var(--radius);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-  box-shadow:var(--shadow);
-  transition:transform .2s, box-shadow .2s;
-}
-.cc-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);}
-
-.cc-card-header{
-  padding:7px 12px 6px;
-  border-bottom:1.5px solid var(--card-border);
-  display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;
-}
-.cc-card-title{
-  font-family:'Fredoka One',sans-serif;
-  font-size:14px;letter-spacing:0.02em;
-  color:var(--text);
-  display:flex;align-items:center;gap:8px;
-}
-.dot{
-  width:10px;height:10px;border-radius:50%;flex-shrink:0;
-  box-shadow:0 0 0 3px rgba(255,255,255,0.8),0 0 0 4px currentColor;
-}
-.cc-card-body{flex:1;overflow-y:auto;padding:6px 10px;scrollbar-width:none;}
-.cc-card-body::-webkit-scrollbar{display:none;}
-
-/* ── IMPACT CARD ── */
-.cc-impact{
-  grid-row:1;
-  background:linear-gradient(165deg,#2A1206 0%,#231A06 40%,#0A2220 100%);
-  border:2.5px solid rgba(255,122,47,0.25);
-  position:relative;overflow:hidden;
-  display:flex;flex-direction:column;
-}
-/* decorative circles */
-.cc-impact::before{
-  content:'';position:absolute;
-  width:200px;height:200px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,208,53,0.20) 0%,transparent 70%);
-  top:-60px;right:-60px;pointer-events:none;
-}
-.cc-impact::after{
-  content:'';position:absolute;
-  width:160px;height:160px;border-radius:50%;
-  background:radial-gradient(circle,rgba(43,181,176,0.18) 0%,transparent 70%);
-  bottom:-40px;left:-40px;pointer-events:none;
-}
-.impact-body{
-  display:flex;flex-direction:column;align-items:center;
-  justify-content:flex-start;flex:1;
-  padding:8px 16px 6px;text-align:center;
-  position:relative;z-index:1;overflow-y:auto;
-}
-.impact-backpack{
-  width:auto;height:75px;object-fit:contain;margin-bottom:4px;
-  filter:drop-shadow(0 6px 16px rgba(255,122,47,0.30));
-  animation:float 3s ease-in-out infinite;
-}
-@keyframes float{
-  0%,100%{transform:translateY(0px);}
-  50%{transform:translateY(-6px);}
-}
-.impact-tagline{
-  font-family:'Caveat',cursive;font-size:15px;font-weight:700;
-  color:var(--orange-dark);line-height:1.3;margin-bottom:6px;
-  max-width:260px;
-}
-.impact-divider{
-  display:flex;align-items:center;gap:6px;width:100%;
-  margin-bottom:6px;
-}
-.impact-divider span{
-  font-size:14px;animation:spin 4s linear infinite;display:inline-block;
-}
-@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);};}
-.impact-divider::before,.impact-divider::after{
-  content:'';flex:1;height:2px;
-  background:linear-gradient(90deg,transparent,var(--orange),var(--yellow),transparent);
-  border-radius:1px;
-}
-.impact-big-num{
-  font-family:'Fredoka One',sans-serif;
-  font-size:48px;letter-spacing:-0.02em;line-height:1;
-  background:linear-gradient(135deg,var(--orange-dark) 0%,var(--orange) 50%,var(--yellow) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  filter:drop-shadow(0 2px 4px rgba(255,122,47,0.20));
-}
-.impact-big-label{
-  font-size:11px;color:var(--text-muted);margin-top:2px;
-  font-weight:800;letter-spacing:0.04em;text-transform:uppercase;
-}
-.impact-sub-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:5px;width:100%;margin-top:6px;
-}
-.impact-sub{
-  background:#251C0E;
-  border:1.5px solid rgba(255,122,47,0.25);
-  border-radius:10px;padding:6px 8px;text-align:center;
-}
-.impact-sub-num{
-  font-family:'Fredoka One',sans-serif;
-  font-size:20px;letter-spacing:-0.01em;color:var(--text);
-}
-.impact-sub-label{
-  font-size:9px;color:var(--text-faint);
-  text-transform:uppercase;letter-spacing:.07em;
-  margin-top:1px;font-weight:700;
-}
-
-/* ── PACK ITEMS ── */
-.pack-item{
-  background:#FF7A2F;
-  border:1.5px solid #FF9557;
-  border-radius:10px;padding:6px 9px;margin-bottom:4px;
-}
-.pack-item.completed{border-color:#00C8C2;background:#00C8C2;}
-.pack-item.needs-update{border-color:#FFD035;background:#FFD035;}
-.pack-name{font-size:13px;font-weight:800;color:#1A0600;margin-bottom:1px;}
-.pack-meta{font-size:10px;color:rgba(26,6,0,0.70);margin-bottom:5px;font-weight:600;}
-.pack-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.pack-slots{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
-.slot-pill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;}
-.slot-filled{background:#0A3020;color:#00F07A;}
-.slot-open{background:#320A0A;color:#FF5A54;}
-.bags-row{display:flex;gap:5px;align-items:center;}
-.bags-inputs{display:flex;flex-direction:column;gap:3px;}
-.bags-wrap{display:flex;align-items:center;gap:4px;}
-.bags-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:rgba(26,6,0,0.60);min-width:26px;}
-.bags-inp{
-  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
-  background:var(--surface);border:2px solid rgba(255,122,47,0.25);
-  border-radius:8px;color:var(--text);padding:2px 6px;
-  width:54px;text-align:center;outline:none;transition:all .15s;
-}
-.bags-inp:focus{border-color:var(--orange);background:var(--orange-light);}
-.save-btn{
-  font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;
-  padding:5px 14px;border-radius:20px;
-  border:none;background:var(--orange);
-  color:#fff;cursor:pointer;transition:all .15s;white-space:nowrap;
-  box-shadow:0 2px 8px rgba(255,122,47,0.30);
-}
-.save-btn:hover{background:var(--orange-dark);transform:scale(1.04);}
-.done-pill{
-  font-size:10px;font-weight:800;padding:3px 10px;
-  border-radius:20px;background:#0A3020;color:#00F07A;
-}
-
-/* ── DELIVERIES ── */
-.day-block{margin-bottom:7px;}
-.day-label{
-  font-family:'Fredoka One',sans-serif;
-  font-size:12px;letter-spacing:0.02em;
-  color:var(--orange-dark);margin-bottom:3px;
-  display:flex;align-items:center;gap:7px;
-}
-.day-label::after{
-  content:'';flex:1;height:2px;
-  background:linear-gradient(90deg,rgba(255,122,47,0.25),transparent);
-  border-radius:1px;
-}
-.person-row{
-  display:flex;align-items:center;gap:8px;
-  padding:4px 9px;background:#FF7A2F;
-  border-radius:8px;margin-bottom:2px;
-  border:1.5px solid #FF9557;
-}
-.person-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.person-name{font-size:12px;font-weight:700;color:#1A0600;flex:1;}
-.role-pill{font-size:9px;font-weight:800;padding:2px 9px;border-radius:20px;}
-.driver-pill{background:rgba(0,0,0,0.22);color:#1A0600;}
-.asst-pill{background:rgba(0,0,0,0.22);color:#1A0600;}
-
-/* ── SCHEDULE ── */
-.sched-day-block{margin-bottom:4px;}
-.sched-day-label{
-  font-family:'Fredoka One',sans-serif;font-size:11px;letter-spacing:0.02em;
-  color:var(--teal-dark);margin-bottom:2px;
-  display:flex;align-items:center;gap:7px;
-}
-.sched-day-label::after{
-  content:'';flex:1;height:2px;
-  background:linear-gradient(90deg,rgba(0,229,223,0.45),transparent);
-  border-radius:1px;
-}
-.sched-row{
-  display:flex;align-items:center;gap:6px;
-  padding:2px 7px;background:#00C8C2;
-  border-radius:7px;margin-bottom:1px;
-  border:1.5px solid #00E5DF;
-  transition:opacity .3s,filter .3s;
-}
-.sched-row.out{
-  opacity:0.45;filter:grayscale(0.3);
-  background:#4A7A78;border-color:#5A9A98;
-}
-.out-badge{
-  font-size:8px;font-weight:800;color:var(--red);
-  background:#320A0A;padding:2px 7px;
-  border-radius:10px;margin-left:3px;
-}
-.sched-time{font-size:9px;color:#ffffff;width:118px;flex-shrink:0;font-weight:600;white-space:nowrap;}
-.sched-name{font-size:11px;font-weight:700;color:#001A1A;flex:1;}
-.sched-type{font-size:8px;font-weight:800;padding:1px 7px;border-radius:20px;}
-.wh-am{background:rgba(0,0,0,0.22);color:#001A1A;}
-.wh-pm{background:rgba(0,0,0,0.22);color:#001A1A;}
-.proc{background:rgba(0,0,0,0.22);color:#001A1A;}
-.adm{background:rgba(80,0,120,0.30);color:#001A1A;}
-
-/* ── CELEBRATIONS ── */
-.celeb-row{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 12px;
-  border-radius:14px;margin-bottom:5px;
-  border:1.5px solid rgba(155,109,214,0.18);
-  background:var(--purple-light);
-  position:relative;overflow:hidden;
-}
-.celeb-row::after{
-  content:'✨';position:absolute;right:8px;
-  font-size:14px;opacity:0.35;pointer-events:none;
-}
-.celeb-emoji{font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1));}
-.celeb-name{font-size:13px;font-weight:800;color:var(--text);flex:1;}
-.celeb-detail{font-size:10px;color:var(--purple);font-weight:700;}
-
-.cc-empty{
-  text-align:center;padding:20px;
-  color:var(--text-faint);font-size:12px;font-weight:600;
-}
-*{scrollbar-width:none;}
-*::-webkit-scrollbar{display:none;}
-
-/* ── TASKS SECTION ── */
-.tasks-section{
-  flex-shrink:0;
-  padding:12px 16px 16px;
-  background:rgba(255,122,47,0.08);
-  border-top:2px solid rgba(255,122,47,0.22);
-  position:relative;z-index:1;
-}
-.tasks-header{font-family:'Fredoka One',sans-serif;font-size:13px;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-.task-add-row{display:flex;gap:6px;margin-bottom:8px;}
-.task-input{
-  flex:1;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
-  padding:7px 11px;border:2px solid rgba(255,122,47,0.30);border-radius:10px;
-  background:rgba(255,255,255,0.08);color:var(--text);outline:none;transition:all .15s;
-}
-.task-input:focus{border-color:var(--orange);background:var(--orange-light);}
-.task-add-btn{
-  font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;
-  width:34px;height:34px;border-radius:10px;border:none;
-  background:var(--orange);color:#fff;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:all .15s;box-shadow:0 2px 8px rgba(255,122,47,0.3);
-}
-.task-add-btn:hover{background:var(--orange-dark);transform:scale(1.05);}
-.task-item{
-  display:flex;align-items:center;gap:8px;
-  background:#FF7A2F;border-radius:8px;
-  padding:5px 8px;margin-bottom:3px;
-  border:1px solid #FF9557;
-  transition:opacity .2s;
-}
-.task-item.done{opacity:0.5;}
-.task-cb{
-  width:22px;height:22px;border-radius:6px;flex-shrink:0;
-  border:2.5px solid rgba(26,6,0,0.45);background:rgba(255,255,255,0.25);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all .15s;-webkit-tap-highlight-color:transparent;
-}
-.task-cb.checked{background:#1A0600;border-color:#1A0600;}
-.task-cb.checked::after{content:'✓';font-size:13px;font-weight:900;color:#FF7A2F;}
-.task-text{flex:1;font-size:12px;font-weight:700;color:#1A0600;line-height:1.3;transition:all .2s;}
-.task-text.done{text-decoration:line-through;opacity:0.6;}
-.task-del{
-  font-size:14px;background:none;border:none;cursor:pointer;
-  color:rgba(26,6,0,0.50);padding:2px 4px;border-radius:6px;
-  transition:all .15s;flex-shrink:0;
-}
-.task-del:hover{background:rgba(0,0,0,0.18);color:#1A0600;}
-
-/* ── SIGN-IN MODAL ── */
-.si-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.75);
-  backdrop-filter:blur(8px);
-  display:flex;align-items:center;justify-content:center;
-  z-index:2000;
-}
-.si-overlay.hidden{display:none;}
-.si-modal{
-  background:#1A1208;
-  border:2.5px solid var(--orange);
-  border-radius:28px;
-  padding:32px 28px;
-  min-width:320px;max-width:400px;width:90%;
-  box-shadow:0 20px 70px rgba(0,0,0,0.8);
-  text-align:center;
-  position:relative;
-}
-.si-vol-name{
-  font-family:'Fredoka One',sans-serif;
-  font-size:30px;color:var(--text);
-  margin-bottom:4px;line-height:1.1;
-}
-.si-vol-type{
-  font-size:13px;color:var(--text-muted);
-  font-weight:700;margin-bottom:24px;
-}
-.si-confirm-btn{
-  font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;
-  width:100%;padding:16px;border-radius:16px;border:none;
-  background:var(--orange);color:#fff;cursor:pointer;
-  box-shadow:0 4px 20px rgba(255,122,47,0.40);
-  transition:all .15s;margin-bottom:10px;
-  -webkit-tap-highlight-color:transparent;
-}
-.si-confirm-btn:active{background:var(--orange-dark);transform:scale(0.97);}
-.si-cancel-btn{
-  font-size:13px;color:var(--text-faint);background:none;
-  border:none;cursor:pointer;padding:6px 16px;
-  font-family:'Nunito',sans-serif;font-weight:700;
-}
-/* stat screen */
-.si-stat-hero{
-  background:linear-gradient(135deg,#2A1206,#0A2220);
-  border-radius:18px;padding:20px;margin-bottom:16px;
-  border:2px solid rgba(255,122,47,0.25);
-}
-.si-stat-name{
-  font-family:'Caveat',cursive;font-size:28px;font-weight:700;
-  color:var(--text);margin-bottom:4px;
-}
-.si-stat-hrs{
-  font-family:'Fredoka One',sans-serif;font-size:58px;
-  line-height:1;letter-spacing:-0.02em;
-  background:linear-gradient(135deg,var(--orange-dark),var(--orange),var(--yellow));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.si-stat-hrs-label{font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:12px;}
-.si-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
-.si-stat-box{
-  background:rgba(255,255,255,0.06);
-  border-radius:12px;padding:10px 8px;
-}
-.si-stat-val{font-family:'Fredoka One',sans-serif;font-size:22px;color:var(--text);}
-.si-stat-lbl{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;font-weight:700;}
-.si-level-badge{
-  display:inline-block;font-size:12px;font-weight:800;
-  padding:4px 14px;border-radius:20px;margin-bottom:8px;
-  background:rgba(255,122,47,0.20);color:var(--orange);
-}
-.si-close-btn{
-  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
-  width:100%;padding:12px;border-radius:14px;border:none;
-  background:#2A1A0A;color:var(--text-muted);cursor:pointer;
-  transition:all .15s;margin-top:4px;
-  -webkit-tap-highlight-color:transparent;
-}
-.si-close-btn:active{background:#3A2510;}
-.sched-si-btn{
-  font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
-  padding:1px 6px;border-radius:6px;border:none;
-  background:rgba(0,0,0,0.22);color:#001A1A;
-  cursor:pointer;flex-shrink:0;white-space:nowrap;
-  line-height:1.4;display:inline-block;
-  -webkit-tap-highlight-color:transparent;
-  transition:all .15s;
-}
-.sched-si-btn:active{background:rgba(0,0,0,0.40);}
-.sched-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
-.slot-si-pair{display:inline-flex;flex-direction:column;gap:2px;align-items:stretch;}
-.slot-si-pair .slot-pill{text-align:center;}
-.pack-si-btn{
-  font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;
-  padding:2px 9px;border-radius:20px;border:none;
-  background:rgba(0,0,0,0.22);color:#1A0600;
-  cursor:pointer;white-space:nowrap;width:100%;
-  -webkit-tap-highlight-color:transparent;
-  transition:all .15s;
-}
-.pack-si-btn:active{background:rgba(0,0,0,0.36);}
-.pack-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
-.deliv-si-btn{
-  font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
-  padding:2px 7px;border-radius:8px;border:none;
-  background:rgba(0,0,0,0.22);color:#1A0600;
-  cursor:pointer;flex-shrink:0;white-space:nowrap;
-  -webkit-tap-highlight-color:transparent;
-  transition:all .15s;
-}
-.deliv-si-btn:active{background:rgba(0,0,0,0.36);}
-.deliv-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
-
-/* ── MOBILE ── */
-@media(max-width:768px){
-  html,body{overflow:auto;}
-  .cc-shell{grid-template-rows:52px 1fr;height:auto;min-height:100vh;}
-  .cc-header{padding:0 12px;flex-wrap:wrap;}
-  .cc-time{font-size:22px;}
-  .cc-next-refresh{display:none;}
-  .cc-main{
-    display:flex;flex-direction:column;
-    height:auto;overflow:visible;
-    padding:8px;gap:8px;
-  }
-  .cc-packs,.cc-sched,.cc-deliv,.cc-impact{
-    grid-column:unset;grid-row:unset;
-    min-height:280px;max-height:none;
-  }
-  .cc-card-body{overflow-y:visible;max-height:none;}
-  .impact-body{padding:12px 14px;}
-  .impact-big-num{font-size:44px;}
-}
-/* ── 10-KEY KEYPAD ── */
-.keypad-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.65);
-  display:flex;align-items:center;justify-content:center;
-  z-index:1000;backdrop-filter:blur(4px);
-}
-.keypad-overlay.hidden{display:none;}
-.keypad-box{
-  background:#1A1208;border:2.5px solid var(--orange);
-  border-radius:24px;padding:20px;
-  box-shadow:0 16px 60px rgba(0,0,0,0.7);
-  min-width:280px;
-}
-.keypad-label{
-  font-family:'Fredoka One',sans-serif;font-size:13px;
-  color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;
-  text-align:center;margin-bottom:8px;
-}
-.keypad-display{
-  font-family:'Fredoka One',sans-serif;font-size:52px;
-  color:var(--text);text-align:center;
-  background:#0D0A06;border:2px solid rgba(255,122,47,0.30);
-  border-radius:14px;padding:8px 20px;margin-bottom:14px;
-  min-height:80px;display:flex;align-items:center;justify-content:center;
-  letter-spacing:-0.02em;
-}
-.keypad-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-}
-.kbtn{
-  font-family:'Fredoka One',sans-serif;font-size:26px;
-  background:#FF7A2F;color:#1A0600;
-  border:none;border-radius:14px;padding:16px 0;
-  cursor:pointer;transition:all .1s;
-  box-shadow:0 4px 12px rgba(255,122,47,0.30);
-  -webkit-tap-highlight-color:transparent;
-  user-select:none;
-}
-.kbtn:active{transform:scale(0.93);background:#FF5500;}
-.kbtn.kbtn-zero{grid-column:1/3;}
-.kbtn.kbtn-back{background:#2A1A0A;color:var(--orange);font-size:20px;}
-.kbtn.kbtn-back:active{background:#3A2510;}
-.kbtn.kbtn-done{background:#00C8C2;color:#001818;font-size:18px;letter-spacing:.02em;}
-.kbtn.kbtn-done:active{background:#00A8A4;}
-.kbtn.kbtn-cancel{background:#2A1A0A;color:var(--text-muted);font-size:14px;}
-.kbtn.kbtn-cancel:active{background:#3A2510;}
-</style>
 </head>
 <body>
 <div class="cc-shell">
-
-  <!-- HEADER -->
-  <header class="cc-header">
+  <div class="cc-header">
     <div class="cc-logo">
-      <img src="assets/kids-eat-logo.png" alt="Kids Eat" onerror="this.style.display='none'">
+      <img src="usana-logo.png" alt="Kids Eat">
     </div>
     <div class="cc-clock">
-      <div class="cc-time" id="ccTime">—</div>
-      <div class="cc-date" id="ccDate">—</div>
+      <div class="cc-time" id="clock">—</div>
+      <div class="cc-date" id="clockDate">—</div>
     </div>
     <div class="cc-header-right">
-      <span class="cc-next-refresh" id="nextRefresh">—</span>
-      <button class="cc-refresh-btn" onclick="manualRefresh()">↺ Refresh</button>
-      <a class="cc-admin-link" href="index.html">← Admin</a>
+      <div class="cc-next-refresh" id="nextRefresh">↻ 60:00</div>
+      <button class="cc-refresh-btn" onclick="refreshAll()">↻ Refresh</button>
+      <a href="volunteer_hub.html" class="cc-admin-link">← Admin</a>
     </div>
-  </header>
+  </div>
+  <div class="cc-main">
 
-  <!-- MAIN GRID -->
-  <main class="cc-main">
-
-    <!-- IMPACT (top-left) -->
-    <div class="cc-impact cc-card" style="grid-column:1;grid-row:1;">
-      <div class="cc-card-header">
-        <span class="cc-card-title"><span class="dot" style="background:var(--orange);color:var(--orange);"></span>Today's Impact</span>
-        <span id="impactDate" style="font-size:10px;color:var(--text-faint);font-weight:700;"></span>
-      </div>
+    <!-- IMPACT (spans 2 rows) -->
+    <div class="cc-card cc-impact">
       <div class="impact-body">
-        <img class="impact-backpack" src="assets/backpack-icon.png" alt=""
-             onerror="this.outerHTML='<div style=\'font-size:48px;margin-bottom:4px;\'>🎒</div>'">
-        <div class="impact-tagline" id="impactTagline">Loading…</div>
-        <div class="impact-divider"><span>⭐</span></div>
-        <div class="impact-big-num" id="impactBigNum">—</div>
-        <div class="impact-big-label">MEALS PACKED TODAY</div>
+        <img class="impact-backpack" src="impact-backpack.png" alt="Backpack">
+        <div class="impact-tagline">&quot;No Child Should Ever Go Hungry&quot;</div>
+        <div class="impact-divider"><span>🌟</span></div>
+        <div class="impact-big-num" id="impactBags">—</div>
+        <div class="impact-big-label">backpacks packed this school year</div>
         <div class="impact-sub-grid">
-          <div class="impact-sub">
-            <div class="impact-sub-num" id="impactVols">—</div>
-            <div class="impact-sub-label">Volunteers</div>
-          </div>
-          <div class="impact-sub">
-            <div class="impact-sub-num" id="impactHours">—</div>
-            <div class="impact-sub-label">Hours Given</div>
-          </div>
-          <div class="impact-sub">
-            <div class="impact-sub-num" id="impactPacks">—</div>
-            <div class="impact-sub-label">Packs Done</div>
-          </div>
-          <div class="impact-sub">
-            <div class="impact-sub-num" id="impactDelivs">—</div>
-            <div class="impact-sub-label">Routes</div>
-          </div>
+          <div class="impact-sub"><div class="impact-sub-num" id="impactMeals">—</div><div class="impact-sub-label">🍎 meals</div></div>
+          <div class="impact-sub"><div class="impact-sub-num" id="impactPacks">—</div><div class="impact-sub-label">📦 pack events</div></div>
+          <div class="impact-sub"><div class="impact-sub-num" id="impactVols">—</div><div class="impact-sub-label">🙌 volunteers</div></div>
+          <div class="impact-sub"><div class="impact-sub-num" id="impactHours">—</div><div class="impact-sub-label">⏰ hours given</div></div>
         </div>
       </div>
     </div>
 
-    <!-- SCHEDULE (center-top) -->
+    <!-- WEEKLY SCHEDULE (middle top) -->
     <div class="cc-card cc-sched">
       <div class="cc-card-header">
-        <span class="cc-card-title"><span class="dot" style="background:var(--teal);color:var(--teal);"></span>Schedule</span>
-        <span id="schedCount" style="font-size:10px;color:var(--text-faint);font-weight:700;"></span>
-      </div>
-      <div class="cc-card-body" id="schedBody"><div class="cc-empty">Loading…</div></div>
-    </div>
-
-    <!-- DELIVERIES (center-bottom) -->
-    <div class="cc-card cc-deliv">
-      <div class="cc-card-header">
-        <span class="cc-card-title"><span class="dot" style="background:var(--yellow);color:var(--yellow);"></span>Deliveries</span>
-        <span id="delivCount" style="font-size:10px;color:var(--text-faint);font-weight:700;"></span>
-      </div>
-      <div class="cc-card-body" id="delivBody"><div class="cc-empty">Loading…</div></div>
-    </div>
-
-    <!-- PACK TRACKER (right tall) -->
-    <div class="cc-card cc-packs">
-      <div class="cc-card-header">
-        <span class="cc-card-title"><span class="dot" style="background:var(--green);color:var(--green);"></span>Pack Tracker</span>
-        <span id="packCount" style="font-size:10px;color:var(--text-faint);font-weight:700;"></span>
-      </div>
-      <div class="cc-card-body" id="packsBody"><div class="cc-empty">Loading…</div></div>
-    </div>
-
-    <!-- TASKS (bottom-left) -->
-    <div class="cc-card cc-tasks" style="display:flex;flex-direction:column;">
-      <div class="cc-card-header">
-        <span class="cc-card-title"><span class="dot" style="background:var(--blue);color:var(--blue);"></span>Tasks</span>
-        <span id="taskCount" style="font-size:10px;color:var(--text-faint);font-weight:700;"></span>
-      </div>
-      <div class="cc-card-body" id="tasksBody" style="flex:1;overflow-y:auto;"></div>
-      <div class="tasks-section">
-        <div class="task-add-row">
-          <input class="task-input" id="taskInput" type="text" placeholder="Add a task…" maxlength="120"
-                 onkeydown="if(event.key==='Enter')addTask()">
-          <button class="task-add-btn" onclick="addTask()">+</button>
+        <div class="cc-card-title">
+          <div class="dot" style="background:var(--teal);color:var(--teal);"></div>
+          Weekly Schedule 📅
         </div>
       </div>
+      <div class="cc-card-body" id="schedList"><div class="cc-empty">Loading...</div></div>
     </div>
 
-  </main>
+    <!-- THIS WEEK'S PACKS (full right column) -->
+    <div class="cc-card cc-packs">
+      <div class="cc-card-header">
+        <div class="cc-card-title">
+          <div class="dot" style="background:var(--orange);color:var(--orange);"></div>
+          This Week's Packs
+        </div>
+        <span id="packWeekLabel" style="font-size:10px;color:var(--text-faint);font-weight:700;"></span>
+      </div>
+      <div class="cc-card-body" id="packList"><div class="cc-empty">Loading...</div></div>
+    </div>
+
+    <!-- DELIVERIES (middle bottom) -->
+    <div class="cc-card cc-deliv">
+      <div class="cc-card-header">
+        <div class="cc-card-title">
+          <div class="dot" style="background:var(--blue);color:var(--blue);"></div>
+          This Week's Deliveries 🚐
+        </div>
+      </div>
+      <div class="cc-card-body" id="delivList"><div class="cc-empty">Loading...</div></div>
+    </div>
+
+    <!-- TODAY'S TASKS (left bottom) -->
+    <div class="cc-card cc-tasks">
+      <div class="cc-card-header">
+        <div class="cc-card-title">
+          <div class="dot" style="background:var(--yellow);color:var(--yellow);"></div>
+          Today's Tasks 📋
+        </div>
+      </div>
+      <div class="cc-card-body">
+        <div class="task-add-row" style="margin-bottom:8px;">
+          <input class="task-input" id="taskInput" type="text" placeholder="Add a task for volunteers..." maxlength="120"
+            onkeydown="if(event.key==='Enter')addTask()">
+          <button class="task-add-btn" onclick="addTask()">+</button>
+        </div>
+        <div id="taskList"></div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<!-- SIGN-IN OVERLAY -->
-<div class="si-overlay hidden" id="siOverlay">
-  <div class="si-modal" id="siModal">
-    <!-- confirm screen -->
-    <div id="siConfirmScreen">
-      <div class="si-vol-name" id="siVolName">—</div>
-      <div class="si-vol-type" id="siVolType">—</div>
-      <button class="si-confirm-btn" onclick="confirmSignIn()">✓ Sign In</button>
+<script src="cc-app.js"></script>
+
+<!-- SIGN-IN MODAL -->
+<div class="si-overlay hidden" id="siOverlay" onclick="siOverlayClick(event)">
+  <div class="si-modal" onclick="event.stopPropagation()">
+    <!-- Step 1: Confirm -->
+    <div id="si-step1">
+      <div style="font-size:32px;margin-bottom:8px;">👋</div>
+      <div class="si-vol-name" id="siModalName">—</div>
+      <div class="si-vol-type" id="siModalType">—</div>
+      <button class="si-confirm-btn" onclick="doSignIn()">✓ Sign In</button>
       <button class="si-cancel-btn" onclick="closeSignIn()">Cancel</button>
     </div>
-    <!-- stat screen -->
-    <div id="siStatScreen" style="display:none;">
+    <!-- Step 2: Stats -->
+    <div id="si-step2" style="display:none;">
       <div class="si-stat-hero">
         <div class="si-stat-name" id="siStatName">—</div>
         <div class="si-stat-hrs" id="siStatHrs">+0</div>
