@@ -11,14 +11,600 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="cc-styles.css">
+<style>
+:root {
+  --orange: #FF7A2F;
+  --orange-light: #2D1506;
+  --orange-mid: #FF9557;
+  --orange-dark: #FF5500;
+  --teal: #00E5DF;
+  --teal-light: #081F1E;
+  --teal-dark: #00C8C2;
+  --yellow: #FFD035;
+  --yellow-light: #221800;
+  --green: #00F07A;
+  --green-light: #051A0F;
+  --blue: #44B8FF;
+  --blue-light: #071525;
+  --purple: #C084FF;
+  --purple-light: #150926;
+  --red: #FF5A54;
+  --bg: #E86000;
+  --surface: #1A1208;
+  --card-border: rgba(255,122,47,0.30);
+  --text: #F0E6DA;
+  --text-muted: #C8A882;
+  --text-faint: #9A7A5E;
+  --radius: 20px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.55);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.70);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:13px;
+  -webkit-font-smoothing:antialiased;
+}
 
+/* subtle vignette on orange background */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.25) 100%);
+  pointer-events:none;
+  z-index:0;
+}
+.cc-shell{
+  display:grid;
+  grid-template-rows:56px 1fr;
+  height:100vh;
+  position:relative;z-index:1;
+}
+
+/* ── HEADER ── */
+.cc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  background:linear-gradient(90deg, #FF7A2F 0%, #FF9557 50%, #FFB347 100%);
+  box-shadow:0 4px 20px rgba(255,122,47,0.35);
+  flex-shrink:0;
+  position:relative;overflow:hidden;
+}
+/* confetti dots on header */
+.cc-header::after{
+  content:'● ◆ ★ ● ◆';
+  position:absolute;right:280px;top:50%;transform:translateY(-50%);
+  font-size:8px;letter-spacing:10px;
+  color:rgba(255,255,255,0.25);pointer-events:none;
+}
+.cc-logo{
+  background:rgba(255,255,255,0.95);
+  border-radius:12px;
+  padding:6px 14px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.18);
+  display:flex;align-items:center;
+}
+.cc-logo img{
+  height:34px;object-fit:contain;
+}
+.cc-clock{text-align:center;}
+.cc-time{
+  font-family:'Fredoka One',sans-serif;
+  font-size:30px;letter-spacing:0.02em;
+  color:#ffffff;line-height:1;
+  text-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+.cc-date{
+  font-size:11px;color:rgba(255,255,255,0.85);
+  margin-top:2px;font-weight:700;letter-spacing:0.03em;
+}
+.cc-header-right{display:flex;align-items:center;gap:10px;}
+.cc-refresh-btn{
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  padding:8px 18px;border-radius:30px;
+  border:2.5px solid rgba(255,255,255,0.6);
+  background:rgba(255,255,255,0.22);color:#fff;
+  cursor:pointer;transition:all .2s;letter-spacing:0.02em;
+  backdrop-filter:blur(4px);
+}
+.cc-refresh-btn:hover{background:rgba(255,255,255,0.38);transform:scale(1.05);}
+.cc-next-refresh{font-size:11px;color:rgba(255,255,255,0.7);font-weight:700;}
+.cc-admin-link{
+  font-size:11px;color:rgba(255,255,255,0.8);text-decoration:none;
+  padding:6px 14px;border:1.5px solid rgba(255,255,255,0.4);border-radius:24px;
+  transition:all .15s;font-weight:800;backdrop-filter:blur(4px);
+}
+.cc-admin-link:hover{color:#fff;border-color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.15);}
+
+/* ── MAIN GRID ── */
+.cc-main{
+  display:grid;
+  grid-template-columns:1.3fr 1fr 1.5fr;
+  grid-template-rows:1fr 1fr;
+  gap:6px;padding:6px;overflow:hidden;
+}
+.cc-packs{grid-column:3;grid-row:1/3;}
+.cc-sched{grid-column:2;grid-row:1;}
+.cc-deliv{grid-column:2;grid-row:2;}
+.cc-tasks{grid-column:1;grid-row:2;}
+.cc-card{
+  background:var(--surface);
+  border:2px solid var(--card-border);
+  border-radius:var(--radius);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  transition:transform .2s, box-shadow .2s;
+}
+.cc-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);}
+
+.cc-card-header{
+  padding:7px 12px 6px;
+  border-bottom:1.5px solid var(--card-border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.cc-card-title{
+  font-family:'Fredoka One',sans-serif;
+  font-size:14px;letter-spacing:0.02em;
+  color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 0 3px rgba(255,255,255,0.8),0 0 0 4px currentColor;
+}
+.cc-card-body{flex:1;overflow-y:auto;padding:6px 10px;scrollbar-width:none;}
+.cc-card-body::-webkit-scrollbar{display:none;}
+
+/* ── IMPACT CARD ── */
+.cc-impact{
+  grid-row:1;
+  background:linear-gradient(165deg,#2A1206 0%,#231A06 40%,#0A2220 100%);
+  border:2.5px solid rgba(255,122,47,0.25);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+/* decorative circles */
+.cc-impact::before{
+  content:'';position:absolute;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,208,53,0.20) 0%,transparent 70%);
+  top:-60px;right:-60px;pointer-events:none;
+}
+.cc-impact::after{
+  content:'';position:absolute;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(43,181,176,0.18) 0%,transparent 70%);
+  bottom:-40px;left:-40px;pointer-events:none;
+}
+.impact-body{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;flex:1;
+  padding:8px 16px 6px;text-align:center;
+  position:relative;z-index:1;overflow-y:auto;
+}
+.impact-backpack{
+  width:auto;height:75px;object-fit:contain;margin-bottom:4px;
+  filter:drop-shadow(0 6px 16px rgba(255,122,47,0.30));
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float{
+  0%,100%{transform:translateY(0px);}
+  50%{transform:translateY(-6px);}
+}
+.impact-tagline{
+  font-family:'Caveat',cursive;font-size:15px;font-weight:700;
+  color:var(--orange-dark);line-height:1.3;margin-bottom:6px;
+  max-width:260px;
+}
+.impact-divider{
+  display:flex;align-items:center;gap:6px;width:100%;
+  margin-bottom:6px;
+}
+.impact-divider span{
+  font-size:14px;animation:spin 4s linear infinite;display:inline-block;
+}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);};}
+.impact-divider::before,.impact-divider::after{
+  content:'';flex:1;height:2px;
+  background:linear-gradient(90deg,transparent,var(--orange),var(--yellow),transparent);
+  border-radius:1px;
+}
+.impact-big-num{
+  font-family:'Fredoka One',sans-serif;
+  font-size:48px;letter-spacing:-0.02em;line-height:1;
+  background:linear-gradient(135deg,var(--orange-dark) 0%,var(--orange) 50%,var(--yellow) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  filter:drop-shadow(0 2px 4px rgba(255,122,47,0.20));
+}
+.impact-big-label{
+  font-size:11px;color:var(--text-muted);margin-top:2px;
+  font-weight:800;letter-spacing:0.04em;text-transform:uppercase;
+}
+.impact-sub-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:5px;width:100%;margin-top:6px;
+}
+.impact-sub{
+  background:#251C0E;
+  border:1.5px solid rgba(255,122,47,0.25);
+  border-radius:10px;padding:6px 8px;text-align:center;
+}
+.impact-sub-num{
+  font-family:'Fredoka One',sans-serif;
+  font-size:20px;letter-spacing:-0.01em;color:var(--text);
+}
+.impact-sub-label{
+  font-size:9px;color:var(--text-faint);
+  text-transform:uppercase;letter-spacing:.07em;
+  margin-top:1px;font-weight:700;
+}
+
+/* ── PACK ITEMS ── */
+.pack-item{
+  background:#FF7A2F;
+  border:1.5px solid #FF9557;
+  border-radius:10px;padding:6px 9px;margin-bottom:4px;
+}
+.pack-item.completed{border-color:#00C8C2;background:#00C8C2;}
+.pack-item.needs-update{border-color:#FFD035;background:#FFD035;}
+.pack-name{font-size:13px;font-weight:800;color:#1A0600;margin-bottom:1px;}
+.pack-meta{font-size:10px;color:rgba(26,6,0,0.70);margin-bottom:5px;font-weight:600;}
+.pack-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pack-slots{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+.slot-pill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;}
+.slot-filled{background:#0A3020;color:#00F07A;}
+.slot-open{background:#320A0A;color:#FF5A54;}
+.bags-row{display:flex;gap:5px;align-items:center;}
+.bags-inputs{display:flex;flex-direction:column;gap:3px;}
+.bags-wrap{display:flex;align-items:center;gap:4px;}
+.bags-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:rgba(26,6,0,0.60);min-width:26px;}
+.bags-inp{
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
+  background:var(--surface);border:2px solid rgba(255,122,47,0.25);
+  border-radius:8px;color:var(--text);padding:2px 6px;
+  width:54px;text-align:center;outline:none;transition:all .15s;
+}
+.bags-inp:focus{border-color:var(--orange);background:var(--orange-light);}
+.save-btn{
+  font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;
+  padding:5px 14px;border-radius:20px;
+  border:none;background:var(--orange);
+  color:#fff;cursor:pointer;transition:all .15s;white-space:nowrap;
+  box-shadow:0 2px 8px rgba(255,122,47,0.30);
+}
+.save-btn:hover{background:var(--orange-dark);transform:scale(1.04);}
+.done-pill{
+  font-size:10px;font-weight:800;padding:3px 10px;
+  border-radius:20px;background:#0A3020;color:#00F07A;
+}
+
+/* ── DELIVERIES ── */
+.day-block{margin-bottom:7px;}
+.day-label{
+  font-family:'Fredoka One',sans-serif;
+  font-size:12px;letter-spacing:0.02em;
+  color:var(--orange-dark);margin-bottom:3px;
+  display:flex;align-items:center;gap:7px;
+}
+.day-label::after{
+  content:'';flex:1;height:2px;
+  background:linear-gradient(90deg,rgba(255,122,47,0.25),transparent);
+  border-radius:1px;
+}
+.person-row{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 9px;background:#FF7A2F;
+  border-radius:8px;margin-bottom:2px;
+  border:1.5px solid #FF9557;
+}
+.person-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.person-name{font-size:12px;font-weight:700;color:#1A0600;flex:1;}
+.role-pill{font-size:9px;font-weight:800;padding:2px 9px;border-radius:20px;}
+.driver-pill{background:rgba(0,0,0,0.22);color:#1A0600;}
+.asst-pill{background:rgba(0,0,0,0.22);color:#1A0600;}
+
+/* ── SCHEDULE ── */
+.sched-day-block{margin-bottom:4px;}
+.sched-day-label{
+  font-family:'Fredoka One',sans-serif;font-size:11px;letter-spacing:0.02em;
+  color:var(--teal-dark);margin-bottom:2px;
+  display:flex;align-items:center;gap:7px;
+}
+.sched-day-label::after{
+  content:'';flex:1;height:2px;
+  background:linear-gradient(90deg,rgba(0,229,223,0.45),transparent);
+  border-radius:1px;
+}
+.sched-row{
+  display:flex;align-items:center;gap:6px;
+  padding:2px 7px;background:#00C8C2;
+  border-radius:7px;margin-bottom:1px;
+  border:1.5px solid #00E5DF;
+  transition:opacity .3s,filter .3s;
+}
+.sched-row.out{
+  opacity:0.45;filter:grayscale(0.3);
+  background:#4A7A78;border-color:#5A9A98;
+}
+.out-badge{
+  font-size:8px;font-weight:800;color:var(--red);
+  background:#320A0A;padding:2px 7px;
+  border-radius:10px;margin-left:3px;
+}
+.sched-time{font-size:9px;color:#ffffff;width:118px;flex-shrink:0;font-weight:600;white-space:nowrap;}
+.sched-name{font-size:11px;font-weight:700;color:#001A1A;flex:1;}
+.sched-type{font-size:8px;font-weight:800;padding:1px 7px;border-radius:20px;}
+.wh-am{background:rgba(0,0,0,0.22);color:#001A1A;}
+.wh-pm{background:rgba(0,0,0,0.22);color:#001A1A;}
+.proc{background:rgba(0,0,0,0.22);color:#001A1A;}
+.adm{background:rgba(80,0,120,0.30);color:#001A1A;}
+
+/* ── CELEBRATIONS ── */
+.celeb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;
+  border-radius:14px;margin-bottom:5px;
+  border:1.5px solid rgba(155,109,214,0.18);
+  background:var(--purple-light);
+  position:relative;overflow:hidden;
+}
+.celeb-row::after{
+  content:'✨';position:absolute;right:8px;
+  font-size:14px;opacity:0.35;pointer-events:none;
+}
+.celeb-emoji{font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1));}
+.celeb-name{font-size:13px;font-weight:800;color:var(--text);flex:1;}
+.celeb-detail{font-size:10px;color:var(--purple);font-weight:700;}
+
+.cc-empty{
+  text-align:center;padding:20px;
+  color:var(--text-faint);font-size:12px;font-weight:600;
+}
+*{scrollbar-width:none;}
+*::-webkit-scrollbar{display:none;}
+
+/* ── TASKS SECTION ── */
+.tasks-section{
+  flex-shrink:0;
+  padding:12px 16px 16px;
+  background:rgba(255,122,47,0.08);
+  border-top:2px solid rgba(255,122,47,0.22);
+  position:relative;z-index:1;
+}
+.tasks-header{font-family:'Fredoka One',sans-serif;font-size:13px;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.task-add-row{display:flex;gap:6px;margin-bottom:8px;}
+.task-input{
+  flex:1;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  padding:7px 11px;border:2px solid rgba(255,122,47,0.30);border-radius:10px;
+  background:rgba(255,255,255,0.08);color:var(--text);outline:none;transition:all .15s;
+}
+.task-input:focus{border-color:var(--orange);background:var(--orange-light);}
+.task-add-btn{
+  font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;
+  width:34px;height:34px;border-radius:10px;border:none;
+  background:var(--orange);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .15s;box-shadow:0 2px 8px rgba(255,122,47,0.3);
+}
+.task-add-btn:hover{background:var(--orange-dark);transform:scale(1.05);}
+.task-item{
+  display:flex;align-items:center;gap:8px;
+  background:#FF7A2F;border-radius:8px;
+  padding:5px 8px;margin-bottom:3px;
+  border:1px solid #FF9557;
+  transition:opacity .2s;
+}
+.task-item.done{opacity:0.5;}
+.task-cb{
+  width:22px;height:22px;border-radius:6px;flex-shrink:0;
+  border:2.5px solid rgba(26,6,0,0.45);background:rgba(255,255,255,0.25);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.task-cb.checked{background:#1A0600;border-color:#1A0600;}
+.task-cb.checked::after{content:'✓';font-size:13px;font-weight:900;color:#FF7A2F;}
+.task-text{flex:1;font-size:12px;font-weight:700;color:#1A0600;line-height:1.3;transition:all .2s;}
+.task-text.done{text-decoration:line-through;opacity:0.6;}
+.task-del{
+  font-size:14px;background:none;border:none;cursor:pointer;
+  color:rgba(26,6,0,0.50);padding:2px 4px;border-radius:6px;
+  transition:all .15s;flex-shrink:0;
+}
+.task-del:hover{background:rgba(0,0,0,0.18);color:#1A0600;}
+
+/* ── SIGN-IN MODAL ── */
+.si-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2000;
+}
+.si-overlay.hidden{display:none;}
+.si-modal{
+  background:#1A1208;
+  border:2.5px solid var(--orange);
+  border-radius:28px;
+  padding:32px 28px;
+  min-width:320px;max-width:400px;width:90%;
+  box-shadow:0 20px 70px rgba(0,0,0,0.8);
+  text-align:center;
+  position:relative;
+}
+.si-vol-name{
+  font-family:'Fredoka One',sans-serif;
+  font-size:30px;color:var(--text);
+  margin-bottom:4px;line-height:1.1;
+}
+.si-vol-type{
+  font-size:13px;color:var(--text-muted);
+  font-weight:700;margin-bottom:24px;
+}
+.si-confirm-btn{
+  font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;
+  width:100%;padding:16px;border-radius:16px;border:none;
+  background:var(--orange);color:#fff;cursor:pointer;
+  box-shadow:0 4px 20px rgba(255,122,47,0.40);
+  transition:all .15s;margin-bottom:10px;
+  -webkit-tap-highlight-color:transparent;
+}
+.si-confirm-btn:active{background:var(--orange-dark);transform:scale(0.97);}
+.si-cancel-btn{
+  font-size:13px;color:var(--text-faint);background:none;
+  border:none;cursor:pointer;padding:6px 16px;
+  font-family:'Nunito',sans-serif;font-weight:700;
+}
+/* stat screen */
+.si-stat-hero{
+  background:linear-gradient(135deg,#2A1206,#0A2220);
+  border-radius:18px;padding:20px;margin-bottom:16px;
+  border:2px solid rgba(255,122,47,0.25);
+}
+.si-stat-name{
+  font-family:'Caveat',cursive;font-size:28px;font-weight:700;
+  color:var(--text);margin-bottom:4px;
+}
+.si-stat-hrs{
+  font-family:'Fredoka One',sans-serif;font-size:58px;
+  line-height:1;letter-spacing:-0.02em;
+  background:linear-gradient(135deg,var(--orange-dark),var(--orange),var(--yellow));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.si-stat-hrs-label{font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:12px;}
+.si-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.si-stat-box{
+  background:rgba(255,255,255,0.06);
+  border-radius:12px;padding:10px 8px;
+}
+.si-stat-val{font-family:'Fredoka One',sans-serif;font-size:22px;color:var(--text);}
+.si-stat-lbl{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;font-weight:700;}
+.si-level-badge{
+  display:inline-block;font-size:12px;font-weight:800;
+  padding:4px 14px;border-radius:20px;margin-bottom:8px;
+  background:rgba(255,122,47,0.20);color:var(--orange);
+}
+.si-close-btn{
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+  width:100%;padding:12px;border-radius:14px;border:none;
+  background:#2A1A0A;color:var(--text-muted);cursor:pointer;
+  transition:all .15s;margin-top:4px;
+  -webkit-tap-highlight-color:transparent;
+}
+.si-close-btn:active{background:#3A2510;}
+.sched-si-btn{
+  font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
+  padding:1px 6px;border-radius:6px;border:none;
+  background:rgba(0,0,0,0.22);color:#001A1A;
+  cursor:pointer;flex-shrink:0;white-space:nowrap;
+  line-height:1.4;display:inline-block;
+  -webkit-tap-highlight-color:transparent;
+  transition:all .15s;
+}
+.sched-si-btn:active{background:rgba(0,0,0,0.40);}
+.sched-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
+.slot-si-pair{display:inline-flex;flex-direction:column;gap:2px;align-items:stretch;}
+.slot-si-pair .slot-pill{text-align:center;}
+.pack-si-btn{
+  font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;
+  padding:2px 9px;border-radius:20px;border:none;
+  background:rgba(0,0,0,0.22);color:#1A0600;
+  cursor:pointer;white-space:nowrap;width:100%;
+  -webkit-tap-highlight-color:transparent;
+  transition:all .15s;
+}
+.pack-si-btn:active{background:rgba(0,0,0,0.36);}
+.pack-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
+.deliv-si-btn{
+  font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
+  padding:2px 7px;border-radius:8px;border:none;
+  background:rgba(0,0,0,0.22);color:#1A0600;
+  cursor:pointer;flex-shrink:0;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+  transition:all .15s;
+}
+.deliv-si-btn:active{background:rgba(0,0,0,0.36);}
+.deliv-si-btn.signed-in{background:#0A3020;color:#00F07A;cursor:default;}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  html,body{overflow:auto;}
+  .cc-shell{grid-template-rows:52px 1fr;height:auto;min-height:100vh;}
+  .cc-header{padding:0 12px;flex-wrap:wrap;}
+  .cc-time{font-size:22px;}
+  .cc-next-refresh{display:none;}
+  .cc-main{
+    display:flex;flex-direction:column;
+    height:auto;overflow:visible;
+    padding:8px;gap:8px;
+  }
+  .cc-packs,.cc-sched,.cc-deliv,.cc-impact{
+    grid-column:unset;grid-row:unset;
+    min-height:280px;max-height:none;
+  }
+  .cc-card-body{overflow-y:visible;max-height:none;}
+  .impact-body{padding:12px 14px;}
+  .impact-big-num{font-size:44px;}
+}
+/* ── 10-KEY KEYPAD ── */
+.keypad-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;backdrop-filter:blur(4px);
+}
+.keypad-overlay.hidden{display:none;}
+.keypad-box{
+  background:#1A1208;border:2.5px solid var(--orange);
+  border-radius:24px;padding:20px;
+  box-shadow:0 16px 60px rgba(0,0,0,0.7);
+  min-width:280px;
+}
+.keypad-label{
+  font-family:'Fredoka One',sans-serif;font-size:13px;
+  color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;
+  text-align:center;margin-bottom:8px;
+}
+.keypad-display{
+  font-family:'Fredoka One',sans-serif;font-size:52px;
+  color:var(--text);text-align:center;
+  background:#0D0A06;border:2px solid rgba(255,122,47,0.30);
+  border-radius:14px;padding:8px 20px;margin-bottom:14px;
+  min-height:80px;display:flex;align-items:center;justify-content:center;
+  letter-spacing:-0.02em;
+}
+.keypad-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+}
+.kbtn{
+  font-family:'Fredoka One',sans-serif;font-size:26px;
+  background:#FF7A2F;color:#1A0600;
+  border:none;border-radius:14px;padding:16px 0;
+  cursor:pointer;transition:all .1s;
+  box-shadow:0 4px 12px rgba(255,122,47,0.30);
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.kbtn:active{transform:scale(0.93);background:#FF5500;}
+.kbtn.kbtn-zero{grid-column:1/3;}
+.kbtn.kbtn-back{background:#2A1A0A;color:var(--orange);font-size:20px;}
+.kbtn.kbtn-back:active{background:#3A2510;}
+.kbtn.kbtn-done{background:#00C8C2;color:#001818;font-size:18px;letter-spacing:.02em;}
+.kbtn.kbtn-done:active{background:#00A8A4;}
+.kbtn.kbtn-cancel{background:#2A1A0A;color:var(--text-muted);font-size:14px;}
+.kbtn.kbtn-cancel:active{background:#3A2510;}
+</style>
 </head>
 <body>
 <div class="cc-shell">
   <div class="cc-header">
     <div class="cc-logo">
-      <img src="usana-logo.png" alt="Kids Eat">
+      <img src="data:image/png;base64,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" alt="Kids Eat">
     </div>
     <div class="cc-clock">
       <div class="cc-time" id="clock">—</div>
@@ -35,8 +621,8 @@
     <!-- IMPACT (spans 2 rows) -->
     <div class="cc-card cc-impact">
       <div class="impact-body">
-        <img class="impact-backpack" src="impact-backpack.png" alt="Backpack">
-        <div class="impact-tagline">&quot;No Child Should Ever Go Hungry&quot;</div>
+        <img class="impact-backpack" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIwAAACFCAYAAACJzxD2AAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAABJFklEQVR4nO19d3gcVb..." alt="Backpack">
+        <div class="impact-tagline">"No Child Should Ever Go Hungry"</div>
         <div class="impact-divider"><span>🌟</span></div>
         <div class="impact-big-num" id="impactBags">—</div>
         <div class="impact-big-label">backpacks packed this school year</div>
@@ -104,12 +690,445 @@
   </div>
 </div>
 
-<script src="cc-app.js"></script>
+<script>
+const SB='https://uvddmeefxbqdqiltugiz.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2ZGRtZWVmeGJxZHFpbHR1Z2l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzY5MTgsImV4cCI6MjA5MzUxMjkxOH0.zAzOlv_vH7BQpN8DobXbOKA_SS0fwTWtZVlx0mkBINo';
+const H={'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY};
+const SYS='2025-08-01',SYE='2026-05-31';
 
+async function get(t,p=''){const r=await fetch(`${SB}/rest/v1/${t}?${p}`,{headers:H});return r.json();}
+async function patch(t,f,b){await fetch(`${SB}/rest/v1/${t}?${f}`,{method:'PATCH',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify(b)});}
+function ld(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function mon(d=new Date()){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));return m;}
+function sun(d=new Date()){const s=new Date(mon(d));s.setDate(s.getDate()+6);return s;}
+
+// Clock
+function tick(){
+  const n=new Date();
+  const h=String(n.getHours()%12||12);
+  const m=String(n.getMinutes()).padStart(2,'0');
+  const s=String(n.getSeconds()).padStart(2,'0');
+  const ap=n.getHours()>=12?'PM':'AM';
+  document.getElementById('clock').textContent=`${h}:${m}:${s} ${ap}`;
+  document.getElementById('clockDate').textContent=n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+setInterval(tick,1000);tick();
+
+// Refresh timer
+let cd=3600,tmr;
+function startTimer(){
+  clearInterval(tmr);cd=3600;
+  tmr=setInterval(()=>{
+    cd--;
+    const m=String(Math.floor(cd/60)).padStart(2,'0'),s=String(cd%60).padStart(2,'0');
+    document.getElementById('nextRefresh').textContent=`↻ ${m}:${s}`;
+    if(cd<=0)refreshAll();
+  },1000);
+}
+
+// Impact stats
+async function loadImpact(){
+  try{
+    const [packs,si,vols]=await Promise.all([
+      get('pack_events',`event_date=gte.${SYS}&event_date=lte.${SYE}&cancelled=eq.false&select=bags_packed`),
+      get('sign_ins',`signed_in_at=gte.${SYS}T00:00:00&select=hours_credited`),
+      get('volunteers','select=id&status=eq.Active')
+    ]);
+    const bags=packs.reduce((a,p)=>a+(p.bags_packed||0),0);
+    document.getElementById('impactBags').textContent=bags.toLocaleString();
+    document.getElementById('impactMeals').textContent=(bags*7).toLocaleString();
+    document.getElementById('impactPacks').textContent=packs.filter(p=>p.bags_packed>0).length;
+    document.getElementById('impactVols').textContent=vols.length;
+    document.getElementById('impactHours').textContent=Math.round(si.reduce((a,s)=>a+(s.hours_credited||0),0)).toLocaleString();
+  }catch(e){console.error(e);}
+}
+
+// This week's packs
+async function loadPacks(){
+  const m=mon(),s=sun();
+  const ms=ld(m),ss=ld(s);
+  document.getElementById('packWeekLabel').textContent=
+    m.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+
+    s.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  try{
+    const [evts,sups]=await Promise.all([
+      get('pack_events',`event_date=gte.${ms}&event_date=lte.${ss}&cancelled=eq.false&order=event_date.asc,event_time.asc`),
+      get('pack_signups','select=*,volunteers(name),staff(display_name)')
+    ]);
+    const el=document.getElementById('packList');
+    if(!evts.length){el.innerHTML='<div class="cc-empty">✌️ No packs this week — enjoy the break!</div>';return;}
+    el.innerHTML=evts.map(e=>{
+      const d=new Date(e.event_date+'T12:00:00');
+      const day=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      const es=sups.filter(x=>x.pack_event_id===e.id);
+      const lead=es.find(x=>x.role==='Pack Lead');
+      const hosts=es.filter(x=>x.role==='Pack Host');
+      const lines=e.lines||1;
+      const nm=x=>x.staff?.display_name||x.volunteers?.name||'?';
+      function slotPair(x,openLabel){
+        if(!x) return `<span class="slot-pill slot-open">${openLabel}</span>`;
+        const isStaff=!!x.staff?.display_name;
+        const vid=x.volunteer_id||'';
+        const vn=nm(x).replace(/'/g,"\\'");
+        const vt=x.role==='Pack Lead'?'Pack Lead':'Pack Host';
+        const already=vid&&_todaySignIns.has(vid);
+        if(isStaff) return `<div class="slot-si-pair"><span class="slot-pill slot-filled">✓ ${nm(x)}</span></div>`;
+        return `<div class="slot-si-pair">
+          <span class="slot-pill slot-filled">✓ ${nm(x)}</span>
+          <button class="pack-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid}','${vn}','${vt}',this)">${already?'✓':'Sign In'}</button>
+        </div>`;
+      }
+      const lp=slotPair(lead,'Lead: Open');
+      const hp=Array.from({length:lines}).map((_,i)=>slotPair(hosts[i],`Host${lines>1?' '+(i+1):''}: Open`)).join('');
+      const done=e.completed||(e.bags_packed>0);
+      const cls=done?'completed':(!e.bags_packed&&new Date(e.event_date+'T23:59')<new Date()?'needs-update':'');
+      return `<div class="pack-item ${cls}">
+        <div class="pack-name">${e.name}</div>
+        <div class="pack-meta">${day}${e.event_time?' · '+e.event_time:''} · ${lines} line${lines>1?'s':''}</div>
+        <div class="pack-bottom">
+          <div class="pack-slots">${lp}${hp}</div>
+          <div class="bags-row">
+            <div class="bags-inputs">
+              <div class="bags-wrap"><span class="bags-lbl">Bags</span><input class="bags-inp" type="number" id="bags-${e.id}" value="${e.bags_packed||''}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Bags Packed')"></div>
+              <div class="bags-wrap"><span class="bags-lbl">Vols</span><input class="bags-inp" type="number" id="vols-${e.id}" value="${e.total_volunteers||''}" placeholder="0" min="0" readonly onfocus="this.blur()" onclick="openKeypad(this,'Volunteers')"></div>
+            </div>
+            ${done?'<span class="done-pill">✓ Done!</span>':`<button class="save-btn" onclick="savePack('${e.id}')">Save</button>`}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+async function savePack(id){
+  const bags=parseInt(document.getElementById('bags-'+id).value)||null;
+  const vols=parseInt(document.getElementById('vols-'+id).value)||null;
+  try{
+    await patch('pack_events','id=eq.'+id,{bags_packed:bags,total_volunteers:vols,completed:bags>0});
+    loadPacks();loadImpact();
+  }catch(e){alert('Oops! '+e.message);}
+}
+
+// Deliveries
+async function loadDeliveries(){
+  const now=new Date();
+  const fom=new Date(now.getFullYear(),now.getMonth(),1);
+  function nth(day,d){let n=0;const c=new Date(fom);while(c<=d){if(c.getDay()===day)n++;c.setDate(c.getDate()+1);}return Math.min(n,4);}
+  const mo=nth(1,now),tu=nth(2,now),we=nth(3,now);
+  const weekStart=ld(mon(now));
+
+  let slots=[],confs=[];
+  try{ slots=await get('delivery_slots','role=eq.Driver&select=day_of_week,week_of_month,volunteer_id,volunteers(name)'); }catch(e){}
+  try{ confs=await get('delivery_confirmations',`week_start_date=eq.${weekStart}&select=confirmed_name,confirmed_volunteer_id,notes`); }catch(e){}
+
+  function getDriver(day,wk){
+    return slots.find(s=>s.day_of_week===day&&s.week_of_month===wk)||null;
+  }
+  function getAsst(day){
+    return confs.find(c=>c.notes===day)||null;
+  }
+
+  function siBtn(vid,name,type){
+    const already=vid&&_todaySignIns.has(vid);
+    const esc=(name||'').replace(/'/g,"\\'");
+    return `<button class="deliv-si-btn${already?' signed-in':''}" ${already?'disabled':''} onclick="openSignIn('${vid||''}','${esc}','${type}',this)">${already?'✓':'Sign In'}</button>`;
+  }
+
+  document.getElementById('delivList').innerHTML=
+    [{d:'Monday',n:mo},{d:'Tuesday',n:tu},{d:'Wednesday',n:we}].map(({d,n})=>{
+      const drv=getDriver(d,n);
+      const ast=getAsst(d);
+      const drvName=drv?.volunteers?.name||'—';
+      const drvId=drv?.volunteer_id||'';
+      const astName=ast?.confirmed_name||null;
+      const astId=ast?.confirmed_volunteer_id||'';
+      return `<div class="day-block">
+        <div class="day-label">${d}</div>
+        <div class="person-row"><div class="person-dot" style="background:var(--orange);"></div><div class="person-name">${drvName}</div><span class="role-pill driver-pill">🚐 Driver</span>${drvName!=='—'?siBtn(drvId,drvName,'Delivery Driver'):''}</div>
+        ${astName?`<div class="person-row"><div class="person-dot" style="background:var(--blue);"></div><div class="person-name">${astName}</div><span class="role-pill asst-pill">👐 Assistant</span>${siBtn(astId,astName,'Delivery Assistant')}</div>`:''}
+      </div>`;
+    }).join('');
+}
+
+// Schedule — pulled live from volunteer_schedules + volunteer_types
+async function loadSchedule(){
+  const now=new Date();
+  const ms=ld(mon(now)),ss=ld(sun(now));
+
+  let schedRows=[],timeOff=[];
+  try{ schedRows=await get('volunteer_schedules','select=volunteer_id,day_of_week,shift_time,volunteer_types(name),volunteers(name)&order=created_at.asc'); }catch(e){}
+  try{ timeOff=await get('volunteer_time_off',`start_date=lte.${ss}&end_date=gte.${ms}&select=volunteer_id,start_date,end_date`); }catch(e){}
+
+  const typeMap={
+    'Warehouse AM':{cls:'wh-am',label:'WH AM'},
+    'Warehouse PM':{cls:'wh-pm',label:'WH PM'},
+    'Processing':  {cls:'proc', label:'Processing'},
+    'Admin':       {cls:'adm',  label:'Admin'},
+  };
+
+  function isOff(vid,day){
+    const dm={Tuesday:2,Wednesday:3,Thursday:4};
+    const td=dm[day];if(!td)return false;
+    const d=new Date(mon(now));
+    while(d.getDay()!==td)d.setDate(d.getDate()+1);
+    const ds=ld(d);
+    return timeOff.some(t=>t.volunteer_id===vid&&t.start_date<=ds&&t.end_date>=ds);
+  }
+
+  function startHour(t){
+    if(!t)return 99;
+    const m=t.match(/(\d+):(\d+)\s*(am|pm)/i);
+    if(!m)return 99;
+    let h=parseInt(m[1]);
+    if(m[3].toLowerCase()==='pm'&&h<12)h+=12;
+    if(m[3].toLowerCase()==='am'&&h===12)h=0;
+    return h;
+  }
+  const byDay={Tuesday:[],Wednesday:[],Thursday:[]};
+  schedRows.forEach(r=>{ if(byDay[r.day_of_week]) byDay[r.day_of_week].push(r); });
+  Object.keys(byDay).forEach(day=>byDay[day].sort((a,b)=>startHour(a.shift_time)-startHour(b.shift_time)));
+
+  document.getElementById('schedList').innerHTML=Object.entries(byDay).map(([day,rows])=>`
+    <div class="sched-day-block">
+      <div class="sched-day-label">${day}</div>
+      ${rows.map(r=>{
+        const off=isOff(r.volunteer_id,day);
+        const t=typeMap[r.volunteer_types?.name]||{cls:'proc',label:r.volunteer_types?.name||''};
+        const vid=r.volunteer_id||'';
+        const vname=(r.volunteers?.name||'').replace(/'/g,"\\'");
+        const vtype=(r.volunteer_types?.name||'').replace(/'/g,"\\'");
+        return `<div class="sched-row ${off?'out':''}">
+          <div class="sched-time">${r.shift_time||''}</div>
+          <div class="sched-name">${r.volunteers?.name||''}${off?'<span class="out-badge">OUT</span>':''}</div>
+          <span class="sched-type ${t.cls}">${t.label}</span>
+          ${vid?`<button class="sched-si-btn${_todaySignIns.has(vid)?' signed-in':''}" ${_todaySignIns.has(vid)?'disabled':''} onclick="openSignIn('${vid}','${vname}','${vtype}',this)">${_todaySignIns.has(vid)?'✓':'Sign In'}</button>`:''}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+// Celebrations
+async function loadCelebrations(){
+  const now=new Date();
+  const m=mon();
+  const wd=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(m);d.setDate(m.getDate()+i);
+    wd.push(`${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+  try{
+    const vols=await get('volunteers','select=id,name,birthday,date_started&status=eq.Active');
+    const items=[];
+    vols.forEach(v=>{
+      if(v.birthday&&wd.includes(v.birthday.slice(5))){
+        const dt=new Date(v.birthday+'T12:00');
+        items.push({type:'bday',name:v.name,detail:dt.toLocaleDateString('en-US',{month:'long',day:'numeric'})});
+      }
+      if(v.date_started){
+        const start=new Date(v.date_started+'T12:00');
+        const yrs=now.getFullYear()-start.getFullYear();
+        if(yrs>0){
+          const ann=new Date(now.getFullYear(),start.getMonth(),start.getDate());
+          const mm=`${String(ann.getMonth()+1).padStart(2,'0')}-${String(ann.getDate()).padStart(2,'0')}`;
+          if(wd.includes(mm))items.push({type:'anniv',name:v.name,detail:`${yrs} year${yrs>1?'s':''} with Kids Eat!`});
+        }
+      }
+    });
+    const el=document.getElementById('celebList');
+    if(!items.length){
+      el.innerHTML='<div class="cc-empty">🌟 Nothing this week — but you\'re all still amazing!</div>';
+      return;
+    }
+    el.innerHTML=items.map(i=>`
+      <div class="celeb-row">
+        <div class="celeb-emoji">${i.type==='bday'?'🎂':'🌟'}</div>
+        <div class="celeb-name">${i.name}</div>
+        <div class="celeb-detail">${i.detail}</div>
+      </div>`).join('');
+  }catch(e){console.error(e);}
+}
+
+// ── TASKS ──
+async function loadTasks(){
+  const el=document.getElementById('taskList');
+  try{
+    const tasks=await get('volunteer_tasks','select=id,title,completed&order=completed.asc,created_at.asc');
+    if(!tasks.length){el.innerHTML='<div style="font-size:11px;color:var(--text-faint);text-align:center;padding:8px 0;">No tasks yet — add one above!</div>';return;}
+    el.innerHTML=tasks.map(t=>`
+      <div class="task-item${t.completed?' done':''}" id="task-${t.id}">
+        <div class="task-cb${t.completed?' checked':''}" onclick="toggleTask('${t.id}',${!t.completed})"></div>
+        <span class="task-text${t.completed?' done':''}">${t.title.replace(/</g,'&lt;')}</span>
+        <button class="task-del" onclick="deleteTask('${t.id}')" title="Remove">✕</button>
+      </div>`).join('');
+  }catch(e){console.error(e);}
+}
+async function toggleTask(id, completed){
+  const item=document.getElementById('task-'+id);
+  const cb=item?.querySelector('.task-cb');
+  const txt=item?.querySelector('.task-text');
+  if(item) item.classList.toggle('done', completed);
+  if(cb)   cb.classList.toggle('checked', completed);
+  if(txt)  txt.classList.toggle('done', completed);
+  try{
+    await fetch(`${SB}/rest/v1/volunteer_tasks?id=eq.${id}`,{
+      method:'PATCH',headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({completed})
+    });
+  }catch(e){console.error(e);}
+}
+async function addTask(){
+  const inp=document.getElementById('taskInput');
+  const title=inp.value.trim();
+  if(!title)return;
+  inp.value='';
+  try{
+    await fetch(`${SB}/rest/v1/volunteer_tasks`,{
+      method:'POST',
+      headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({title,completed:false})
+    });
+    loadTasks();
+  }catch(e){console.error(e);}
+}
+async function deleteTask(id){
+  try{
+    await fetch(`${SB}/rest/v1/volunteer_tasks?id=eq.${id}`,{method:'DELETE',headers:H});
+    document.getElementById('task-'+id)?.remove();
+  }catch(e){console.error(e);}
+}
+
+let _todaySignIns=new Set();
+async function loadTodaySignIns(){
+  const today=new Date().toISOString().slice(0,10);
+  try{
+    const rows=await get('sign_ins',`signed_in_at=gte.${today}T00:00:00&select=volunteer_id`);
+    _todaySignIns=new Set(rows.map(r=>r.volunteer_id).filter(Boolean));
+  }catch(e){}
+}
+async function refreshAll(){
+  startTimer();
+  await Promise.all([loadTodaySignIns(),loadImpact(),loadPacks(),loadDeliveries(),loadSchedule(),loadTasks()]);
+}
+window.addEventListener('DOMContentLoaded',()=>{refreshAll();startTimer();});
+
+// ── SIGN-IN MODAL ────────────────────────────────────────────
+const SCHOOL_YEAR_START='2025-08-01';
+let _siVid=null,_siVName='',_siTypeName='',_siBtn=null;
+
+function siLevel(hrs){
+  if(hrs>=1500)return'Icon';if(hrs>=1000)return'Legend';
+  if(hrs>=750)return'Champion';if(hrs>=500)return'Pillar';
+  if(hrs>=250)return'Anchor';if(hrs>=100)return'Rising';
+  return'Seedling';
+}
+function siNextMs(hrs){return[100,250,500,750,1000,1500].find(m=>m>hrs)||null;}
+
+function openSignIn(vid,name,typeName,btnEl){
+  if(btnEl?.classList.contains('signed-in'))return;
+  _siVid=vid;_siVName=name;_siTypeName=typeName;_siBtn=btnEl||null;
+  document.getElementById('siModalName').textContent=name;
+  document.getElementById('siModalType').textContent='Signing in as '+typeName;
+  document.getElementById('si-step1').style.display='block';
+  document.getElementById('si-step2').style.display='none';
+  document.getElementById('siOverlay').classList.remove('hidden');
+}
+
+async function doSignIn(){
+  const btn=document.querySelector('.si-confirm-btn');
+  btn.disabled=true;btn.textContent='Signing in…';
+  try{
+    let vid=_siVid;
+    if(!vid){
+      const vols=await get('volunteers',`name=eq.${encodeURIComponent(_siVName)}&select=id`);
+      vid=vols[0]?.id;
+    }
+    if(!vid){btn.disabled=false;btn.textContent='✓ Sign In';return;}
+    _siVid=vid;
+
+    const types=await get('volunteer_types',`name=eq.${encodeURIComponent(_siTypeName)}&select=id,hours_per_signin`);
+    const typeRec=types[0];
+    if(!typeRec){btn.disabled=false;btn.textContent='✓ Sign In';return;}
+    const hrs=typeRec.hours_per_signin||0;
+
+    await fetch(`${SB}/rest/v1/sign_ins`,{
+      method:'POST',
+      headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({volunteer_id:_siVid,type_id:typeRec.id,
+        signed_in_at:new Date().toISOString(),hours_credited:hrs})
+    });
+
+    const [updated]=await get('volunteer_levels',`id=eq.${_siVid}&select=lifetime_hours`);
+    const lifetime=updated?.lifetime_hours||0;
+    const lv=siLevel(lifetime);
+    const next=siNextMs(lifetime);
+
+    const allSI=await get('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
+    const totalHrs=allSI.reduce((a,s)=>a+(s.hours_credited||0),0)||1;
+    const bags=document.getElementById('impactBags');
+    const totalBags=bags?parseInt(bags.textContent.replace(/,/g,''))||0:0;
+    const volBags=totalHrs>0?Math.round((lifetime/totalHrs)*totalBags):0;
+
+    document.getElementById('siStatName').textContent=_siVName;
+    document.getElementById('siStatHrs').textContent='+'+hrs;
+    document.getElementById('siStatLevel').textContent=lv;
+    document.getElementById('siStatLifetime').textContent=lifetime.toFixed(1);
+    document.getElementById('siStatBackpacks').textContent=volBags.toLocaleString();
+    if(next){
+      const pct=Math.min(100,(lifetime/next)*100);
+      document.getElementById('siStatBar').innerHTML=
+        `<div style="background:rgba(255,255,255,0.12);border-radius:8px;height:7px;overflow:hidden;">
+          <div style="background:var(--orange);width:${pct}%;height:100%;border-radius:8px;transition:width .6s;"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text-faint);margin-top:4px;">${(next-lifetime).toFixed(1)} hrs to ${siLevel(next)}</div>`;
+    } else {
+      document.getElementById('siStatBar').innerHTML='<div style="font-size:12px;color:var(--yellow);">🏆 Maximum Level Achieved!</div>';
+    }
+
+    if(_siBtn){_siBtn.textContent='✓';_siBtn.classList.add('signed-in');_siBtn.disabled=true;}
+    if(_siVid) _todaySignIns.add(_siVid);
+    document.getElementById('si-step1').style.display='none';
+    document.getElementById('si-step2').style.display='block';
+  }catch(e){console.error(e);}
+  btn.disabled=false;btn.textContent='✓ Sign In';
+}
+
+function closeSignIn(){
+  document.getElementById('siOverlay').classList.add('hidden');
+  _siVid=null;
+}
+function siOverlayClick(e){if(e.target===document.getElementById('siOverlay'))closeSignIn();}
+
+// ── 10-KEY KEYPAD ────────────────────────────────────────────
+let _kpTarget=null, _kpVal='';
+function openKeypad(inputEl, label){
+  _kpTarget=inputEl;
+  _kpVal=inputEl.value||'';
+  document.getElementById('keypadLabel').textContent=label;
+  document.getElementById('keypadDisplay').textContent=_kpVal||'—';
+  document.getElementById('keypadOverlay').classList.remove('hidden');
+}
+function kp(n){
+  if(_kpVal.length>=4)return;
+  _kpVal+=String(n);
+  document.getElementById('keypadDisplay').textContent=_kpVal;
+}
+function kpBack(){
+  _kpVal=_kpVal.slice(0,-1);
+  document.getElementById('keypadDisplay').textContent=_kpVal||'—';
+}
+function kpDone(){
+  if(_kpTarget){_kpTarget.value=_kpVal;_kpTarget=null;}
+  document.getElementById('keypadOverlay').classList.add('hidden');
+}
+function kpCancel(){
+  _kpTarget=null;
+  document.getElementById('keypadOverlay').classList.add('hidden');
+}
+function keypadCancel(e){if(e.target===document.getElementById('keypadOverlay'))kpCancel();}
+</script>
 <!-- SIGN-IN MODAL -->
 <div class="si-overlay hidden" id="siOverlay" onclick="siOverlayClick(event)">
   <div class="si-modal" onclick="event.stopPropagation()">
-    <!-- Step 1: Confirm -->
     <div id="si-step1">
       <div style="font-size:32px;margin-bottom:8px;">👋</div>
       <div class="si-vol-name" id="siModalName">—</div>
@@ -117,7 +1136,6 @@
       <button class="si-confirm-btn" onclick="doSignIn()">✓ Sign In</button>
       <button class="si-cancel-btn" onclick="closeSignIn()">Cancel</button>
     </div>
-    <!-- Step 2: Stats -->
     <div id="si-step2" style="display:none;">
       <div class="si-stat-hero">
         <div class="si-stat-name" id="siStatName">—</div>
