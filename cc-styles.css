@@ -105,6 +105,17 @@ body::before{
   transition:all .15s;font-weight:800;backdrop-filter:blur(4px);
 }
 .cc-admin-link:hover{color:#fff;border-color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.15);}
+.cc-fs-btn{
+  font-size:18px;line-height:1;
+  width:36px;height:36px;border-radius:10px;
+  border:2px solid rgba(255,255,255,0.5);
+  background:rgba(255,255,255,0.18);color:#fff;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+}
+.cc-fs-btn:hover{background:rgba(255,255,255,0.35);transform:scale(1.08);}
 
 /* ── MAIN GRID ── */
 .cc-main{
@@ -297,7 +308,7 @@ body::before{
 .asst-pill{background:rgba(0,0,0,0.22);color:#1A0600;}
 
 /* ── SCHEDULE ── */
-.sched-day-block{margin-bottom:4px;}
+.sched-day-block{margin-bottom:3px;}
 .sched-day-label{
   font-family:'Fredoka One',sans-serif;font-size:11px;letter-spacing:0.02em;
   color:var(--teal-dark);margin-bottom:2px;
@@ -309,11 +320,12 @@ body::before{
   border-radius:1px;
 }
 .sched-row{
-  display:flex;align-items:center;gap:6px;
-  padding:2px 7px;background:#00C8C2;
-  border-radius:7px;margin-bottom:1px;
+  display:flex;align-items:center;gap:5px;
+  padding:1px 6px;background:#00C8C2;
+  border-radius:6px;margin-bottom:1px;
   border:1.5px solid #00E5DF;
   transition:opacity .3s,filter .3s;
+  min-height:22px;
 }
 .sched-row.out{
   opacity:0.45;filter:grayscale(0.3);
@@ -324,9 +336,9 @@ body::before{
   background:#320A0A;padding:2px 7px;
   border-radius:10px;margin-left:3px;
 }
-.sched-time{font-size:9px;color:#ffffff;width:118px;flex-shrink:0;font-weight:600;white-space:nowrap;}
-.sched-name{font-size:11px;font-weight:700;color:#001A1A;flex:1;}
-.sched-type{font-size:8px;font-weight:800;padding:1px 7px;border-radius:20px;}
+.sched-time{font-size:9px;color:#ffffff;width:90px;flex-shrink:0;font-weight:600;white-space:nowrap;}
+.sched-name{font-size:10px;font-weight:700;color:#001A1A;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sched-type{font-size:8px;font-weight:800;padding:1px 6px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
 .wh-am{background:rgba(0,0,0,0.22);color:#001A1A;}
 .wh-pm{background:rgba(0,0,0,0.22);color:#001A1A;}
 .proc{background:rgba(0,0,0,0.22);color:#001A1A;}
