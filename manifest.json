@@ -3,7 +3,7 @@
   "short_name": "Kids Eat",
   "description": "USANA Foundation Kids Eat volunteer command center",
   "start_url": "/Volunteer-Hub/command_center.html",
-  "scope": "/Volunteer-Hub/command_center.html",
+  "scope": "/Volunteer-Hub/",
   "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#E86000",
