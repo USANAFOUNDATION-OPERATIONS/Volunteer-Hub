@@ -298,10 +298,14 @@ select.form-input{cursor:pointer;}
 
 /* IMPACT COUNTER */
 .impact-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:20px 24px;color:#fff;position:relative;overflow:hidden;margin-bottom:20px;}
-.impact-hero::before{content:'🎒';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:64px;opacity:0.15;}
-.impact-hero-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:0.8;margin-bottom:6px;}
-.impact-hero-number{font-size:48px;font-weight:800;letter-spacing:-0.04em;line-height:1;}
-.impact-hero-sub{font-size:13px;opacity:0.85;margin-top:6px;}
+.impact-hero-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:0.8;margin-bottom:14px;}
+.impact-hero-stats{display:flex;gap:0;align-items:stretch;}
+.impact-stat{flex:1;text-align:center;padding:0 12px;}
+.impact-stat+.impact-stat{border-left:1px solid rgba(255,255,255,0.25);}
+.impact-stat-num{font-size:32px;font-weight:800;letter-spacing:-0.03em;line-height:1;margin-bottom:4px;}
+.impact-stat-label{font-size:11px;opacity:0.8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.impact-hero-sub{font-size:11px;opacity:0.7;margin-top:14px;}
+.impact-hero-sub a{color:rgba(255,255,255,0.85);text-decoration:underline;}
 
 /* SIGN IN CONFIRMATION - CELEBRATORY */
 .signin-confirm-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:16px;padding:28px 24px;text-align:center;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;}
@@ -443,9 +447,22 @@ select.form-input{cursor:pointer;}
 
         <!-- Impact Hero Banner -->
         <div class="impact-hero" id="impactHero">
-          <div class="impact-hero-label">🎒 2025–2026 School Year Impact</div>
-          <div class="impact-hero-number" id="impactBags">—</div>
-          <div class="impact-hero-sub" id="impactSub">backpacks packed · <span id="impactMeals">—</span> meals delivered to children</div>
+          <div class="impact-hero-label">📊 2025–2026 School Year · Volunteer Impact</div>
+          <div class="impact-hero-stats">
+            <div class="impact-stat">
+              <div class="impact-stat-num" id="impactHoursYTD">—</div>
+              <div class="impact-stat-label">Hours Volunteered</div>
+            </div>
+            <div class="impact-stat">
+              <div class="impact-stat-num" id="impactValue">—</div>
+              <div class="impact-stat-label">Estimated Value</div>
+            </div>
+            <div class="impact-stat">
+              <div class="impact-stat-num" id="impactFTE">—</div>
+              <div class="impact-stat-label">FTE Equivalent</div>
+            </div>
+          </div>
+          <div class="impact-hero-sub">Value calculated at $<span id="impactRate">35.47</span>/hr · Source: <a href="https://independentsector.org/research/value-of-volunteer-time/" target="_blank" rel="noopener">Independent Sector 2026</a></div>
         </div>
 
         <!-- Metrics -->
@@ -1460,6 +1477,10 @@ const HDR = {'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorizat
 // School year window — used throughout for impact calculations
 const SCHOOL_YEAR_START = '2025-08-01';
 const SCHOOL_YEAR_END   = '2026-05-31';
+
+// Update each April from: https://independentsector.org/research/value-of-volunteer-time/
+const VOLUNTEER_HOUR_VALUE = 35.47; // 2026 rate
+const FTE_ANNUAL_HOURS     = 2080;  // standard full-time hours/year (40 hrs × 52 wks)
 
 async function sbGet(table, params=''){
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{headers:HDR});
@@ -2529,11 +2550,13 @@ async function submitSignIn(){
     const next = nextMilestone(newLifetime);
     const pct = next ? Math.min(100,(newLifetime/next)*100) : 100;
 
-    // Calculate backpacks estimate
-    const totalBagsEl = document.getElementById('impactBags');
-    const totalBags = totalBagsEl ? parseInt(totalBagsEl.textContent.replace(/,/g,''))||35000 : 35000;
-    const allSI = await sbGet('sign_ins',`signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
-    const totalHrs = allSI.reduce((a,s)=>a+(s.hours_credited||0),0)||1;
+    // Calculate backpacks estimate for sign-in confirmation screen
+    const [bagsResult, allSI] = await Promise.all([
+      sbGet('pack_events', `event_date=gte.${SCHOOL_YEAR_START}&event_date=lte.${SCHOOL_YEAR_END}&cancelled=eq.false&select=bags_packed`),
+      sbGet('sign_ins', `signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`)
+    ]);
+    const totalBags = bagsResult.reduce((a,r) => a + (r.bags_packed||0), 0) || 35000;
+    const totalHrs  = allSI.reduce((a,s) => a + (s.hours_credited||0), 0) || 1;
     const volBags = calcBackpacksFromHours(newLifetime, totalBags, totalHrs);
 
     // Check for anniversary
@@ -2559,6 +2582,9 @@ async function submitSignIn(){
 
     document.getElementById('siStep1').style.display='none';
     document.getElementById('siConfirm').style.display='block';
+
+    // Refresh the impact hero with the new hours total
+    try { loadImpactNumbers(); } catch(e){}
   } catch(e){ showToast('Error: '+e.message); }
 }
 
@@ -2968,15 +2994,16 @@ function printQR(){
 
 async function loadImpactNumbers(){
   try {
-    const result = await sbGet('pack_events',
-      `event_date=gte.${SCHOOL_YEAR_START}&event_date=lte.${SCHOOL_YEAR_END}&cancelled=eq.false&select=bags_packed`
-    );
-    const totalBags = result.reduce((a,r)=>a+(r.bags_packed||0),0);
-    const meals = totalBags * 7;
-    document.getElementById('impactBags').textContent = totalBags.toLocaleString();
-    document.getElementById('impactMeals').textContent = meals.toLocaleString();
-    return totalBags;
-  } catch(e){ return 0; }
+    const allSI = await sbGet('sign_ins', `signed_in_at=gte.${SCHOOL_YEAR_START}&select=hours_credited`);
+    const totalHrs = allSI.reduce((a,s) => a + (s.hours_credited||0), 0);
+    const value    = totalHrs * VOLUNTEER_HOUR_VALUE;
+    const fte      = totalHrs / FTE_ANNUAL_HOURS;
+
+    document.getElementById('impactHoursYTD').textContent = totalHrs.toLocaleString(undefined, {maximumFractionDigits: 1});
+    document.getElementById('impactValue').textContent    = '$' + Math.round(value).toLocaleString();
+    document.getElementById('impactFTE').textContent      = fte.toFixed(2);
+    document.getElementById('impactRate').textContent     = VOLUNTEER_HOUR_VALUE.toFixed(2);
+  } catch(e){ console.error('Impact error:', e); }
 }
 
 function calcBackpacksFromHours(hours, totalBags, totalHours){
