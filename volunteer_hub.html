@@ -1613,17 +1613,19 @@ async function loadDashboard(){
 
   try {
     // Load data
-    const [vols, signIns, packs] = await Promise.all([
+    const [vols, signIns, packs, ytdSignIns] = await Promise.all([
       sbGet('volunteer_hours','select=id,name,status,lifetime_hours&order=lifetime_hours.desc'),
       sbGet('sign_ins','select=*,volunteers(name),volunteer_types(name)&order=signed_in_at.desc&limit=50'),
-      sbGet('pack_events','select=*&order=event_date.asc')
+      sbGet('pack_events','select=*&order=event_date.asc'),
+      sbGet('sign_ins',`signed_in_at=gte.${IMPACT_YEAR_START}&select=volunteer_id`)
     ]);
     _signIns = signIns; _packs = packs;
     // Only update _volunteers from dashboard if not already loaded with full data
     if(!_volunteers.length) _volunteers = vols;
 
     // Metrics
-    document.getElementById('metricActive').textContent = vols.filter(v=>v.status==='Active').length;
+    const uniqueSignedInVols = new Set(ytdSignIns.map(s=>s.volunteer_id)).size;
+    document.getElementById('metricActive').textContent = uniqueSignedInVols;
     const yearPackVols = packs.filter(p=>p.event_date>=IMPACT_YEAR_START&&!p.cancelled).reduce((a,p)=>a+(p.total_volunteers||0),0);
     document.getElementById('metricPackVols').textContent = yearPackVols.toLocaleString();
     const mStart = new Date(now.getFullYear(),now.getMonth(),1);
