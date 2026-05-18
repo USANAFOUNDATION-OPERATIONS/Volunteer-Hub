@@ -459,7 +459,7 @@ select.form-input{cursor:pointer;}
             </div>
             <div class="impact-stat">
               <div class="impact-stat-num" id="impactFTE">—</div>
-              <div class="impact-stat-label">FTE Equivalent</div>
+              <div class="impact-stat-label">FTE (Year to Date)</div>
             </div>
           </div>
           <div class="impact-hero-sub">Value calculated at $<span id="impactRate">35.47</span>/hr · Source: <a href="https://independentsector.org/research/value-of-volunteer-time/" target="_blank" rel="noopener">Independent Sector 2026</a></div>
@@ -3002,7 +3002,12 @@ async function loadImpactNumbers(){
     const allSI = await sbGet('sign_ins', `signed_in_at=gte.${IMPACT_YEAR_START}&select=hours_credited`);
     const totalHrs = allSI.reduce((a,s) => a + (s.hours_credited||0), 0);
     const value    = totalHrs * VOLUNTEER_HOUR_VALUE;
-    const fte      = totalHrs / FTE_ANNUAL_HOURS;
+
+    // FTE = hours logged ÷ full-time hours elapsed so far this year (40 hrs/week)
+    const jan1       = new Date(IMPACT_YEAR, 0, 1);
+    const daysElapsed = (new Date() - jan1) / (1000 * 60 * 60 * 24);
+    const elapsedFTEHours = daysElapsed * (40 / 7);
+    const fte        = totalHrs / elapsedFTEHours;
 
     document.getElementById('impactHoursYTD').textContent = totalHrs.toLocaleString(undefined, {maximumFractionDigits: 1});
     document.getElementById('impactValue').textContent    = '$' + Math.round(value).toLocaleString();
