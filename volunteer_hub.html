@@ -70,6 +70,7 @@ body{font-family:"Inter",system-ui,-apple-system,sans-serif;background:var(--bg)
 .metric-label.blue::before{background:var(--blue);}
 .metric-label.red::before{background:var(--red);}
 .metric-label.purple::before{background:var(--purple);}
+.metric-label.orange::before{background:var(--primary);}
 .metric-value{font-size:28px;font-weight:700;letter-spacing:-0.03em;color:var(--text);}
 .metric-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
 
@@ -467,7 +468,8 @@ select.form-input{cursor:pointer;}
 
         <!-- Metrics -->
         <div class="metrics-grid" id="dashMetrics">
-          <div class="metric"><div class="metric-label">Active Volunteers</div><div class="metric-value" id="metricActive">—</div></div>
+          <div class="metric"><div class="metric-label">Active Scheduled Volunteers</div><div class="metric-value" id="metricActive">—</div></div>
+          <div class="metric"><div class="metric-label orange">Pack Vols This Year</div><div class="metric-value" id="metricPackVols">—</div></div>
           <div class="metric"><div class="metric-label green">Hours This Month</div><div class="metric-value" id="metricHours">—</div></div>
           <div class="metric"><div class="metric-label blue">Packs This Month</div><div class="metric-value" id="metricPacks">—</div></div>
           <div class="metric"><div class="metric-label purple">Sign-Ins Today</div><div class="metric-value" id="metricToday">—</div></div>
@@ -1622,6 +1624,8 @@ async function loadDashboard(){
 
     // Metrics
     document.getElementById('metricActive').textContent = vols.filter(v=>v.status==='Active').length;
+    const yearPackVols = packs.filter(p=>p.event_date>=IMPACT_YEAR_START&&!p.cancelled).reduce((a,p)=>a+(p.total_volunteers||0),0);
+    document.getElementById('metricPackVols').textContent = yearPackVols.toLocaleString();
     const mStart = new Date(now.getFullYear(),now.getMonth(),1);
     const monthSI = signIns.filter(s=>new Date(s.signed_in_at)>=mStart);
     const monthHrs = monthSI.reduce((a,s)=>a+(s.hours_credited||0),0);
