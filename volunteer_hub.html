@@ -446,8 +446,8 @@ select.form-input{cursor:pointer;}
           </button>
         </div>
 
-        <!-- Impact Hero Banner -->
-        <div class="impact-hero" id="impactHero">
+        <!-- Impact Hero Banner — Scheduled Volunteers -->
+        <div class="impact-hero" id="impactHero" style="margin-bottom:8px;">
           <div class="impact-hero-label">📊 <span id="impactYearLabel"></span> · Scheduled Volunteer Impact</div>
           <div class="impact-hero-stats">
             <div class="impact-stat">
@@ -464,6 +464,26 @@ select.form-input{cursor:pointer;}
             </div>
           </div>
           <div class="impact-hero-sub">Value calculated at $<span id="impactRate">35.47</span>/hr · Source: <a href="https://independentsector.org/research/value-of-volunteer-time/" target="_blank" rel="noopener">Independent Sector 2026</a></div>
+        </div>
+
+        <!-- Impact Hero Banner — Combined Total -->
+        <div class="impact-hero" id="impactHeroTotal" style="margin-bottom:20px;">
+          <div class="impact-hero-label">🧮 <span id="impactYearLabelTotal"></span> · Total Volunteer Impact <span style="font-weight:400;opacity:0.75;">(scheduled + pack line)</span></div>
+          <div class="impact-hero-stats">
+            <div class="impact-stat">
+              <div class="impact-stat-num" id="impactTotalHours">—</div>
+              <div class="impact-stat-label">Total Hours</div>
+            </div>
+            <div class="impact-stat">
+              <div class="impact-stat-num" id="impactTotalValue">—</div>
+              <div class="impact-stat-label">Estimated Value</div>
+            </div>
+            <div class="impact-stat">
+              <div class="impact-stat-num" id="impactTotalFTE">—</div>
+              <div class="impact-stat-label">FTE (Year to Date)</div>
+            </div>
+          </div>
+          <div class="impact-hero-sub">Pack line volunteers counted at 1 hr each · same $<span id="impactRateTotal">35.47</span>/hr rate</div>
         </div>
 
         <!-- Metrics -->
@@ -3004,21 +3024,37 @@ function printQR(){
 
 async function loadImpactNumbers(){
   try {
-    document.getElementById('impactYearLabel').textContent = IMPACT_YEAR;
-    const allSI = await sbGet('sign_ins', `signed_in_at=gte.${IMPACT_YEAR_START}&select=hours_credited`);
-    const totalHrs = allSI.reduce((a,s) => a + (s.hours_credited||0), 0);
-    const value    = totalHrs * VOLUNTEER_HOUR_VALUE;
+    document.getElementById('impactYearLabel').textContent      = IMPACT_YEAR;
+    document.getElementById('impactYearLabelTotal').textContent = IMPACT_YEAR;
 
-    // FTE = hours logged ÷ full-time hours elapsed so far this year (40 hrs/week)
-    const jan1       = new Date(IMPACT_YEAR, 0, 1);
-    const daysElapsed = (new Date() - jan1) / (1000 * 60 * 60 * 24);
+    const [allSI, packEvents] = await Promise.all([
+      sbGet('sign_ins', `signed_in_at=gte.${IMPACT_YEAR_START}&select=hours_credited`),
+      sbGet('pack_events', `event_date=gte.${IMPACT_YEAR_START}&cancelled=eq.false&select=total_volunteers`)
+    ]);
+
+    const scheduledHrs = allSI.reduce((a,s) => a + (s.hours_credited||0), 0);
+    const packVolHrs   = packEvents.reduce((a,p) => a + (p.total_volunteers||0), 0); // 1 hr each
+    const totalHrs     = scheduledHrs + packVolHrs;
+
+    const value      = scheduledHrs * VOLUNTEER_HOUR_VALUE;
+    const totalValue = totalHrs     * VOLUNTEER_HOUR_VALUE;
+
+    // FTE = hours ÷ full-time hours elapsed so far this year (40 hrs/week)
+    const jan1            = new Date(IMPACT_YEAR, 0, 1);
+    const daysElapsed     = (new Date() - jan1) / (1000 * 60 * 60 * 24);
     const elapsedFTEHours = daysElapsed * (40 / 7);
-    const fte        = totalHrs / elapsedFTEHours;
+    const fte             = scheduledHrs / elapsedFTEHours;
+    const totalFTE        = totalHrs     / elapsedFTEHours;
 
-    document.getElementById('impactHoursYTD').textContent = totalHrs.toLocaleString(undefined, {maximumFractionDigits: 1});
-    document.getElementById('impactValue').textContent    = '$' + Math.round(value).toLocaleString();
-    document.getElementById('impactFTE').textContent      = fte.toFixed(2);
-    document.getElementById('impactRate').textContent     = VOLUNTEER_HOUR_VALUE.toFixed(2);
+    document.getElementById('impactHoursYTD').textContent  = scheduledHrs.toLocaleString(undefined, {maximumFractionDigits: 1});
+    document.getElementById('impactValue').textContent     = '$' + Math.round(value).toLocaleString();
+    document.getElementById('impactFTE').textContent       = fte.toFixed(2);
+    document.getElementById('impactRate').textContent      = VOLUNTEER_HOUR_VALUE.toFixed(2);
+
+    document.getElementById('impactTotalHours').textContent = totalHrs.toLocaleString(undefined, {maximumFractionDigits: 1});
+    document.getElementById('impactTotalValue').textContent = '$' + Math.round(totalValue).toLocaleString();
+    document.getElementById('impactTotalFTE').textContent   = totalFTE.toFixed(2);
+    document.getElementById('impactRateTotal').textContent  = VOLUNTEER_HOUR_VALUE.toFixed(2);
   } catch(e){ console.error('Impact error:', e); }
 }
 
